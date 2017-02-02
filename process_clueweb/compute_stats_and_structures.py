@@ -14,9 +14,11 @@ import operator
 
 
 data_path = '/Users/corbinrosset/Dropbox/Arora/QA-data/VanDurme_FB_annotations/annotated_clueweb/ClueWeb09_English_1/processed/'
-execute_path = '/Users/corbinrosset/Dropbox/Arora/QA-code/process_clueweb/'
+execute_path = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/'
 manifest_file = 'manifest.txt'
-WRITE_OUTPUT_TO_FILE = False ### overwrite .processed files which contain raw text with massaged and filtered text. Make this false if the .final files already exist
+
+### CAREFUL!!!!! read this:
+WRITE_OUTPUT_TO_FILE = False ### overwrite .processed files which contain raw text with massaged and filtered text. Make this false if the .final files already exist or you don't wish to further process textual instances
 USE_FINAL = True ### use .final files, for which text has been processed. If this is True, then you probably don't need to do all the tasks in process()
 
 
@@ -185,22 +187,22 @@ def process(formatted_data_chunk, name):
 		# 	if rltn not in rltn_output_freq:
 		# 		rltn_output_freq[rltn] = {}
 
-		# ### count entities
+		### count entities
 		# insert_or_increment(enty_raw_freq, left[0])
-		# ### insert_or_increment(enty_id_freq, left[1]) ### dont trust MIDs
+		# insert_or_increment(enty_id_freq, left[1])
 		# insert_or_increment(enty_raw_freq, right[0])
-		# ### insert_or_increment(enty_id_freq, right[1]) ### dont trust MIDs
+		# insert_or_increment(enty_id_freq, right[1])
 
-		processed_text = text.strip().split()
-		if not USE_FINAL:
-			processed_text = process_text(text)
+		# processed_text = text.strip().split()
+		# if not USE_FINAL:
+		# 	processed_text = process_text(text)
 
 		### count triples only if they have valid text
-		if len(processed_text) > 0:
-			if reversd == 1:
-				insert_or_increment(triples_count, (right, tuple(relationships), left))
-			else:
-				insert_or_increment(triples_count, (left, tuple(relationships), right))
+		# if len(processed_text) > 0:
+		# 	if reversd == 1:
+		# 		insert_or_increment(triples_count, (right, tuple(relationships), left))
+		# 	else:
+		# 		insert_or_increment(triples_count, (left, tuple(relationships), right))
 		
 		# ### count vocabulary words
 		# for word in processed_text:
@@ -286,11 +288,11 @@ for chunk in manifest_list:
 ### summarize all results
 print 'done computing statistics...outputting files...'
 
-report = open(data_path + 'triple_count.txt', 'w')
-report.write('number of unique triples: ' + str(len(triples_count)) + '\n')
-report.write('\n======================================================\n')
-report.write(str(pprint.pformat(sorted(triples_count.items(), key=operator.itemgetter(1), reverse=True))))
-report.close()
+# report = open(data_path + 'triple_count.txt', 'w')
+# report.write('number of unique triples: ' + str(len(triples_count)) + '\n')
+# report.write('\n======================================================\n')
+# report.write(str(pprint.pformat(sorted(triples_count.items(), key=operator.itemgetter(1), reverse=True))))
+# report.close()
 
 # report = open(data_path + 'relation_freq.txt', 'w')
 # report.write('number of unique relationships: ' + str(len(rltn_freq)) + '\n')
@@ -298,11 +300,11 @@ report.close()
 # report.write(str(pprint.pformat(sorted(rltn_freq.items(), key=operator.itemgetter(1), reverse=True))))
 # report.close()
 
-# report = open(data_path + 'entity_id_freq.txt', 'w')
-# report.write('number of unique entity IDs (MIDs): ' + str(len(enty_id_freq)) + '\n')
-# report.write('\n======================================================\n')
-# report.write(str(pprint.pformat(sorted(enty_id_freq.items(), key=operator.itemgetter(1), reverse=True))))
-# report.close()
+report = open(data_path + 'entity_id_freq.txt', 'w')
+report.write('number of unique entity IDs (MIDs): ' + str(len(enty_id_freq)) + '\n')
+report.write('\n======================================================\n')
+report.write(str(pprint.pformat(sorted(enty_id_freq.items(), key=operator.itemgetter(1), reverse=True))))
+report.close()
 
 # report = open(data_path + 'entity_plaintext_freq.txt', 'w')
 # report.write('number of unique entity strings: ' + str(len(enty_raw_freq)) + '\n')
@@ -377,9 +379,9 @@ print 'rltn_input_freq: ' + str(sys.getsizeof(rltn_input_freq))
 print 'rltn_output_freq: ' + str(sys.getsizeof(rltn_output_freq))
 
 ### write data structures to persisted files
-pickle.dump(triples_count, open(data_path + 'triple_count.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
+# pickle.dump(triples_count, open(data_path + 'triple_count.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
 # pickle.dump(rltn_freq, open(data_path + 'rltn_freq.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
-# pickle.dump(enty_id_freq, open(data_path + 'enty_id_freq.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
+pickle.dump(enty_id_freq, open(data_path + 'enty_id_freq.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
 # pickle.dump(enty_raw_freq, open(data_path + 'enty_raw_freq.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
 # pickle.dump(enty_id_string_map, open(data_path + 'enty_id_string_map.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
 # pickle.dump(vocab_count, open(data_path + 'vocab_count.pkl', 'w'), pickle.HIGHEST_PROTOCOL)
