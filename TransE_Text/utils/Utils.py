@@ -74,6 +74,17 @@ def convert2idx(spmat):
 
 
 def load_FB15k_data(state):
+    '''
+    From the paper: https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:cr_paper_nips13.pdf
+
+
+    There are 592,213 triplets with 14,951 entities and 1,345 relationships 
+    which were randomly split into  483,142 train, 50,000 valid, and
+    59,071 test triples. 
+
+    all of trainx, validx, testx are sparse matrices of 16296 = (14951+1345) by the split size (483,142, etc)
+    '''
+
     # Positives
     trainl = load_file(state.datapath + state.dataset + '-train-lhs.pkl')
     trainr = load_file(state.datapath + state.dataset + '-train-rhs.pkl')

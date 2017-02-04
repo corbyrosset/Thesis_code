@@ -7,9 +7,8 @@ sys.path.append("../evaluation")
 from evaluate_Clueweb import FilteredRankingScoreIdx
 from Utils import * 
 
-
 # Experiment function --------------------------------------------------------
-def Clueweb_exp(state, channel):
+def FB15kexp(state, channel):
 
     # Show experiment parameters
     print >> sys.stderr, state
@@ -44,14 +43,14 @@ def Clueweb_exp(state, channel):
     timeref = time.time()
     for epoch_count in xrange(1, state.totepochs + 1):
         # Shuffling
-        order = np.random.permutation(model.trainl.shape[1])
+        order = np.random.permutation(trainl.shape[1])
         trainl = trainl[:, order]
         trainr = trainr[:, order]
         traino = traino[:, order]
         
         # Negatives
-        trainln = create_random_mat(model.trainl.shape, np.arange(state.Nsyn))
-        trainrn = create_random_mat(model.trainr.shape, np.arange(state.Nsyn))
+        trainln = create_random_mat(trainl.shape, np.arange(state.Nsyn))
+        trainrn = create_random_mat(trainr.shape, np.arange(state.Nsyn))
 
         for i in range(state.nbatches):
             tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
@@ -67,7 +66,12 @@ def Clueweb_exp(state, channel):
             outb += [outtmp[1]]
 
             # embeddings normalization
-            model.embeddings.normalize()
+            ### TODO: why only normalize embeddings[0]?? only normalize entity 
+            ### embs, not the relationships ones...
+            if type(model.embeddings) is list:
+                model.embeddings[0].normalize()
+            else:
+                model.embeddings.normalize()
 
         if (epoch_count % state.test_all) == 0:
             # model evaluation
@@ -98,19 +102,19 @@ def Clueweb_exp(state, channel):
                 state.bestepoch = epoch_count
                 # Save model best valid model
                 f = open(state.savepath + '/best_valid_model.pkl', 'w')
-                cPickle.dump(embeddings, f, -1)
-                cPickle.dump(leftop, f, -1)
-                cPickle.dump(rightop, f, -1)
-                cPickle.dump(simfn, f, -1)
+                cPickle.dump(model.embeddings, f, -1)
+                cPickle.dump(model.leftop, f, -1)
+                cPickle.dump(model.rightop, f, -1)
+                cPickle.dump(model.simfn, f, -1)
                 f.close()
                 print >> sys.stderr, "\t\t##### NEW BEST VALID >> test: %s" % (
                         state.besttest)
             # Save current model
             f = open(state.savepath + '/current_model.pkl', 'w')
-            cPickle.dump(embeddings, f, -1)
-            cPickle.dump(leftop, f, -1)
-            cPickle.dump(rightop, f, -1)
-            cPickle.dump(simfn, f, -1)
+            cPickle.dump(model.embeddings, f, -1)
+            cPickle.dump(model.leftop, f, -1)
+            cPickle.dump(model.rightop, f, -1)
+            cPickle.dump(model.simfn, f, -1)
             f.close()
             state.nbepochs = epoch_count
             print >> sys.stderr, "\t(the evaluation took %s seconds)" % (
@@ -132,18 +136,18 @@ def launch(datapath='data/', dataset='FB15k', Nent=16296, rhoE=1, \
     state = DD()
     state.datapath = datapath
     state.dataset = dataset
-    state.Nent = Nent
-    state.Nsyn = Nsyn
-    state.Nrel = Nrel
+    state.Nent = Nent # for some reason, the sum of Nsyn and Nrel? why tho
+    state.Nsyn = Nsyn # number of entities
+    state.Nrel = Nrel # number of relations
     state.loadmodel = loadmodel
     state.loadmodelBi = loadmodelBi
     state.loadmodelTri = loadmodelTri
     state.loademb = loademb ### load previously trained embeddings?
     state.op = op
     state.simfn = simfn
-    state.ndim = ndim
+    state.ndim = ndim ### dim of embeddings?
     state.nhid = nhid
-    state.marge = marge
+    state.marge = marge # margin
     state.rhoE = rhoE
     state.rhoL = rhoL
     state.lremb = lremb

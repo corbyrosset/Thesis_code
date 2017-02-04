@@ -7,8 +7,10 @@ from Clueweb_exp import *
 # totepochs = 500 default
 # try L1 similarity
 
-launch(op='TransE_text', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
-    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE_Text', datapath='../cluweb_data/', dataset='FB15k_Clueweb')
+launch(op='Clueweb_exp', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, \
+	lrparam=0.01, nbatches=100, totepochs=500, test_all=10, neval=1000, \
+	savepath='FB15k_TransE_Text', datapath='../cluweb_data/', dataset= \
+	'FB15k_Clueweb')
 
 
 ### notes:

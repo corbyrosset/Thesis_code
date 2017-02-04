@@ -226,6 +226,7 @@ def process(formatted_data_chunk, name):
 			new_output.write(str(line) + '\n')
 	if WRITE_OUTPUT_TO_FILE:
 		new_output.close()
+	formatted_data_chunk.close()
 
 
 ###############################################################################
