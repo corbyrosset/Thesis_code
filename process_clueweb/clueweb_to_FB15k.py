@@ -70,51 +70,123 @@ def process(formatted_data_chunk, chunk):
     return lhs.tocsr(), rhs.tocsr(), rel.tocsr(), sentences, successes
 
 
-### main
+###############################################################################
+#                     Create/filter the data - only run once!
+###############################################################################
 
-### open manifest of formatted data
-USE_FINAL = True
-try:
-    m = open(data_path + manifest_file, 'r')
-    manifest_list = m.readlines()
-    print 'loaded manifest of which data files need to be processed...'
-except:
-    print 'no manifest file, aborting'
-    exit()
+# ### open manifest of formatted data
+# USE_FINAL = True
+# try:
+#     m = open(data_path + manifest_file, 'r')
+#     manifest_list = m.readlines()
+#     print 'loaded manifest of which data files need to be processed...'
+# except:
+#     print 'no manifest file, aborting'
+#     exit()
 
 ### filter Clueweb to include only FB15k-valid triples chunk by chunk
-total_successes, total_instances = 0, 0
-for chunk in manifest_list:
-    chunk = chunk.strip()
-    if USE_FINAL: 
-        chunk = chunk.replace('processed', 'final') ### use only final files
-    try:
-        formatted_data_chunk = open(data_path + chunk, 'r')
-        print 'processing ' + str(chunk)
-    except:
-        print 'no \".processed\" file exists, run parse_text_anchors_vandurme.py on a corpus'
-        continue
-    lhs, rhs, rel, sentences, successes = process(formatted_data_chunk, chunk)
-    LHS = sp.hstack((LHS, lhs))
-    RHS = sp.hstack((RHS, rhs))
-    REL = sp.hstack((REL, rel))
-    SENT += sentences 
-    total_successes += successes
+# total_successes, total_instances = 0, 0
+# for chunk in manifest_list:
+#     chunk = chunk.strip()
+#     if USE_FINAL: 
+#         chunk = chunk.replace('processed', 'final') ### use only final files
+#     try:
+#         formatted_data_chunk = open(data_path + chunk, 'r')
+#         print 'processing ' + str(chunk)
+#     except:
+#         print 'no \".processed\" file exists, run parse_text_anchors_vandurme.py on a corpus'
+#         continue
+#     lhs, rhs, rel, sentences, successes = process(formatted_data_chunk, chunk)
+#     LHS = sp.hstack((LHS, lhs))
+#     RHS = sp.hstack((RHS, rhs))
+#     REL = sp.hstack((REL, rel))
+#     SENT += sentences 
+#     total_successes += successes
 
-print 'LHS: ' + str(np.shape(LHS))
-print 'RHS: ' + str(np.shape(LHS))
-print 'REL: ' + str(np.shape(LHS))
+
+# print 'done...'
+# print 'LHS: ' + str(np.shape(LHS))
+# print 'RHS: ' + str(np.shape(LHS))
+# print 'REL: ' + str(np.shape(LHS))
+# print 'total successes: ' + str(total_successes)
+# datatyp = 'all'
+# f = open(data_path + output_prefix + '%s-lhs.pkl' % datatyp, 'w')
+# g = open(data_path + output_prefix + '%s-rhs.pkl' % datatyp, 'w')
+# h = open(data_path + output_prefix + '%s-rel.pkl' % datatyp, 'w')
+# s = open(data_path + output_prefix + '%s-sent.pkl' % datatyp, 'w')
+# pickle.dump(LHS, f, -1)
+# pickle.dump(RHS, g, -1)
+# pickle.dump(REL, h, -1)
+# pickle.dump(SENT, s, -1)
+# f.close()
+# g.close()
+# h.close()
+# s.close()
+
+###############################################################################
+#                               Split the data
+###############################################################################
+### uncomment below to split the data (re -load it)
+train = 52438698
+valid = 68048372
 
 datatyp = 'all'
-f = open(data_path + output_prefix + '%s-lhs.pkl' % datatyp, 'w')
-g = open(data_path + output_prefix + '%s-rhs.pkl' % datatyp, 'w')
-h = open(data_path + output_prefix + '%s-rel.pkl' % datatyp, 'w')
-s = open(data_path + output_prefix + '%s-sent.pkl' % datatyp, 'w')
-pickle.dump(LHS, f, -1)
-pickle.dump(RHS, g, -1)
-pickle.dump(REL, h, -1)
-pickle.dump(SENT, s, -1)
+f = open(data_path + output_prefix + '%s-lhs.pkl' % datatyp, 'r')
+g = open(data_path + output_prefix + '%s-rhs.pkl' % datatyp, 'r')
+h = open(data_path + output_prefix + '%s-rel.pkl' % datatyp, 'r')
+s = open(data_path + output_prefix + '%s-sent.pkl' % datatyp, 'r')
+LHS = pickle.load(f)
+RHS = pickle.load(g)
+REL = pickle.load(h)
+print 'loaded rhs, lhs, rel'
+# SENT = pickle.load(s)
+LHS, RHS, REL = LHS.tocsc(), RHS.tocsc(), REL.tocsc()
+assert np.shape(LHS)[1] == np.shape(RHS)[1] == np.shape(REL)[1] == 78048372
+# print np.shape(SENT)
+
+order = np.random.permutation(LHS.shape[1])
+LHS = LHS[:, order]
+RHS = RHS[:, order]
+REL = REL[:, order]
+
+print 'done'
+exit()
+
+SENT = SENT[order]
+
+### save split data
+datatyp = 'train'
+train_lhs = LHS[:, 0:train]
+train_rhs = RHS[:, 0:train]
+train_rel = REL[:, 0:train]
+train_sent = SENT[0:train]
+pickle.dump(train_lhs, open(data_path + output_prefix + '%s-lhs.pkl' % datatyp, 'w'), -1)
+pickle.dump(train_rhs, open(data_path + output_prefix + '%s-rhs.pkl' % datatyp, 'w'), -1)
+pickle.dump(train_rel, open(data_path + output_prefix + '%s-rel.pkl' % datatyp, 'w'), -1)
+pickle.dump(train_sent, open(data_path + output_prefix + '%s-sent.pkl' % datatyp, 'w'), -1)
+
+datatyp = 'valid'
+valid_lhs = LHS[:, train:valid]
+valid_rhs = RHS[:, train:valid]
+valid_rel = REL[:, train:valid]
+valid_sent = SENT[train:valid]
+pickle.dump(valid_lhs, open(data_path + output_prefix + '%s-lhs.pkl' % datatyp, 'w'), -1)
+pickle.dump(valid_rhs, open(data_path + output_prefix + '%s-rhs.pkl' % datatyp, 'w'), -1)
+pickle.dump(valid_rel, open(data_path + output_prefix + '%s-rel.pkl' % datatyp, 'w'), -1)
+pickle.dump(valid_sent, open(data_path + output_prefix + '%s-sent.pkl' % datatyp, 'w'), -1)
+
+datatyp = 'test '
+test_lhs = LHS[:, valid:]
+test_rhs = RHS[:, valid:]
+test_rel = REL[:, valid:]
+test_sent = SENT[valid:]
+pickle.dump(test_lhs, open(data_path + output_prefix + '%s-lhs.pkl' % datatyp, 'w'), -1)
+pickle.dump(test_rhs, open(data_path + output_prefix + '%s-rhs.pkl' % datatyp, 'w'), -1)
+pickle.dump(test_rel, open(data_path + output_prefix + '%s-rel.pkl' % datatyp, 'w'), -1)
+pickle.dump(test_sent, open(data_path + output_prefix + '%s-sent.pkl' % datatyp, 'w'), -1)
+
 f.close()
 g.close()
 h.close()
 s.close()
+

@@ -142,3 +142,76 @@ def load_FB15k_data(state):
     true_triples=np.concatenate([idxtl,idxvl,idxl,idxto,idxvo,idxo,idxtr,idxvr,idxr]).reshape(3,idxtl.shape[0]+idxvl.shape[0]+idxl.shape[0]).T
 
     return trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, validridx, validoidx, testlidx, testridx, testoidx, true_triples
+
+def load_clueweb_data(state):
+    '''
+    From the paper: https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:cr_paper_nips13.pdf
+
+
+    There are 78,048,372 triplets with textual instances, with the same 
+    entities and relations as FB15k, so that's  14,951 entities and 1,345 
+    relationships. 
+     
+    which were randomly split into  483,142 train, 50,000 valid, and
+    59,071 test triples. 
+
+    all of trainx, validx, testx are sparse matrices of 16296 = (14951+1345) by the split size (483,142, etc)
+    '''
+
+    # Positives
+    trainl = load_file(state.datapath + state.dataset + '-train-lhs.pkl')
+    trainr = load_file(state.datapath + state.dataset + '-train-rhs.pkl')
+    traino = load_file(state.datapath + state.dataset + '-train-rel.pkl')
+    if state.op == 'SE' or state.op == 'TransE':
+        traino = traino[-state.Nrel:, :] ### take bottom Nrel relations?
+    # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
+    #     trainl = trainl[:state.Nsyn, :]
+    #     trainr = trainr[:state.Nsyn, :]
+    #     traino = traino[-state.Nrel:, :]
+
+    # Valid set
+    validl = load_file(state.datapath + state.dataset + '-valid-lhs.pkl')
+    validr = load_file(state.datapath + state.dataset + '-valid-rhs.pkl')
+    valido = load_file(state.datapath + state.dataset + '-valid-rel.pkl')
+    if state.op == 'SE' or state.op == 'TransE':
+        valido = valido[-state.Nrel:, :]
+    # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
+    #     validl = validl[:state.Nsyn, :]
+    #     validr = validr[:state.Nsyn, :]
+    #     valido = valido[-state.Nrel:, :]
+
+
+    # Test set
+    testl = load_file(state.datapath + state.dataset + '-test-lhs.pkl')
+    testr = load_file(state.datapath + state.dataset + '-test-rhs.pkl')
+    testo = load_file(state.datapath + state.dataset + '-test-rel.pkl')
+    if state.op == 'SE' or state.op == 'TransE':
+        testo = testo[-state.Nrel:, :]
+    # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
+    #     testl = testl[:state.Nsyn, :]
+    #     testr = testr[:state.Nsyn, :]
+    #     testo = testo[-state.Nrel:, :]
+
+    # Index conversion
+    trainlidx = convert2idx(trainl)[:state.neval]
+    trainridx = convert2idx(trainr)[:state.neval]
+    trainoidx = convert2idx(traino)[:state.neval]
+    validlidx = convert2idx(validl)[:state.neval]
+    validridx = convert2idx(validr)[:state.neval]
+    validoidx = convert2idx(valido)[:state.neval]
+    testlidx = convert2idx(testl)[:state.neval]
+    testridx = convert2idx(testr)[:state.neval]
+    testoidx = convert2idx(testo)[:state.neval]
+    
+    idxl = convert2idx(trainl)
+    idxr = convert2idx(trainr)
+    idxo = convert2idx(traino)
+    idxtl = convert2idx(testl)
+    idxtr = convert2idx(testr)
+    idxto = convert2idx(testo)
+    idxvl = convert2idx(validl)
+    idxvr = convert2idx(validr)
+    idxvo = convert2idx(valido)
+    true_triples=np.concatenate([idxtl,idxvl,idxl,idxto,idxvo,idxo,idxtr,idxvr,idxr]).reshape(3,idxtl.shape[0]+idxvl.shape[0]+idxl.shape[0]).T
+
+    return trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, validridx, validoidx, testlidx, testridx, testoidx, true_triples

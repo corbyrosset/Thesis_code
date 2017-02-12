@@ -99,9 +99,9 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo):
 #         errr += [np.argsort(np.argsort(-scores_r)).flatten()[r] + 1]
 #     return errl, errr
 
-def RankingEval(datapath='../data/', dataset='FB15k-test',
-        loadmodel='best_valid_model.pkl', neval='all', Nsyn=14951, n=10,
-        idx2synsetfile='FB15k_idx2entity.pkl'):
+def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/',
+    dataset='FB15k-test', loadmodel='best_valid_model.pkl', neval='all', 
+    Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl'):
 
     '''
         to be called after training is complete and the best model is saved
