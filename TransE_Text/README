@@ -1,5 +1,63 @@
 Code for Corby's thesis on jointly embedding knowledge graphs and textual instances of their triples
 
+TODO: fix sparse matrices in Clueweb_to_FB15k.py to properly store text as file
+TODO: implement MRR and Hits@10 in main training loops (from evaluate_KBC.py)
+TODO: in all models/*_models.py, output results for relationship ranking, 
+	e.g. ### TODO: self.rankrelfunc = RankRelFnIdx
+	e.g. RankingScoreIdx in evaluate_KBC.py
+TODO: FIX FilteredRankingScoreIdx in evaluate_KBC.py!
+TODO: implement 
+
+1. Filtering Clueweb Annotations down to FB15k
+-----------------------------------------------------------------
+
+Please run explore_comparisons.ipynb under '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/' to generate this output
+
+Comparing Relationships between FB15k and Clueweb Triples...
+	Total number of relationships (triples have many instances, and a given textual instance may express up to 2 relationships): 195792926
+	FB15k relationship cardinality: 1389 ### 1345? some relationships have a ‘.’
+	Clueweb relationship cardinality: 6549
+	common relationships between FB15k and Clueweb: 1328
+	Number of textual instances expressing a common relationship: 177567142
+Comparing Entities between FB15k and Clueweb...
+	Total number of entities mentioned (each triple has two entities): 267068018
+	Total number of textual instances (half of the above): 133534009
+	Cardinality of Clueweb entities: 895829
+	Cardinality of FB15k entities: 14951
+	common entities between FB15k and Clueweb: 14003
+	Number of textual instances expressing at least one common entity: 210231218
+
+Clueweb to FB15k script:
+Please run '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/Clueweb_to_FB15k.py’ to generate these outputs.
+
+It produced 47,291,696 textual instances that represent valid FB15k triples AND that don’t have null text after pre-processing
+
+Number of unique strings: 6,194,853
+total successes: 47,291,696
+LHS: (16296, 47291696) <class 'scipy.sparse.csc.csc_matrix'>
+RHS: (16296, 47291696)
+REL: (16296, 47291696)
+SENT: (47291696,)
+
+That is, only about 35% (47M) of the 133M textual triples remain after projecting down to the entity/relation space of FB15k and text processing. And those 47M are comprised of only 6M unique textual instances. The text processing is done in compute_stats_and_structures.py to transform raw clue web files into “*_final” files, and the script to project onto FB15k space (and remove nulls) is clueweb_to_FB15k.py
+
+If you were to use the raw, unprocessed clue web text “*_processed” files, this script would generate 77,439,346 instances with 7,738,607 unique strings. 
+
+Number of unique strings: 7,738,607
+total successes: 77,439,346
+LHS: (16296, 77439346) <class 'scipy.sparse.csc.csc_matrix'>
+RHS: (16296, 77439346)
+REL: (16296, 77439346)
+SENT: (77439346,)
+done writing triple components to their respective files
+
+
+
+
+
+
+
+
 
 ===
 Although not used, the architecture of SME has been designed by **Xavier Glorot** (https://github.com/glorotxa), with some contributions from **Antoine Bordes** (https://www.hds.utc.fr/~bordesan).

@@ -11,7 +11,15 @@ from Utils import *
 
 # Experiment function --------------------------------------------------------
 def FB15kexp(state, channel):
+    '''
+        Main training loop
 
+        out = list of costs per minibatch for this epoch
+        outb = list of percentages of ??? that were updated per minibatch in this epoch??
+        restrain & state.train = ranks of all epoch train triples, and the mean thereof
+        resvalid & state.valid = ranks of all epoch dev triples, and the mean thereof
+
+    '''
     # Show experiment parameters
     print >> sys.stderr, state
     np.random.seed(state.seed)
@@ -77,11 +85,12 @@ def FB15kexp(state, channel):
 
         if (epoch_count % state.test_all) == 0:
             # model evaluation
-            print >> sys.stderr, "-- EPOCH %s (%s seconds per epoch):" % (
+            print >> sys.stderr, "--------------------------------------------"
+            print >> sys.stderr, "EPOCH %s (%s seconds per epoch):" % (
                     epoch_count, round(time.time() - timeref, 3) / \
                     float(state.test_all))
             timeref = time.time()
-            print >> sys.stderr, "COST >> %s +/- %s, %% updates: %s%%" % (
+            print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates: %s%%" % (
                     round(np.mean(out), 4), round(np.std(out), 4),
                     round(np.mean(outb) * 100, 3))
             out = []
@@ -92,6 +101,9 @@ def FB15kexp(state, channel):
             state.valid = np.mean(resvalid[0] + resvalid[1])
             restrain = FilteredRankingScoreIdx(model.ranklfunc, model.rankrfunc , trainlidx, trainridx, trainoidx, true_triples)
             state.train = np.mean(restrain[0] + restrain[1])
+
+            ### TODO: calculate MRR and Hits at 10! it's in the evaluate_KBC python file I think...
+
             print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
                     state.valid, state.train)
 
@@ -109,7 +121,7 @@ def FB15kexp(state, channel):
                 cPickle.dump(model.rightop, f, -1)
                 cPickle.dump(model.simfn, f, -1)
                 f.close()
-                print >> sys.stderr, "\t\t##### NEW BEST VALID >> test: %s" % (
+                print >> sys.stderr, "\t\tNEW BEST VALID >> test: %s" % (
                         state.besttest)
             # Save current model
             f = open(state.savepath + '/current_model.pkl', 'w')
@@ -131,15 +143,18 @@ def launch(datapath='data/', dataset='FB15k', Nent=16296, rhoE=1, \
     Nsyn=14951, Nrel=1345, loadmodel=False, loademb=False, \
     op='Unstructured', simfn='Dot', ndim=50, nhid=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
-    neval=50, seed=123, savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/', loadmodelBi=False, \
+    neval=50, seed=123, savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/', loadmodelBi=False, \
     loadmodelTri=False):
 
     # Argument of the experiment script
     state = DD()
     state.datapath = datapath
     state.dataset = dataset
-    state.Nent = Nent # for some reason, the sum of Nsyn and Nrel? why tho
-    state.Nsyn = Nsyn # number of entities
+    state.Nent = Nent # Total number of entities
+    state.Nsyn = Nsyn # number of entities against which to measure the 
+                      # similarity score for the entities corresponding to the 
+                      # first Nsyn (int) entities of the embedding matrix 
+                      # (default=None: all entities)
     state.Nrel = Nrel # number of relations
     state.loadmodel = loadmodel
     state.loadmodelBi = loadmodelBi

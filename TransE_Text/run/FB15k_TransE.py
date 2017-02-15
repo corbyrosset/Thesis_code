@@ -20,22 +20,22 @@ lrparam = 0.01
 nbatches = 100
 totepochs = 500
 test_all = 10
-neval = 1000
+neval = 14951
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/'
 
 identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) + '_nhid_' + str(nhid) + '_marg_' + str(marge)
-print 'identifier: ' + str(identifier)
-print 'models saved to path: ' + str(savepath)
-launch(op='TransE', simfn= simfn, ndim= ndim, nhid= nhid, marge= marge, \
-	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
-	test_all= test_all, neval= neval, \
-	savepath= savepath + str(identifier), \
-	datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/',
-	dataset='FB15k')
+# print 'identifier: ' + str(identifier)
+# print 'models saved to path: ' + str(savepath)
+# launch(op='TransE', simfn= simfn, ndim= ndim, nhid= nhid, marge= marge, \
+# 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
+# 	test_all= test_all, neval= neval, \
+# 	savepath= savepath + str(identifier), \
+# 	datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/',
+# 	dataset='FB15k')
 
 ### evaluate on test data:
-RankingEval(loadmodel='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/' + str(identifier) + 'best_valid_model.pkl')
-
+# RankingEval(loadmodel= savepath + str(identifier) + '/best_valid_model.pkl')
+RankingEvalFil(loadmodel= savepath + str(identifier) + '/best_valid_model.pkl')
 
 ### notes:
 '''

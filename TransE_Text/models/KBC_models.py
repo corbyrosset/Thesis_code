@@ -158,7 +158,7 @@ def RankRelFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None):
     embedding, relationl, relationr = parse_embeddings(embeddings)
     """
     This function returns a Theano function to measure the similarity score of
-    all relation entities given couples of 'left' and 'right' entities (as
+    all relation types given couples of 'left' and 'right' entities (as
     index values).
 
     :param fnsim: similarity function (on Theano variables).
@@ -374,5 +374,7 @@ class TransE_model():
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
         self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
-        ### TODO: self.rankrelfunc = RankRelFnIdx
+        ### TODO: 
+        self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
 

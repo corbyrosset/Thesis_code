@@ -7,7 +7,11 @@ import string
 import re
 import operator
 
-
+'''
+	2/13/17
+	This script has been modified since it was last run, please run again, 
+	carefully...
+'''
 ###############################################################################
 ###                        Global Settings and Paths                        ###
 ###############################################################################
@@ -171,6 +175,30 @@ def process(formatted_data_chunk, name):
 		### 		continue
 		### else:
 		### 	enty_id_string_map[right[0]] = right[1]]
+
+		# ### if any textual mentions are garbage (empty), move on
+		# processed_text = text.strip().split()
+		# if not USE_FINAL:
+		# 	processed_text = process_text(text)
+		# if len(processed_text) <= 0:
+		#	continue ### A very important step that eliminates 40% of data!
+
+		# ### count triples only if they have valid text
+		# if len(processed_text) > 0:
+		# 	if reversd == 1:
+		# 		insert_or_increment(triples_count, (right, tuple(relationships), left))
+		# 	else:
+		# 		insert_or_increment(triples_count, (left, tuple(relationships), right))
+		
+		# ### count vocabulary words
+		# for word in processed_text:
+		# 	if word == None:
+		# 		print 'error, Nones should not slip through'
+		#		exit(1)
+		# 	### do processing of word finally
+		# 	insert_or_increment(vocab_count, word)
+		# 	for rltn in relationships:
+		# 		insert_or_increment(rltn_word_freq[rltn], word)
 		
 
 		# ### update the entity string to ID  number map
@@ -187,31 +215,11 @@ def process(formatted_data_chunk, name):
 		# 	if rltn not in rltn_output_freq:
 		# 		rltn_output_freq[rltn] = {}
 
-		### count entities
+		# ### count entities
 		# insert_or_increment(enty_raw_freq, left[0])
 		# insert_or_increment(enty_id_freq, left[1])
 		# insert_or_increment(enty_raw_freq, right[0])
 		# insert_or_increment(enty_id_freq, right[1])
-
-		# processed_text = text.strip().split()
-		# if not USE_FINAL:
-		# 	processed_text = process_text(text)
-
-		### count triples only if they have valid text
-		# if len(processed_text) > 0:
-		# 	if reversd == 1:
-		# 		insert_or_increment(triples_count, (right, tuple(relationships), left))
-		# 	else:
-		# 		insert_or_increment(triples_count, (left, tuple(relationships), right))
-		
-		# ### count vocabulary words
-		# for word in processed_text:
-		# 	if word == None:
-		# 		continue
-		# 	### do processing of word finally
-		# 	insert_or_increment(vocab_count, word)
-		# 	for rltn in relationships:
-		# 		insert_or_increment(rltn_word_freq[rltn], word)
 
 		# ### count in-degrees and out-degree of each relationship wrt entities
 		# if reversd == 0:
@@ -267,6 +275,7 @@ except:
 	print 'no manifest file, aborting'
 	exit()
 
+print 'REMEMBER: any triples with empty text will be omitted!'
 ### collect statistics of the corpus chunk by chunk
 for chunk in manifest_list:
 	chunk = chunk.strip()

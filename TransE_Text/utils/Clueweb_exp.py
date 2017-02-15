@@ -10,6 +10,7 @@ from Utils import *
 # Experiment function --------------------------------------------------------
 def FB15kexp(state, channel):
 
+    
     # Show experiment parameters
     print >> sys.stderr, state
     np.random.seed(state.seed)
