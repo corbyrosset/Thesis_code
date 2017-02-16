@@ -11,26 +11,28 @@ import theano
 import theano.sparse as S
 import theano.tensor as T
 
-def micro_evaluation_statistics(res):
+def micro_evaluation_statistics(res, n):
     '''
         results is a tuple of (left_ranks, right_ranks) for all test triples
     '''
     left_ranks, right_ranks = res
     dres = {}
     dres['microlmean'] = np.mean(left_ranks)
+    dres['microlmrr'] = np.mean(np.reciprocal(left_ranks))        
     dres['microlmedian'] = np.median(left_ranks)
     dres['microlhits@n'] = np.mean(np.asarray(left_ranks) <= n) * 100
     dres['micrormean'] = np.mean(right_ranks)
+    dres['micrormrr'] = np.mean(np.reciprocal(right_ranks))                    
     dres['micrormedian'] = np.median(right_ranks)
     dres['microrhits@n'] = np.mean(np.asarray(right_ranks) <= n) * 100
     res_combined = left_ranks + right_ranks
     dres['microgmean'] = np.mean(res_combined)
     dres['microgmedian'] = np.median(res_combined)
     dres['microghits@n'] = np.mean(np.asarray(res_combined) <= n) * 100
-    # TODO: compute mean recipricol rank
+    dres['microgmrr'] = np.mean(np.reciprocal(res_combined))
     return dres
 
-def macro_evaluation_statistics(res, idxo):
+def macro_evaluation_statistics(res, idxo, n):
     '''
         computes macro-statistics, which weights mean ranks and hits @ 10 by 
         frequency with which each triple's relationship appears in the data.
@@ -42,6 +44,9 @@ def macro_evaluation_statistics(res, idxo):
     dictrellmean = {}
     dictrelrmean = {}
     dictrelgmean = {}
+    dictrellmrr = {}
+    dictrelrmrr = {}
+    dictrelgmrr = {}
     dictrellmedian = {}
     dictrelrmedian = {}
     dictrelgmedian = {}
@@ -62,6 +67,9 @@ def macro_evaluation_statistics(res, idxo):
         dictrellmean[i] = np.mean(dictrelres[i][0])
         dictrelrmean[i] = np.mean(dictrelres[i][1])
         dictrelgmean[i] = np.mean(dictrelres[i][0] + dictrelres[i][1])
+        dictrellmrr[i] = np.mean(np.reciprocal(dictrelres[i][0]))
+        dictrelrmrr[i] = np.mean(np.reciprocal(dictrelres[i][1]))
+        dictrelgmrr[i] = np.mean(np.reciprocal(dictrelres[i][0] + dictrelres[i][1]))
         dictrellmedian[i] = np.median(dictrelres[i][0])
         dictrelrmedian[i] = np.median(dictrelres[i][1])
         dictrelgmedian[i] = np.median(dictrelres[i][0] + dictrelres[i][1])
@@ -70,27 +78,32 @@ def macro_evaluation_statistics(res, idxo):
         dictrelgrn[i] = np.mean(np.asarray(dictrelres[i][0] +
                                            dictrelres[i][1]) <= n) * 100
 
-    dres['dictrelres'] = dictrelres
-    dres['dictrellmean'] = dictrellmean
-    dres['dictrelrmean'] = dictrelrmean
-    dres['dictrelgmean'] = dictrelgmean
+    dres['dictrelres']     = dictrelres
+    dres['dictrellmean']   = dictrellmean
+    dres['dictrelrmean']   = dictrelrmean
+    dres['dictrelgmean']   = dictrelgmean
     dres['dictrellmedian'] = dictrellmedian
     dres['dictrelrmedian'] = dictrelrmedian
     dres['dictrelgmedian'] = dictrelgmedian
-    dres['dictrellrn'] = dictrellrn
-    dres['dictrelrrn'] = dictrelrrn
-    dres['dictrelgrn'] = dictrelgrn
+    dres['dictrellrn']   = dictrellrn
+    dres['dictrelrrn']   = dictrelrrn
+    dres['dictrelgrn']   = dictrelgrn
+    dres['dictrellmrr']  = dictrellmrr
+    dres['dictrelrmrr']  = dictrelrmrr
+    dres['dictrelgmrr']  = dictrelgmrr    
 
-    dres['macrolmean'] = np.mean(dictrellmean.values())
+    dres['macrolmean']   = np.mean(dictrellmean.values())
     dres['macrolmedian'] = np.mean(dictrellmedian.values())
     dres['macrolhits@n'] = np.mean(dictrellrn.values())
-    dres['macrormean'] = np.mean(dictrelrmean.values())
+    dres['macrormean']   = np.mean(dictrelrmean.values())
     dres['macrormedian'] = np.mean(dictrelrmedian.values())
     dres['macrorhits@n'] = np.mean(dictrelrrn.values())
-    dres['macrogmean'] = np.mean(dictrelgmean.values())
+    dres['macrogmean']   = np.mean(dictrelgmean.values())
     dres['macrogmedian'] = np.mean(dictrelgmedian.values())
     dres['macroghits@n'] = np.mean(dictrelgrn.values())
-    # TODO: compute macro mean recipricol rank
+    dres['macrolmrr']    = np.mean(dictrellmrr.values())
+    dres['macrormrr']    = np.mean(dictrelrmrr.values())
+    dres['macrogmrr']    = np.mean(dictrelgmrr.values())    
 
     return dres
 
@@ -151,6 +164,8 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo):
         # TODO: err_rel = [np.argsort(np.argsort((
         #    srel(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
         # for some relation scorer srel
+    print 'RankingScoreIdx, errl: ' + str(np.shape(errl))
+    print 'RankingScoreIdx, errr: ' + str(np.shape(errr))
     return errl, errr
 
 ### apparently not used either... but it should be, we should compute
@@ -195,7 +210,7 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
         to a file. Then call this file with the path to the best model as
         the first argument
     '''
-    print '\nevaluating model for Mean Rank and Hits @ 10'
+    print '\nEvaluating model on %s examples from test\nEach example ranked against %s other entities' % (neval, Nsyn)
 
     # Load model
     f = open(loadmodel)
@@ -215,48 +230,48 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     print 'done loading test data'
 
     # Convert sparse matrix to indexes
-    # if neval == 'all':
-    idxl = convert2idx(l)
-    idxr = convert2idx(r)
-    idxo = convert2idx(o)
-    # else:
-    #     idxl = convert2idx(l)[:neval]
-    #     idxr = convert2idx(r)[:neval]
-    #     idxo = convert2idx(o)[:neval]
+    if neval == 'all':
+        idxl = convert2idx(l)
+        idxr = convert2idx(r)
+        idxo = convert2idx(o)
+    else:
+        idxl = convert2idx(l)[:neval]
+        idxr = convert2idx(r)[:neval]
+        idxo = convert2idx(o)[:neval]
     print 'done converting entities to indices'
 
     ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
             subtensorspec=Nsyn)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
             subtensorspec=Nsyn)
-
+ 
     res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo)
-
+    print 'RankingEval: ' + str(np.shape(res))
     ### compute micro and macro mean rank and hits @ 10
-    dres = micro_evaluation_statistics(res)
-    dres.update(macro_evaluation_statistics(res, idxo))
+    dres = micro_evaluation_statistics(res, n)
+    dres.update(macro_evaluation_statistics(res, idxo, n))
 
-    print "MICRO:"
-    print "\tleft mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['microlmean'], 5), round(dres['microlmedian'], 5),
-            n, round(dres['microlhits@n'], 3))
-    print "\tright mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['micrormean'], 5), round(dres['micrormedian'], 5),
-            n, round(dres['microrhits@n'], 3))
-    print "\tglobal mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['microgmean'], 5), round(dres['microgmedian'], 5),
-            n, round(dres['microghits@n'], 3))
+    print "MICRO RAW:"
+    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microlmean'], 3), round(dres['microlmrr'], 3), \
+            round(dres['microlmedian'], 3), n, round(dres['microlhits@n'], 3))
+    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['micrormean'], 3), round(dres['micrormrr'], 3), \
+            round(dres['micrormedian'], 3), n, round(dres['microrhits@n'], 3))
+    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microgmean'], 3), round(dres['microgmrr'], 3), \
+            round(dres['microgmedian'], 3), n, round(dres['microghits@n'], 3))
 
-    print "MACRO:"
-    print "\tleft mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['macrolmean'], 5), round(dres['macrolmedian'], 5),
-            n, round(dres['macrolhits@n'], 3))
-    print "\tright mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['macrormean'], 5), round(dres['macrormedian'], 5),
-            n, round(dres['macrorhits@n'], 3))
-    print "\tglobal mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['macrogmean'], 5), round(dres['macrogmedian'], 5),
-            n, round(dres['macroghits@n'], 3))
+    print "MACRO RAW"
+    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrolmean'], 3), round(dres['macrolmrr'], 3), \
+            round(dres['macrolmedian'], 3), n, round(dres['macrolhits@n'], 3))
+    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrormean'], 3), round(dres['macrormrr'], 3), \
+            round(dres['macrormedian'], 3), n, round(dres['macrorhits@n'], 3))
+    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrogmean'], 3), round(dres['macrogmrr'], 3), \
+            round(dres['macrogmedian'], 3), n, round(dres['macroghits@n'], 3))
 
     return dres
 
@@ -323,32 +338,33 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
 
     # restest = (error_left entities, error_right_entities)
     restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples)
-    
+
         ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(restest)
     dres.update(macro_evaluation_statistics(restest, idxo))
 
     print "MICRO FILTERED:"
-    print "\tleft mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['microlmean'], 5), round(dres['microlmedian'], 5),
-            n, round(dres['microlhits@n'], 3))
-    print "\tright mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['micrormean'], 5), round(dres['micrormedian'], 5),
+    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microlmean'], 5), round(dres['microlmrr'], 5), \
+            round(dres['microlmedian'], 5), n, round(dres['microlhits@n'], 3))
+    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['micrormean'], 5), round(dres['micrormrr'], 5), \
+            round(dres['micrormedian'], 5),
             n, round(dres['microrhits@n'], 3))
-    print "\tglobal mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['microgmean'], 5), round(dres['microgmedian'], 5),
-            n, round(dres['microghits@n'], 3))
+    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microgmean'], 5), round(dres['microgmrr'], 5), \
+            round(dres['microgmedian'], 5), n, round(dres['microghits@n'], 3))
 
     print "MACRO FILTERED"
-    print "\tleft mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['macrolmean'], 5), round(dres['macrolmedian'], 5),
-            n, round(dres['macrolhits@n'], 3))
-    print "\tright mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['macrormean'], 5), round(dres['macrormedian'], 5),
-            n, round(dres['macrorhits@n'], 3))
-    print "\tglobal mean rank: %s, median rank: %s, hits@%s: %s%%" % (
-            round(dres['macrogmean'], 5), round(dres['macrogmedian'], 5),
-            n, round(dres['macroghits@n'], 3))
+    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrolmean'], 5), round(dres['macrolmrr'], 5), \
+            round(dres['macrolmedian'], 5), n, round(dres['macrolhits@n'], 3))
+    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrormean'], 5), round(dres['macrormrr'], 5), \
+            round(dres['macrormedian'], 5), n, round(dres['macrorhits@n'], 3))
+    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrogmean'], 5), round(dres['macrogmrr'], 5), \
+            round(dres['macrogmedian'], 5), n, round(dres['macroghits@n'], 3))
 
     T10 = np.mean(np.asarray(restest[0] + restest[1]) <= 10) * 100
     MR = np.mean(np.asarray(restest[0] + restest[1]))

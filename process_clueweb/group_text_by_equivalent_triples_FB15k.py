@@ -130,9 +130,8 @@ for k, v in triple_per_text.items():
 	triple_per_text[k] = len(v)
 	assert len(v) > 0
 
-exit()
 # srtd_triples = sorted(text_per_triple_cntr, key=text_per_triple_cntr.__getitem__, reverse=True)
-srtd_text_per_triple = sorted(triple_per_text.items(), key= lambda (k, v): v, reverse=True)
+# srtd_text_per_triple = sorted(triple_per_text.items(), key= lambda (k, v): v, reverse=True)
 
 # assert len(unique_text_per_triple.keys()) == len(text_per_triple_cntr.keys())
 # print 'Number of unique triples: ' + str(len(unique_text_per_triple.keys()))
@@ -142,13 +141,13 @@ srtd_text_per_triple = sorted(triple_per_text.items(), key= lambda (k, v): v, re
 # 		+ ' ' + str(idx2entity[i[2]]) + ' count: ' + str(i[1]) \
 # 		+ ' num unique texts: ' + str(len(unique_text_per_triple[i]))
 
-print 'Textual mentions that have the most associated triples: '
-for i in srtd_text_per_triple[:500]:
-	print str(i[0]) + ' ' + str(idx_2_sent_map[i[0]]) + ' ' + str(triple_per_text[i[0]])
+# print 'Textual mentions that have the most associated triples: '
+# for i in srtd_text_per_triple[:500]:
+# 	print str(i[0]) + ' ' + str(idx_2_sent_map[i[0]]) + ' ' + str(triple_per_text[i[0]])
 
-print '\nTextual mentions that have the least associated triples: '
-for i in srtd_text_per_triple[-100:]:
-	print str(i[0]) + ' ' + str(idx_2_sent_map[i[0]]) + ' ' + str(triple_per_text[i[0]])
+# print '\nTextual mentions that have the least associated triples: '
+# for i in srtd_text_per_triple[-100:]:
+# 	print str(i[0]) + ' ' + str(idx_2_sent_map[i[0]]) + ' ' + str(triple_per_text[i[0]])
 
 ###############################################################################
 ###                              Persist                                    ###

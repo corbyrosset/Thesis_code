@@ -5,9 +5,8 @@ from FB15k_exp import *
 sys.path.append("../evaluation")
 from evaluate_KBC import RankingEval
 
-
-# totepochs = 500 default
-# try L1 similarity
+###############################################################################
+###############################################################################
 
 # launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
@@ -20,23 +19,31 @@ lrparam = 0.01
 nbatches = 100
 totepochs = 500
 test_all = 10
-neval = 14951
+neval = 100 # 'all' ### number of test examples to evaluate on
+Nsyn = 14951 ### TODO: doesn't work if < 14951
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/'
+identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) + '_nhid_' \
+	+ str(nhid) + '_marg_' + str(marge)
 
-identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) + '_nhid_' + str(nhid) + '_marg_' + str(marge)
+###############################################################################
+###############################################################################
+
 # print 'identifier: ' + str(identifier)
 # print 'models saved to path: ' + str(savepath)
 # launch(op='TransE', simfn= simfn, ndim= ndim, nhid= nhid, marge= marge, \
 # 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
-# 	test_all= test_all, neval= neval, \
+# 	test_all= test_all, neval= neval, Nsyn=Nsyn, \
 # 	savepath= savepath + str(identifier), \
 # 	datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/',
 # 	dataset='FB15k')
 
 ### evaluate on test data:
-# RankingEval(loadmodel= savepath + str(identifier) + '/best_valid_model.pkl')
-RankingEvalFil(loadmodel= savepath + str(identifier) + '/best_valid_model.pkl')
+RankingEval(loadmodel= savepath + str(identifier) \
+	+ '/best_valid_model.pkl', neval=neval, Nsyn=Nsyn)
+# RankingEvalFil(loadmodel= savepath + str(identifier) + '/best_valid_model.pkl')
 
+###############################################################################
+###############################################################################
 ### notes:
 '''
 calls FB15k_exp.launch()

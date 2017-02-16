@@ -151,10 +151,9 @@ def launch(datapath='data/', dataset='FB15k', Nent=16296, rhoE=1, \
     state.datapath = datapath
     state.dataset = dataset
     state.Nent = Nent # Total number of entities
-    state.Nsyn = Nsyn # number of entities against which to measure the 
-                      # similarity score for the entities corresponding to the 
-                      # first Nsyn (int) entities of the embedding matrix 
-                      # (default=None: all entities)
+    state.Nsyn = Nsyn # number of entities against which to rank a given test
+                      # set entity. It could be all entities (14951) or less,
+                      # or it could be filtered in a special way.
     state.Nrel = Nrel # number of relations
     state.loadmodel = loadmodel
     state.loadmodelBi = loadmodelBi
@@ -172,7 +171,7 @@ def launch(datapath='data/', dataset='FB15k', Nent=16296, rhoE=1, \
     state.nbatches = nbatches
     state.totepochs = totepochs
     state.test_all = test_all
-    state.neval = neval ### number of examples for train, dev, test?
+    state.neval = neval # num exs from test to evaluate on, 'all' or some num
     state.seed = seed
     state.savepath = savepath
 
