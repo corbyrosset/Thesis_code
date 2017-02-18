@@ -161,16 +161,17 @@ def launch(datapath='data/', dataset='FB15k', Nent=16296, rhoE=1, \
     state.loademb = loademb ### load previously trained embeddings?
     state.op = op
     state.simfn = simfn
-    state.ndim = ndim ### dim of embeddings?
-    state.nhid = nhid
-    state.marge = marge
+    state.ndim = ndim # dimension of both relationship and entity embeddings
+    #state.nhid = nhid # is this even used?
+    state.marge = marge # margin used in ranking loss
     state.rhoE = rhoE
     state.rhoL = rhoL
     state.lremb = lremb
     state.lrparam = lrparam
     state.nbatches = nbatches
     state.totepochs = totepochs
-    state.test_all = test_all
+    state.test_all = test_all # when training, how many epochs until use 
+                              # validation set again
     state.neval = neval # num exs from test to evaluate on, 'all' or some num
     state.seed = seed
     state.savepath = savepath

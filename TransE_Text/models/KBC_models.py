@@ -336,8 +336,10 @@ class TransE_model():
             
             # Entity embeddings
             if not state.loademb:
-                embeddings = Embeddings(np.random, state.Nent, state.ndim, 'emb')
-                relationVec = Embeddings(np.random, state.Nrel, state.ndim, 'relvec')
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
+                    'relvec')
                 self.embeddings = [embeddings, relationVec, relationVec]
             else:
                 try:

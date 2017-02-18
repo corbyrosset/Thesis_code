@@ -11,16 +11,17 @@ from evaluate_KBC import RankingEval
 # launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
 simfn = 'L2'
-ndim = 150
+ndim = 150 # dimension of both relationship and entity embeddings
 nhid = 150
 marge = 0.5
 lremb = 0.01
 lrparam = 0.01
 nbatches = 100
 totepochs = 500
-test_all = 10
-neval = 100 # 'all' ### number of test examples to evaluate on
-Nsyn = 14951 ### TODO: doesn't work if < 14951
+test_all = 10 # when training, how many epochs until use validation set again
+neval = 'all' # 'all' ### number of test examples to evaluate on
+Nsyn = 14951 # number of entities against which to rank a given test
+			 ### TODO: doesn't work if < 14951
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/'
 identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) + '_nhid_' \
 	+ str(nhid) + '_marg_' + str(marge)
@@ -38,9 +39,10 @@ identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) + '_nhid_' \
 # 	dataset='FB15k')
 
 ### evaluate on test data:
-RankingEval(loadmodel= savepath + str(identifier) \
-	+ '/best_valid_model.pkl', neval=neval, Nsyn=Nsyn)
-# RankingEvalFil(loadmodel= savepath + str(identifier) + '/best_valid_model.pkl')
+# RankingEval(loadmodel= savepath + str(identifier) \
+	# + '/best_valid_model.pkl', neval=neval, Nsyn=Nsyn)
+RankingEvalFil(loadmodel= savepath + str(identifier) + \
+	'/best_valid_model.pkl', neval=neval, Nsyn=Nsyn)
 
 ###############################################################################
 ###############################################################################
