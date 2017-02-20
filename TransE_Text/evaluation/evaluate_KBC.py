@@ -1,8 +1,8 @@
 #! /usr/bin/python
 import sys
-sys.path.append("../models/")
+sys.path.append("/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/models")
 from KBC_models import *
-sys.path.append("../utils/")
+sys.path.append("/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/utils")
 from Utils import load_file, convert2idx
 import numpy as np
 import scipy
@@ -15,7 +15,9 @@ def micro_evaluation_statistics(res, n):
     '''
         results is a tuple of (left_ranks, right_ranks) for all test triples
     '''
-    left_ranks, right_ranks = res
+    left_ranks, right_ranks, rel_ranks = res
+
+    ### TODO: write evaluation for relationship ranking
     dres = {}
     dres['microlmean'] = np.mean(left_ranks)
     dres['microlmrr'] = np.mean(np.reciprocal(left_ranks))        
@@ -30,6 +32,13 @@ def micro_evaluation_statistics(res, n):
     dres['microgmedian'] = np.median(res_combined)
     dres['microghits@n'] = np.mean(np.asarray(res_combined) <= n) * 100
     dres['microgmrr'] = np.mean(np.reciprocal(res_combined))
+    
+    if rel_ranks:
+        dres['macrorelmean'] = np.mean(rel_ranks)
+        dres['macrorelmrr'] = np.mean(np.reciprocal(rel_ranks))        
+        dres['macrorelmedian'] = np.median(rel_ranks)
+        dres['macrorelhits@n'] = np.mean(np.asarray(rel_ranks) <= n) * 100
+
     return dres
 
 def macro_evaluation_statistics(res, idxo, n):
@@ -38,110 +47,111 @@ def macro_evaluation_statistics(res, idxo, n):
         frequency with which each triple's relationship appears in the data.
     '''
     dres = {}
+    left_ranks, right_ranks, rel_ranks = res
+    ### TODO: write evaluation for relationship ranking
 
     listrel = set(idxo)
-    dictrelres = {}
-    dictrellmean = {}
-    dictrelrmean = {}
-    dictrelgmean = {}
-    dictrellmrr = {}
-    dictrelrmrr = {}
-    dictrelgmrr = {}
-    dictrellmedian = {}
-    dictrelrmedian = {}
-    dictrelgmedian = {}
-    dictrellrn = {}
-    dictrelrrn = {}
-    dictrelgrn = {}
+    ranks_per_relation = {}
+    left_mean_per_rel = {}
+    right_mean_per_rel = {}
+    left_mrr_per_rel = {}
+    right_mrr_per_rel = {}
+    left_med_rank_per_rel = {}
+    right_med_rank_per_rel = {}
+    left_hitsatn_per_rel = {}
+    right_hitsatn_per_rel = {}
+    if rel_ranks:
+        rel_mean_rank = {}
+        rel_mrr = {}
+        rel_med_rank = {}
+        rel_hitsatn = {}
+    gen_mean_rank_per_rel = {}
+    gen_mrr_per_rel = {}
+    gen_med_rank_per_rel = {}
+    gen_hitsatn_per_rel = {}
+
 
     for i in listrel:
-        dictrelres[i] = [[], []]
+        ranks_per_relation[i] = [[], [], []] # left, right, relation ranks per relation
 
-    for i, j in enumerate(res[0]):
-        dictrelres[idxo[i]][0] += [j]
+    for i, (j, k) in enumerate(zip(left_ranks, right_ranks)):
+        ranks_per_relation[idxo[i]][0] += [j]
+        ranks_per_relation[idxo[i]][1] += [k]
 
-    for i, j in enumerate(res[1]):
-        dictrelres[idxo[i]][1] += [j]
+    # for i, j in enumerate(right_ranks):
+    #     ranks_per_relation[idxo[i]][1] += [j]
+    if rel_ranks:
+        for i, j in enumerate(rel_ranks):
+            ranks_per_relation[idxo[i]][1] += [j]
 
-    for i in listrel:
-        dictrellmean[i] = np.mean(dictrelres[i][0])
-        dictrelrmean[i] = np.mean(dictrelres[i][1])
-        dictrelgmean[i] = np.mean(dictrelres[i][0] + dictrelres[i][1])
-        dictrellmrr[i] = np.mean(np.reciprocal(dictrelres[i][0]))
-        dictrelrmrr[i] = np.mean(np.reciprocal(dictrelres[i][1]))
-        dictrelgmrr[i] = np.mean(np.reciprocal(dictrelres[i][0] + dictrelres[i][1]))
-        dictrellmedian[i] = np.median(dictrelres[i][0])
-        dictrelrmedian[i] = np.median(dictrelres[i][1])
-        dictrelgmedian[i] = np.median(dictrelres[i][0] + dictrelres[i][1])
-        dictrellrn[i] = np.mean(np.asarray(dictrelres[i][0]) <= n) * 100
-        dictrelrrn[i] = np.mean(np.asarray(dictrelres[i][1]) <= n) * 100
-        dictrelgrn[i] = np.mean(np.asarray(dictrelres[i][0] +
-                                           dictrelres[i][1]) <= n) * 100
 
-    dres['dictrelres']     = dictrelres
-    dres['dictrellmean']   = dictrellmean
-    dres['dictrelrmean']   = dictrelrmean
-    dres['dictrelgmean']   = dictrelgmean
-    dres['dictrellmedian'] = dictrellmedian
-    dres['dictrelrmedian'] = dictrelrmedian
-    dres['dictrelgmedian'] = dictrelgmedian
-    dres['dictrellrn']   = dictrellrn
-    dres['dictrelrrn']   = dictrelrrn
-    dres['dictrelgrn']   = dictrelgrn
-    dres['dictrellmrr']  = dictrellmrr
-    dres['dictrelrmrr']  = dictrelrmrr
-    dres['dictrelgmrr']  = dictrelgmrr    
+    for i in listrel: # looks messy, but it's actually simple
+        left_mean_per_rel[i]     = np.mean(ranks_per_relation[i][0])
+        right_mean_per_rel[i]    = np.mean(ranks_per_relation[i][1])
+        gen_mean_rank_per_rel[i] = np.mean(ranks_per_relation[i][0] + ranks_per_relation[i][1])
+        left_mrr_per_rel[i] = np.mean(np.reciprocal(ranks_per_relation[i][0]))
+        right_mrr_per_rel[i]= np.mean(np.reciprocal(ranks_per_relation[i][1]))
+        gen_mrr_per_rel[i]  = np.mean(np.reciprocal(ranks_per_relation[i][0] + ranks_per_relation[i][1]))
+        left_med_rank_per_rel[i] = np.median(ranks_per_relation[i][0])
+        right_med_rank_per_rel[i]= np.median(ranks_per_relation[i][1])
+        gen_med_rank_per_rel[i]  = np.median(ranks_per_relation[i][0] + ranks_per_relation[i][1])
+        left_hitsatn_per_rel[i]  = np.mean(np.asarray(ranks_per_relation[i][0]) <= n) * 100
+        right_hitsatn_per_rel[i] = np.mean(np.asarray(ranks_per_relation[i][1]) <= n) * 100
+        gen_hitsatn_per_rel[i]   = np.mean(np.asarray(ranks_per_relation[i][0] + ranks_per_relation[i][1]) <= n) * 100
+        
+        if rel_ranks:
+            rel_mean_rank[i] = np.mean(ranks_per_relation[i][2])
+            rel_mrr[i] = np.mean(np.reciprocal(ranks_per_relation[i][2]))
+            rel_med_rank[i] = np.median(ranks_per_relation[i][2])
+            rel_hitsatn[i] = np.mean(np.asarray(ranks_per_relation[i][2] + ranks_per_relation[i][1]) <= n) * 100
 
-    dres['macrolmean']   = np.mean(dictrellmean.values())
-    dres['macrolmedian'] = np.mean(dictrellmedian.values())
-    dres['macrolhits@n'] = np.mean(dictrellrn.values())
-    dres['macrormean']   = np.mean(dictrelrmean.values())
-    dres['macrormedian'] = np.mean(dictrelrmedian.values())
-    dres['macrorhits@n'] = np.mean(dictrelrrn.values())
-    dres['macrogmean']   = np.mean(dictrelgmean.values())
-    dres['macrogmedian'] = np.mean(dictrelgmedian.values())
-    dres['macroghits@n'] = np.mean(dictrelgrn.values())
-    dres['macrolmrr']    = np.mean(dictrellmrr.values())
-    dres['macrormrr']    = np.mean(dictrelrmrr.values())
-    dres['macrogmrr']    = np.mean(dictrelgmrr.values())    
+            # also need to update generalized metrics to include relation ranks
+            gen_mean_rank_per_rel[i] = np.mean(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2])
+            gen_mrr_per_rel[i]       = np.mean(np.reciprocal(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2]))
+            gen_med_rank_per_rel[i]  = np.median(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][1])
+            gen_hitsatn_per_rel[i]   = np.mean(np.asarray(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2]) <= n) * 100
+
+
+    dres['ranks_per_relation']     = ranks_per_relation
+    dres['left_mean_per_rel']   = left_mean_per_rel
+    dres['right_mean_per_rel']   = right_mean_per_rel
+    dres['gen_mean_rank_per_rel']   = gen_mean_rank_per_rel
+    dres['left_med_rank_per_rel'] = left_med_rank_per_rel
+    dres['right_med_rank_per_rel'] = right_med_rank_per_rel
+    dres['gen_med_rank_per_rel'] = gen_med_rank_per_rel
+    dres['left_hitsatn_per_rel']   = left_hitsatn_per_rel
+    dres['right_hitsatn_per_rel']   = right_hitsatn_per_rel
+    dres['gen_hitsatn_per_rel']   = gen_hitsatn_per_rel
+    dres['left_mrr_per_rel']  = left_mrr_per_rel
+    dres['right_mrr_per_rel']  = right_mrr_per_rel
+    dres['gen_mrr_per_rel']  = gen_mrr_per_rel    
+    if rel_ranks:
+        dres['rel_mean_rank'] = rel_mean_rank
+        dres['rel_mrr'] = rel_mrr
+        dres['rel_med_rank'] = rel_med_rank
+        dres['rel_hitsatn'] = rel_hitsatn
+
+    dres['macrolmean']   = np.mean(left_mean_per_rel.values())
+    dres['macrolmedian'] = np.mean(left_med_rank_per_rel.values())
+    dres['macrolhits@n'] = np.mean(left_hitsatn_per_rel.values())
+    dres['macrormean']   = np.mean(right_mean_per_rel.values())
+    dres['macrormedian'] = np.mean(right_med_rank_per_rel.values())
+    dres['macrorhits@n'] = np.mean(right_hitsatn_per_rel.values())
+    dres['macrogmean']   = np.mean(gen_mean_rank_per_rel.values())
+    dres['macrogmedian'] = np.mean(gen_med_rank_per_rel.values())
+    dres['macroghits@n'] = np.mean(gen_hitsatn_per_rel.values())
+    dres['macrolmrr']    = np.mean(left_mrr_per_rel.values())
+    dres['macrormrr']    = np.mean(right_mrr_per_rel.values())
+    dres['macrogmrr']    = np.mean(gen_mrr_per_rel.values())  
+    if rel_ranks:
+        dres['macrorelmean'] = np.mean(rel_mean_rank.values())
+        dres['macrorelmrr'] = np.mean(rel_mrr.values())
+        dres['macrorelmedian'] = np.mean(rel_med_rank.values())
+        dres['macrorelhits@n'] = np.mean(rel_hitsatn.values())  
 
     return dres
 
-def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples):
-    """
-    function to evaluate quality of entity prediction. Used in 
-        models/KBC_models.py
-
-    This function computes the rank list of the lhs and rhs, over a list of
-    lhs, rhs and rel indexes.
-
-    :param sl: Theano function created with RankLeftFnIdx().
-    :param sr: Theano function created with RankRightFnIdx().
-    :param idxl: list of 'left' indices.
-    :param idxr: list of 'right' indices.
-    :param idxo: list of relation indices.
-    """
-    errl = []
-    errr = []
-    for l, o, r in zip(idxl, idxo, idxr):
-        il=np.argwhere(true_triples[:,0]==l).reshape(-1,)
-        io=np.argwhere(true_triples[:,1]==o).reshape(-1,)
-        ir=np.argwhere(true_triples[:,2]==r).reshape(-1,)
- 
-        inter_l = [i for i in ir if i in io]
-        rmv_idx_l = [true_triples[i,0] for i in inter_l if true_triples[i,0] != l]
-        scores_l = (sl(r, o)[0]).flatten()
-        scores_l[rmv_idx_l] = -np.inf
-        errl += [np.argsort(np.argsort(-scores_l)).flatten()[l] + 1]
-
-        inter_r = [i for i in il if i in io]
-        rmv_idx_r = [true_triples[i,2] for i in inter_r if true_triples[i,2] != r]
-        scores_r = (sr(l, o)[0]).flatten()
-        scores_r[rmv_idx_r] = -np.inf
-        errr += [np.argsort(np.argsort(-scores_r)).flatten()[r] + 1]
-    return errl, errr
-
-def RankingScoreIdx(sl, sr, idxl, idxr, idxo):
+def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
     """
     To be used only during testing? In RankingEval()
 
@@ -156,21 +166,23 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo):
     """
     errl = []
     errr = []
+    err_rel = []
     for l, o, r in zip(idxl, idxo, idxr):
         errl += [np.argsort(np.argsort((
             sl(r, o)[0]).flatten())[::-1]).flatten()[l] + 1]
         errr += [np.argsort(np.argsort((
             sr(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
-        # TODO: err_rel = [np.argsort(np.argsort((
-        #    srel(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
-        # for some relation scorer srel
+
+        if rank_rel is not None:
+            err_rel = [np.argsort(np.argsort((rank_rel(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
+
     print 'RankingScoreIdx, errl: ' + str(np.shape(errl))
     print 'RankingScoreIdx, errr: ' + str(np.shape(errr))
-    return errl, errr
+    return errl, errr, err_rel
 
 ### apparently not used either... but it should be, we should compute
 ### metrics over lists where multiple valid triples don't appear!
-def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples):
+def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=None):
     """
     This function computes the rank list of the lhs and rhs, over a list of
     lhs, rhs and rel indexes.
@@ -183,8 +195,10 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples):
     """
     errl = []
     errr = []
+    err_rel = []
+    print 'FilteredRanking: evaluating rank on ' + str(len(idxl)) + ' triples'
+
     for l, o, r in zip(idxl, idxo, idxr):
-        # print 'new test triple:' + str((l, o, r))
         il=np.argwhere(true_triples[:,0]==l).reshape(-1,)
         io=np.argwhere(true_triples[:,1]==o).reshape(-1,)
         ir=np.argwhere(true_triples[:,2]==r).reshape(-1,)
@@ -205,9 +219,18 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples):
         scores_r[rmv_idx_r] = -np.inf
         errr += [np.argsort(np.argsort(-scores_r)).flatten()[r] + 1]
 
-    return errl, errr
+        ### relations
+        if rank_rel is not None:
+            inter_r = [i for i in il if i in ir]
+            rmv_idx_o = [true_triples[i,1] for i in inter_r if true_triples[i,1] != o]
+            scores_rel = (rank_rel(l, r)[0]).flatten()
+            # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from relation'
+            scores_rel[rmv_idx_o] = -np.inf
+            err_rel += [np.argsort(np.argsort(-scores_rel)).flatten()[o] + 1]
 
-def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/',
+    return errl, errr, err_rel
+
+def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', rel = False, Nsyn_rel = 1345,
     dataset='FB15k-test', loadmodel='best_valid_model.pkl', neval='all', 
     Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl'):
 
@@ -225,7 +248,6 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     rightop = cPickle.load(f)
     simfn = cPickle.load(f)
     f.close()
-    print 'done loading model'
 
     # Load data
     l = load_file(datapath + dataset + '-lhs.pkl')
@@ -233,7 +255,6 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     o = load_file(datapath + dataset + '-rel.pkl')
     if type(embeddings) is list:
         o = o[-embeddings[1].N:, :]
-    print 'done loading test data'
 
     # Convert sparse matrix to indexes
     if neval == 'all':
@@ -244,15 +265,19 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
         idxl = convert2idx(l)[:neval]
         idxr = convert2idx(r)[:neval]
         idxo = convert2idx(o)[:neval]
-    print 'done converting entities to indices'
 
     ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
             subtensorspec=Nsyn)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
             subtensorspec=Nsyn)
+    if rel == True:
+        rankrelfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,
+            subtensorspec=Nsyn_rel)
+    else:
+        rankrelfunc = None
  
-    res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo)
-    print 'RankingEval: ' + str(np.shape(res))
+    res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, rank_rel=rankrelfunc)
+
     ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(res, n)
     dres.update(macro_evaluation_statistics(res, idxo, n))
@@ -264,6 +289,10 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['micrormean'], 3), round(dres['micrormrr'], 3), \
             round(dres['micrormedian'], 3), n, round(dres['microrhits@n'], 3))
+    if rel == True:
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
+            3), round(dres['microrelmedian'], 3), n, \
+            round(dres['microrelhits@n'], 3))
     print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microgmean'], 3), round(dres['microgmrr'], 3), \
             round(dres['microgmedian'], 3), n, round(dres['microghits@n'], 3))
@@ -275,6 +304,10 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrormean'], 3), round(dres['macrormrr'], 3), \
             round(dres['macrormedian'], 3), n, round(dres['macrorhits@n'], 3))
+    if rel == True:
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
+            3), round(dres['macrorelmedian'], 3), n, \
+            round(dres['macrorelhits@n'], 3))    
     print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrogmean'], 3), round(dres['macrogmrr'], 3), \
             round(dres['macrogmedian'], 3), n, round(dres['macroghits@n'], 3))
@@ -282,8 +315,9 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     return dres
 
 ### apparently not used?
-def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', dataset='FB15k', op='TransE', neval='all',
-    loadmodel='best_valid_model.pkl', fold=0, Nrel=14951, Nsyn=1345, n=10):
+def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', rel = False, dataset='FB15k', 
+    op='TransE', neval='all', loadmodel='best_valid_model.pkl', 
+    fold=0, Nrel=14951, Nsyn=14951, Nsyn_rel = 1345, n=10):
 
     '''
         Same as RankingEval, but just excludes any triples that would have 
@@ -299,7 +333,6 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     rightop =cPickle.load(f)
     simfn = cPickle.load(f) ### wasn't here?
     f.close()
-    print 'done loading model'
 
     # Load data
     l = load_file(datapath + dataset + '-test-lhs.pkl')
@@ -308,7 +341,6 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     if type(embeddings) is list:
         o = o[-embeddings[1].N:, :]
     # o = o[-Nrel:, :]
-    print 'done loading test triplets'
 
     if neval == 'all':
         idxl = convert2idx(l)
@@ -328,44 +360,28 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     vr = load_file(datapath + dataset + '-valid-rhs.pkl')
     vo = load_file(datapath + dataset + '-valid-rel.pkl')
     vo = vo[-Nrel:, :]
-    print 'done loading all true triplets'
 
-    # idxl = convert2idx(l)
-    # idxr = convert2idx(r)
-    # idxo = convert2idx(o)
     idxtl = convert2idx(tl)
     idxtr = convert2idx(tr)
     idxto = convert2idx(to)
     idxvl = convert2idx(vl)
     idxvr = convert2idx(vr)
     idxvo = convert2idx(vo)
-    print 'done converting all data to indices'
     
-    # if op == 'Bi':
-    #     ranklfunc = RankLeftFnIdxBi(embeddings, leftop, rightop,
-    #         subtensorspec=Nsyn)
-    #     rankrfunc = RankRightFnIdxBi(embeddings, leftop, rightop,
-    #         subtensorspec=Nsyn)
-    # elif op == 'Tri':
-    #     ranklfunc = RankLeftFnIdxTri(embeddings, leftop, rightop,
-    #         subtensorspec=Nsyn)
-    #     rankrfunc = RankRightFnIdxTri(embeddings, leftop, rightop,
-    #         subtensorspec=Nsyn)
-    # elif op == 'TATEC':
-    #     ranklfunc = RankLeftFnIdxTATEC(embeddings, leftopbi, leftoptri, rightopbi, rightoptri,
-    #         subtensorspec=Nsyn)
-    #     rankrfunc = RankRightFnIdxTATEC(embeddings, leftopbi, leftoptri, rightopbi, rightoptri,
-    #         subtensorspec=Nsyn)   
-    # else:
     ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
         subtensorspec=Nsyn)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
-        subtensorspec=Nsyn)     
-    
+        subtensorspec=Nsyn) 
+    if rel == True:
+        rankrelfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,
+            subtensorspec=Nsyn_rel)
+    else:
+        rankrelfunc = None
+
     true_triples=np.concatenate([idxtl,idxvl,idxl,idxto,idxvo,idxo,idxtr,idxvr,idxr]).reshape(3,idxtl.shape[0]+idxvl.shape[0]+idxl.shape[0]).T
 
     # restest = (error_left entities, error_right_entities)
-    restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples)
+    restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, rank_rel=rankrelfunc)
 
         ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(restest, n)
@@ -379,6 +395,10 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
             round(dres['micrormean'], 5), round(dres['micrormrr'], 5), \
             round(dres['micrormedian'], 5),
             n, round(dres['microrhits@n'], 3))
+    if rel == True:
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
+            3), round(dres['microrelmedian'], 3), n, \
+            round(dres['microrelhits@n'], 3))
     print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microgmean'], 5), round(dres['microgmrr'], 5), \
             round(dres['microgmedian'], 5), n, round(dres['microghits@n'], 3))
@@ -390,16 +410,13 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrormean'], 5), round(dres['macrormrr'], 5), \
             round(dres['macrormedian'], 5), n, round(dres['macrorhits@n'], 3))
+    if rel == True:
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
+            3), round(dres['macrorelmedian'], 3), n, \
+            round(dres['macrorelhits@n'], 3))
     print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrogmean'], 5), round(dres['macrogmrr'], 5), \
             round(dres['macrogmedian'], 5), n, round(dres['macroghits@n'], 3))
-
-    T10 = np.mean(np.asarray(restest[0] + restest[1]) <= 10) * 100
-    MR = np.mean(np.asarray(restest[0] + restest[1]))
-
-    print 'remaining code:'
-    print 'hits at 10: ' + str(T10)
-    print 'mean rank: ' + str(MR)
 
     return dres
 
@@ -410,4 +427,4 @@ if __name__ == '__main__':
     # print 'this file is still TODO'
     # exit(1)
     RankingEval(loadmodel=sys.argv[1])
-    # RankingEvalFil(loadmodel=sys.argv[1])
+    RankingEvalFil(loadmodel=sys.argv[1])
