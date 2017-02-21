@@ -13,12 +13,12 @@ from evaluate_KBC import RankingEval
 simfn = 'L2'
 ndim = 50 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
-marge = 0.5     # {0.5, 1.0}
-lremb = 0.01   # {0.01, 0.001}
-lrparam = 0.01 # {0.01, 0.001}
+marge = 1.0     # {0.5, 1.0}
+lremb = 0.002   # {0.01, 0.001}
+lrparam = 0.002 # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
-totepochs = 250 # number of epochs
-test_all = 10   # number of epochs between ranking on validation sets again
+totepochs = 1 # number of epochs
+test_all = 1   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
@@ -28,10 +28,11 @@ rel = True   # whether to also rank relations
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
 ### previous runs...
-ntrain = 1000 # 'all' # number of examples to actually compute ranks for
+ntrain = 100 # 'all' # number of examples to actually compute ranks for
 		      # if you set to 'all', it will take a very long time
-nvalid = 1000 # 'all'
-ntest = 1000 # 'all'
+nvalid = 100 # 'all'
+ntest = 100 # 'all'
+neval = 1000 # 'all' ### only for final testing, not training
 
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/'
 
@@ -56,11 +57,11 @@ launch(op='TransE', simfn= simfn, ndim= ndim, marge= marge, \
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
-RankingEvalFil(loadmodel= savepath + str(identifier) + \
-	'/best_valid_model.pkl', neval='all', Nsyn=Nsyn)
-RankingEval(loadmodel= savepath + str(identifier) \
-	+ '/best_valid_model.pkl', neval='all', Nsyn=Nsyn)
 
+RankingEval(neval=neval, loadmodel= savepath + str(identifier) \
+	+ '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+RankingEvalFil(neval=neval, loadmodel= savepath + str(identifier) + \
+	'/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
 ###############################################################################
 ###############################################################################
 ### notes:

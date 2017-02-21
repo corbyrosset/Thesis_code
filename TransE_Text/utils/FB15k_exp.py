@@ -159,13 +159,14 @@ def FB15kexp(state, channel):
                 round(time.time() - timeref, 3))
             timeref = time.time()
             channel.save()
+    print >> sys.stderr, "------------------------------------------------------"
+    print >> sys.stderr, "------------------------------------------------------"
     return channel.COMPLETE
 
 
 def launch(datapath='data/', dataset='FB15k', Nent=16296, rhoE=1, \
-    rhoL=5, Nsyn_rel = 1345, \
-    Nsyn=14951, Nrel=1345, loadmodel=False, loademb=False, \
-    op='Unstructured', simfn='Dot', ndim=50, marge=1., \
+    rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
+    loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
     ntrain = 'all', nvalid = 'all', ntest = 'all', seed=123, \
     savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/', loadmodelBi=False, \

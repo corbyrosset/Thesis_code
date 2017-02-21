@@ -80,7 +80,8 @@ def load_FB15k_data(state):
 
     There are 592,213 triplets with 14,951 entities and 1,345 relationships 
     which were randomly split into  483,142 train, 50,000 valid, and
-    59,071 test triples. 
+    59,071 test triples. The relationships occur at the bottom of every
+    column vector, hence why "traino[-state.Nrel:, :]"
 
     all of trainx, validx, testx are sparse matrices of 16296 = (14951+1345) by the split size (483,142, etc)
     '''
@@ -89,8 +90,8 @@ def load_FB15k_data(state):
     trainl = load_file(state.datapath + state.dataset + '-train-lhs.pkl')
     trainr = load_file(state.datapath + state.dataset + '-train-rhs.pkl')
     traino = load_file(state.datapath + state.dataset + '-train-rel.pkl')
-    if state.op == 'SE' or state.op == 'TransE':
-        traino = traino[-state.Nrel:, :] ### take bottom Nrel relations?
+    # if state.op == 'SE' or state.op == 'TransE':
+    traino = traino[-state.Nrel:, :] ### take bottom Nrel relations?
     # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
     #     trainl = trainl[:state.Nsyn, :]
     #     trainr = trainr[:state.Nsyn, :]
@@ -100,8 +101,8 @@ def load_FB15k_data(state):
     validl = load_file(state.datapath + state.dataset + '-valid-lhs.pkl')
     validr = load_file(state.datapath + state.dataset + '-valid-rhs.pkl')
     valido = load_file(state.datapath + state.dataset + '-valid-rel.pkl')
-    if state.op == 'SE' or state.op == 'TransE':
-        valido = valido[-state.Nrel:, :]
+    # if state.op == 'SE' or state.op == 'TransE':
+    valido = valido[-state.Nrel:, :]
     # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
     #     validl = validl[:state.Nsyn, :]
     #     validr = validr[:state.Nsyn, :]
@@ -112,8 +113,8 @@ def load_FB15k_data(state):
     testl = load_file(state.datapath + state.dataset + '-test-lhs.pkl')
     testr = load_file(state.datapath + state.dataset + '-test-rhs.pkl')
     testo = load_file(state.datapath + state.dataset + '-test-rel.pkl')
-    if state.op == 'SE' or state.op == 'TransE':
-        testo = testo[-state.Nrel:, :]
+    # if state.op == 'SE' or state.op == 'TransE':
+    testo = testo[-state.Nrel:, :]
     # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
     #     testl = testl[:state.Nsyn, :]
     #     testr = testr[:state.Nsyn, :]

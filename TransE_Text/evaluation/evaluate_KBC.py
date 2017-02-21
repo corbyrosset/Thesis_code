@@ -34,10 +34,10 @@ def micro_evaluation_statistics(res, n):
     dres['microgmrr'] = np.mean(np.reciprocal(res_combined))
     
     if rel_ranks:
-        dres['macrorelmean'] = np.mean(rel_ranks)
-        dres['macrorelmrr'] = np.mean(np.reciprocal(rel_ranks))        
-        dres['macrorelmedian'] = np.median(rel_ranks)
-        dres['macrorelhits@n'] = np.mean(np.asarray(rel_ranks) <= n) * 100
+        dres['microrelmean'] = np.mean(rel_ranks)
+        dres['microrelmrr'] = np.mean(np.reciprocal(rel_ranks))        
+        dres['microrelmedian'] = np.median(rel_ranks)
+        dres['microrelhits@n'] = np.mean(np.asarray(rel_ranks) <= n) * 100
 
     return dres
 
@@ -48,7 +48,6 @@ def macro_evaluation_statistics(res, idxo, n):
     '''
     dres = {}
     left_ranks, right_ranks, rel_ranks = res
-    ### TODO: write evaluation for relationship ranking
 
     listrel = set(idxo)
     ranks_per_relation = {}
@@ -82,7 +81,7 @@ def macro_evaluation_statistics(res, idxo, n):
     #     ranks_per_relation[idxo[i]][1] += [j]
     if rel_ranks:
         for i, j in enumerate(rel_ranks):
-            ranks_per_relation[idxo[i]][1] += [j]
+            ranks_per_relation[idxo[i]][2] += [j]
 
 
     for i in listrel: # looks messy, but it's actually simple
@@ -103,7 +102,7 @@ def macro_evaluation_statistics(res, idxo, n):
             rel_mean_rank[i] = np.mean(ranks_per_relation[i][2])
             rel_mrr[i] = np.mean(np.reciprocal(ranks_per_relation[i][2]))
             rel_med_rank[i] = np.median(ranks_per_relation[i][2])
-            rel_hitsatn[i] = np.mean(np.asarray(ranks_per_relation[i][2] + ranks_per_relation[i][1]) <= n) * 100
+            rel_hitsatn[i] = np.mean(np.asarray(ranks_per_relation[i][2]) <= n) * 100
 
             # also need to update generalized metrics to include relation ranks
             gen_mean_rank_per_rel[i] = np.mean(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2])
@@ -174,10 +173,8 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
             sr(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
 
         if rank_rel is not None:
-            err_rel = [np.argsort(np.argsort((rank_rel(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
+            err_rel += [np.argsort(np.argsort((rank_rel(l, r)[0]).flatten())[::-1]).flatten()[o] + 1]
 
-    print 'RankingScoreIdx, errl: ' + str(np.shape(errl))
-    print 'RankingScoreIdx, errr: ' + str(np.shape(errr))
     return errl, errr, err_rel
 
 ### apparently not used either... but it should be, we should compute
@@ -221,8 +218,10 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
 
         ### relations
         if rank_rel is not None:
-            inter_r = [i for i in il if i in ir]
-            rmv_idx_o = [true_triples[i,1] for i in inter_r if true_triples[i,1] != o]
+            inter_o = [i for i in il if i in ir]
+            rmv_idx_o = [true_triples[i,1] for i in inter_o if true_triples[i,1] != o]
+            ### why is it not this:
+            # rmv_idx_o = [i for i in inter_o if true_triples[i,1] != o]
             scores_rel = (rank_rel(l, r)[0]).flatten()
             # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from relation'
             scores_rel[rmv_idx_o] = -np.inf
@@ -239,7 +238,9 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
         to a file. Then call this file with the path to the best model as
         the first argument
     '''
-    print '\nEvaluating model on %s examples from test\nEach example ranked against %s other entities' % (neval, Nsyn)
+    print '\nRanking model on %s examples from test\nEach example ranked against %s other entities' % (neval, Nsyn)
+    if rel == True:
+        print 'RELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel)
 
     # Load model
     f = open(loadmodel)
@@ -283,32 +284,32 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     dres.update(macro_evaluation_statistics(res, idxo, n))
 
     print "MICRO RAW:"
-    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microlmean'], 3), round(dres['microlmrr'], 3), \
             round(dres['microlmedian'], 3), n, round(dres['microlhits@n'], 3))
-    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['micrormean'], 3), round(dres['micrormrr'], 3), \
             round(dres['micrormedian'], 3), n, round(dres['microrhits@n'], 3))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
             3), round(dres['microrelmedian'], 3), n, \
             round(dres['microrelhits@n'], 3))
-    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microgmean'], 3), round(dres['microgmrr'], 3), \
             round(dres['microgmedian'], 3), n, round(dres['microghits@n'], 3))
 
     print "MACRO RAW"
-    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrolmean'], 3), round(dres['macrolmrr'], 3), \
             round(dres['macrolmedian'], 3), n, round(dres['macrolhits@n'], 3))
-    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrormean'], 3), round(dres['macrormrr'], 3), \
             round(dres['macrormedian'], 3), n, round(dres['macrorhits@n'], 3))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
             3), round(dres['macrorelmedian'], 3), n, \
             round(dres['macrorelhits@n'], 3))    
-    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrogmean'], 3), round(dres['macrogmrr'], 3), \
             round(dres['macrogmedian'], 3), n, round(dres['macroghits@n'], 3))
 
@@ -317,7 +318,7 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
 ### apparently not used?
 def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', rel = False, dataset='FB15k', 
     op='TransE', neval='all', loadmodel='best_valid_model.pkl', 
-    fold=0, Nrel=14951, Nsyn=14951, Nsyn_rel = 1345, n=10):
+    fold=0, Nrel=1345, Nsyn=14951, Nsyn_rel = 1345, n=10):
 
     '''
         Same as RankingEval, but just excludes any triples that would have 
@@ -325,8 +326,10 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
         on a particular test triple.
 
     '''
-    print '\nEvaluating model on %s examples from test\nEach example ranked against %s other entities which are FILTERED' % (neval, Nsyn)
-    # Load model
+    print '\nRanking model on %s examples from test\nEach example ranked against %s other entities which are FILTERED' % (neval, Nsyn)
+    if rel == True:
+        print 'RELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel)
+
     f = open(loadmodel, 'r')
     embeddings = cPickle.load(f)
     leftop =cPickle.load(f)
@@ -338,8 +341,9 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     l = load_file(datapath + dataset + '-test-lhs.pkl')
     r = load_file(datapath + dataset + '-test-rhs.pkl')
     o = load_file(datapath + dataset + '-test-rel.pkl')
-    if type(embeddings) is list:
-        o = o[-embeddings[1].N:, :]
+    o = o[-Nrel:, :]
+    # if type(embeddings) is list:
+    #     o = o[-embeddings[1].N:, :]
     # o = o[-Nrel:, :]
 
     if neval == 'all':
@@ -388,33 +392,33 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     dres.update(macro_evaluation_statistics(restest, idxo, n))
 
     print "MICRO FILTERED:"
-    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microlmean'], 5), round(dres['microlmrr'], 5), \
             round(dres['microlmedian'], 5), n, round(dres['microlhits@n'], 3))
-    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['micrormean'], 5), round(dres['micrormrr'], 5), \
             round(dres['micrormedian'], 5),
             n, round(dres['microrhits@n'], 3))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
             3), round(dres['microrelmedian'], 3), n, \
             round(dres['microrelhits@n'], 3))
-    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microgmean'], 5), round(dres['microgmrr'], 5), \
             round(dres['microgmedian'], 5), n, round(dres['microghits@n'], 3))
 
     print "MACRO FILTERED"
-    print "\tleft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrolmean'], 5), round(dres['macrolmrr'], 5), \
             round(dres['macrolmedian'], 5), n, round(dres['macrolhits@n'], 3))
-    print "\tright mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrormean'], 5), round(dres['macrormrr'], 5), \
             round(dres['macrormedian'], 5), n, round(dres['macrorhits@n'], 3))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%n: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
+        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
             3), round(dres['macrorelmedian'], 3), n, \
             round(dres['macrorelhits@n'], 3))
-    print "\tglobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrogmean'], 5), round(dres['macrogmrr'], 5), \
             round(dres['macrogmedian'], 5), n, round(dres['macroghits@n'], 3))
 
