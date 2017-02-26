@@ -14,11 +14,11 @@ simfn = 'L2'
 ndim = 50 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
 marge = 1.0     # {0.5, 1.0}
-lremb = 0.002   # {0.01, 0.001}
-lrparam = 0.002 # {0.01, 0.001}
+lremb = 0.01   # {0.01, 0.001}
+lrparam = 0.01 # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
-totepochs = 1 # number of epochs
-test_all = 1   # number of epochs between ranking on validation sets again
+totepochs = 500 # number of epochs
+test_all = 10   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
@@ -28,11 +28,11 @@ rel = True   # whether to also rank relations
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
 ### previous runs...
-ntrain = 100 # 'all' # number of examples to actually compute ranks for
+ntrain = 1000 # 'all' # number of examples to actually compute ranks for
 		      # if you set to 'all', it will take a very long time
-nvalid = 100 # 'all'
-ntest = 100 # 'all'
-neval = 1000 # 'all' ### only for final testing, not training
+nvalid = 1000 # 'all'
+ntest = 1000 # 'all'
+neval = 'all' # 'all'### only for final testing, not training
 
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/'
 

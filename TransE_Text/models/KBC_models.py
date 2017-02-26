@@ -264,25 +264,29 @@ def TrainFn1Member(fnsim, embeddings, leftop, rightop, marge=1.0, rel=True):
 
     if hasattr(fnsim, 'params'):
         # If the similarity function has some parameters, we update them too.
-        gradientsparams = T.grad(cost,
-            leftop.params + rightop.params + fnsim.params)
-        updates = OrderedDict((i, i - lrparams * j) for i, j in zip(
-            leftop.params + rightop.params + fnsim.params, gradientsparams))
+        
+        # updates = sgd(cost, (leftop.params + rightop.params + fnsim.params), learning_rate=lrparams)
+        updates = adam(cost, (leftop.params + rightop.params + fnsim.params), learning_rate=lrparams)
     else:
-        gradientsparams = T.grad(cost, leftop.params + rightop.params)
-        updates = OrderedDict((i, i - lrparams * j) for i, j in zip(
-            leftop.params + rightop.params, gradientsparams))
-    gradients_embedding = T.grad(cost, embedding.E)
-    newE = embedding.E - lrembeddings * gradients_embedding
-    updates.update({embedding.E: newE})
+        # updates = sgd(cost, (leftop.params + rightop.params), learning_rate=lrparams)
+        updates = adam(cost, (leftop.params + rightop.params), learning_rate=lrparams)
+
+    # gradients_embedding = T.grad(cost, embedding.E)
+    # newE = embedding.E - lrembeddings * gradients_embedding
+    update_embeddings = sgd(cost, [embedding.E], learning_rate=lrembeddings)
+    updates.update(update_embeddings)
     if type(embeddings) == list:
         # If there are different embeddings for the relation member.
-        gradients_embedding = T.grad(cost, relationl.E)
-        newE = relationl.E - lrparams * gradients_embedding
-        updates.update({relationl.E: newE})
-        gradients_embedding = T.grad(cost, relationr.E)
-        newE = relationr.E - lrparams * gradients_embedding
-        updates.update({relationr.E: newE})
+        #update_embeddings_l = sgd(cost, [relationl.E], learning_rate=lrparams)
+        #updates.update(update_embeddings_l)
+        #update_embeddings_r = sgd(cost, [relationr.E], learning_rate=lrparams)
+        #updates.update(update_embeddings_r)
+
+        update_embeddings_l = adam(cost, [relationl.E], learning_rate=lrparams)
+        updates.update(update_embeddings_l)
+        update_embeddings_r = adam(cost, [relationr.E], learning_rate=lrparams)
+        updates.update(update_embeddings_r)
+
     """
     Theano function inputs.
     :input lrembeddings: learning rate for the embeddings.
