@@ -13,7 +13,7 @@ from evaluate_KBC import RankingEval
 simfn = 'L2'
 ndim = 50 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
-marge = 1.0     # {0.5, 1.0}
+marge = 0.5     # {0.5, 1.0}
 lremb = 0.01   # {0.01, 0.001}
 lrparam = 0.01 # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -48,7 +48,8 @@ else:
 
 print 'identifier: ' + str(identifier)
 print 'models saved to path: ' + str(savepath)
-launch(op='TransE', simfn= simfn, ndim= ndim, marge= marge, \
+launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
+	marge= marge, \
 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
 	savepath= savepath + str(identifier), \
