@@ -62,9 +62,35 @@ def create_random_mat(shape, listidx=None):
         idx_term += 1
     return randommat.tocsr()
 
+def binarize_sentences(sents, vocabSize):
+    '''
+    take as input a list of N sentences, each represented as a list of 
+    word_indexes (where word_index ranges from 0 to the vocab size, V). 
+    Convert this to a row-sparse scipy array of size N by V, which contains a 
+    1 in position (i, j) iff sentence i contained word j. Also return the 
+    inverse lengths of each sentence. 
+    '''
+    mat = scipy.sparse.lil_matrix((len(sents), vocabSize),
+            dtype=theano.config.floatX)
+    lens = []
+    for i, sent in enumerate(sents):
+        for j in sent:
+            mat[i, j] = 1
+        lens.append(1/float(len(sent))) # inverse of sentence length
+    return mat.tocsr(), lens
+
+def expand_to_mat(lst, sz):
+    '''
+    take as input a list of N values, each values on the range [0, sz)
+    and construct a sz by N sparse binary matrix
+    '''
+    V = np.ones((len(lst)))
+    J = np.arange(0, len(lst))
+    I = np.array(lst)
+    return scipy.sparse.coo_matrix((V,(I,J)),shape=(sz,len(lst))).tocsc()
 
 def load_file(path):
-    return scipy.sparse.csr_matrix(cPickle.load(open(path)),
+    return scipy.sparse.csc_matrix(cPickle.load(open(path)),
             dtype=theano.config.floatX)
 
 
@@ -85,7 +111,7 @@ def load_FB15k_data(state):
 
     all of trainx, validx, testx are sparse matrices of 16296 = (14951+1345) by the split size (483,142, etc)
     '''
-
+    start = time.clock()
     # Positives
     trainl = load_file(state.datapath + state.dataset + '-train-lhs.pkl')
     trainr = load_file(state.datapath + state.dataset + '-train-rhs.pkl')
@@ -160,13 +186,19 @@ def load_FB15k_data(state):
         testridx = idxtr[:state.ntest]
         testoidx = idxto[:state.ntest]
     
+    elapsed = time.clock()
+    elapsed = elapsed - start
+    print "loaded FB15k data in: %s seconds" % elapsed
+
     true_triples=np.concatenate([idxtl,idxvl,idxl,idxto,idxvo,idxo,idxtr,idxvr,idxr]).reshape(3,idxtl.shape[0]+idxvl.shape[0]+idxl.shape[0]).T
+
+    
 
     # return trainl, trainr, traino, idxl, idxr, idxo, idxvl, idxvr, idxvo, idxtl, idxtr, idxto, true_triples
 
     return trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, validridx, validoidx, testlidx, testridx, testoidx, true_triples
 
-def load_clueweb_data(state):
+def load_FB15k_Clueweb_data(state):
     '''
     From the paper: https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:cr_paper_nips13.pdf
 
@@ -179,7 +211,113 @@ def load_clueweb_data(state):
     59,071 test triples. 
 
     all of trainx, validx, testx are sparse matrices of 16296 = (14951+1345) by the split size (483,142, etc)
+
+    - text_per_triple_cntr: The count total number of textual instances for each triple
+    - unique_text_per_triple: The set of unique text mentions for each triple
+    - triple_per_text: The converse of unique_text_per_triple, i.e. the set
+         of triples labeled on each unique textual instance. This is scary
+
+    Note, textual triples will not be evaluated on, not during training nor testing. 
     '''
 
-    print 'not implemented'
-    pass
+    data_path = state.datapath
+    start = time.clock()
+    idxl = None
+    idxr = None
+    idxo = None
+    idxvl = None
+    idxvr = None
+    idxvo = None
+    idxtl = None
+    idxtr = None
+    idxto = None
+    text_train = None
+    text_valid = None
+    text_test = None
+    sent2idx = None
+    idx2sent = None
+    text_per_triple_cntr = None
+    unique_text_per_triple = None
+    triple_per_text = None
+
+    datatyp = 'train'
+    lhs_train = load_file(data_path + 'clueweb_FB15k_%s-lhs.pkl' % datatyp)
+    rhs_train = load_file(data_path + 'clueweb_FB15k_%s-rhs.pkl' % datatyp)
+    rel_train = load_file(data_path + 'clueweb_FB15k_%s-rel.pkl' % datatyp)
+    text_train = np.array(cPickle.load(open(data_path + 'clueweb_FB15k_%s-sent.pkl' % datatyp)))[:state.numTextTrain]
+    rel_train = rel_train[-state.Nrel:, :]
+    ### TODO: reformat input data so you don't need to do '[0, :].tolist()'
+    idxl = expand_to_mat(convert2idx(lhs_train)[:state.numTextTrain], \
+            state.Nent)
+    idxr = expand_to_mat(convert2idx(rhs_train)[:state.numTextTrain], \
+            state.Nent)
+    idxo = expand_to_mat(convert2idx(rel_train)[:state.numTextTrain], \
+            state.Nrel)
+    print np.shape(text_train)
+
+    # datatyp = 'valid'
+    # lhs_valid = load_file(data_path + 'clueweb_FB15k_%s-lhs.pkl' % datatyp)
+    # rhs_valid = load_file(data_path + 'clueweb_FB15k_%s-rhs.pkl' % datatyp)
+    # rel_valid = load_file(data_path + 'clueweb_FB15k_%s-rel.pkl' % datatyp)
+    # text_valid = load_file(data_path + 'clueweb_FB15k_%s-sent.pkl' % datatyp)
+    # rel_valid = rel_valid[-state.Nrel:, :]
+    # idxvl = convert2idx(lhs_valid)
+    # idxvr = convert2idx(rhs_valid)
+    # idxvo = convert2idx(rel_valid)
+
+    # datatyp = 'test'
+    # lhs_test = load_file(data_path + 'clueweb_FB15k_%s-lhs.pkl' % datatyp)
+    # rhs_test = load_file(data_path + 'clueweb_FB15k_%s-rhs.pkl' % datatyp)
+    # rel_test = load_file(data_path + 'clueweb_FB15k_%s-rel.pkl' % datatyp)
+    # text_test = load_file(data_path + 'clueweb_FB15k_%s-sent.pkl' % datatyp)
+    # rel_test = rel_test[-state.Nrel:, :]
+    # idxtl = convert2idx(lhs_test)
+    # idxtr = convert2idx(rhs_test)
+    # idxto = convert2idx(rel_test)
+    
+    ### index over unique sentences
+    datatyp = 'all'
+    # sent2idx = cPickle.load(open(data_path + 'clueweb_FB15k_%s-sent2idx.pkl' % datatyp, 'r'))
+    idx2sent = cPickle.load(open(data_path + 'clueweb_FB15k_%s-idx2sent.pkl' % datatyp, 'r'))
+
+    ### counters of associations between text and triples
+    # text_per_triple_cntr = cPickle.load(open(data_path + \
+    #    'grouped_FB15k_clueweb_triples-counts.pkl', 'r'))
+    # unique_text_per_triple = cPickle.load(open(data_path + \
+    #    'grouped_FB15k_clueweb_triples-text_sets.pkl', 'r'))
+    triple_per_text = cPickle.load(open(data_path + \
+        'grouped_FB15k_clueweb_triples-triple_per_text_count.pkl', 'r'))
+
+
+    elapsed = time.clock()
+    elapsed = elapsed - start
+
+    print "loaded clueweb data in: %s seconds" % elapsed
+    print "size of clueweb data: %s bytes" % (sys.getsizeof(idxl) \
+    + sys.getsizeof(idxr) + sys.getsizeof(idxo) + sys.getsizeof(idxvl) \
+    + sys.getsizeof(idxvr) + sys.getsizeof(idxvo) + sys.getsizeof(idxtl) \
+    + sys.getsizeof(idxtr) + sys.getsizeof(idxto) + sys.getsizeof(sent2idx) \
+    + sys.getsizeof(idx2sent) + sys.getsizeof(text_per_triple_cntr) \
+    + sys.getsizeof(unique_text_per_triple) + sys.getsizeof(triple_per_text))
+    print '\tidxl: ' + str(sys.getsizeof(idxl)) + ' bytes'
+    print '\tidxr: ' + str(sys.getsizeof(idxr)) + ' bytes'
+    print '\tidxo: ' + str(sys.getsizeof(idxo)) + ' bytes'
+    print '\tidxvl: ' + str(sys.getsizeof(idxvl)) + ' bytes'
+    print '\tidxvr: ' + str(sys.getsizeof(idxvr)) + ' bytes'
+    print '\tidxvo: ' + str(sys.getsizeof(idxvo)) + ' bytes'
+    print '\tidxtl: ' + str(sys.getsizeof(idxtl)) + ' bytes'
+    print '\tidxtr: ' + str(sys.getsizeof(idxtr)) + ' bytes'
+    print '\tidxto: ' + str(sys.getsizeof(idxto)) + ' bytes'
+    print '\tsent2idx: ' + str(sys.getsizeof(sent2idx)) + ' bytes'
+    print '\tidx2sent: ' + str(sys.getsizeof(idx2sent)) + ' bytes'
+    print '\ttext_per_triple_cntr: ' + \
+        str(sys.getsizeof(text_per_triple_cntr)) + ' bytes'
+    print '\tunique_text_per_triple: ' + \
+        str(sys.getsizeof(unique_text_per_triple)) + ' bytes'
+    print '\ttriple_per_text: ' + str(sys.getsizeof(triple_per_text)) + \
+        ' bytes'
+
+    return idxl, idxr, idxo, text_train, idxvl, idxvr, idxvo, text_valid, \
+        idxtl, idxtr, idxto, text_test, text_per_triple_cntr, \
+        unique_text_per_triple, triple_per_text, sent2idx, idx2sent
+

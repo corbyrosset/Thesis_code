@@ -319,3 +319,80 @@ class Embeddings(object):
         self.updates = OrderedDict({self.E: self.E / T.sqrt(T.sum(self.E ** 2, axis=0))})
         self.normalize = theano.function([], [], updates=self.updates)
 
+class WordEmbeddings(object):
+
+    def __init__(self, vocabSize, dim, wordFile=None, vocab=None):
+        '''
+        :param vocabSize: the number of words in the vocabulary
+        :param dim: the dimension of each word embedding
+        :param wordFile: the word embedding to initialize, else random
+        :param vocab: the words in the vocabulary, plus an UNK token
+
+        if a dictionary is provided, project the word embeddings onto 
+        the dictionary. We want take the intersection of the provided 
+        dictionary words and the word embedddings. 
+        '''
+        self.vocabSize = 0
+        self.dim = dim
+        self.wordFile = wordFile
+        self.vocab = vocab
+        if self.vocab: # if a valid dictionary file is provided
+            dictionary = set([])
+            for i in open(self.vocab, 'r'):
+                word = i.strip().lower()
+                if word:
+                    dictionary.add(i.strip().lower())
+            dictionary.add('UUUNKKK') ### OOV words, very important
+            self.vocab = dictionary
+            print 'loaded vocabulary of %s words' % len(self.vocab)
+
+        if self.wordFile:
+            print 'loading word embeddings from %s' % wordFile
+            # map words into their index (row) of word embedding matrix 
+            self.vocab2indx = {} 
+            self.We = [] # word embedding matrix
+            counter = 0
+            with open(self.wordFile,'r') as f:
+                for (idx, line) in enumerate(f):
+                    line = line.split()
+                    word = line[0].decode('utf8','ignore')
+                    vec = line[1:]
+                    if self.vocab and word not in self.vocab:
+                        ### not in dictionary
+                        continue
+                    if word in self.vocab2indx:
+                        ### this is ok, since the file is actually a 
+                        # concatenation of word2vec and paragrams, so there
+                        # will be some repeat word embeddings
+                        continue
+                    assert len(vec) == dim
+                    self.vocab2indx[word] = counter
+                    self.We.append(vec)
+                    counter += 1
+
+            assert 'UUUNKKK' in self.vocab2indx
+            temp = np.asarray(self.We, dtype=theano.config.floatX)
+            self.We = theano.shared(value=temp, name='WordEmbedding')
+            self.updates = OrderedDict({self.We: self.We / T.sqrt(T.sum(self.We ** 2, axis=0))})
+            self.normalize = theano.function([], [], updates=self.updates)
+            print 'initialized %s word embeddings, out of %s that were provided in file' % (str(np.shape(temp)), idx)
+            # vocab indices must match word embedding indices
+            self.vocabSize = len(self.vocab2indx)
+            assert len(self.vocab2indx) == np.shape(temp)[0] 
+
+        else:
+            if vocab is None:
+                print 'if a wordfile is not supplied, you must supply a vocab'
+                exit()
+            raise NotImplementedError
+
+
+    def getEmbeddings(self):
+        return self.We
+
+    def getVocab2Idx(self):
+        return self.vocab2indx
+
+    def getNormalizeFn(self):
+        return self.normalize
+

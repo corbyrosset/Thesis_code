@@ -7,11 +7,9 @@ from evaluate_KBC import RankingEval
 
 ###############################################################################
 ###############################################################################
-
-# launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
-#    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
+datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 simfn = 'L2'
-ndim = 50 # dimension of both relationship and entity embeddings
+ndim = 300 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
 marge = 0.5     # {0.5, 1.0}
 lremb = 0.01   # {0.01, 0.001}
@@ -34,13 +32,30 @@ nvalid = 1000 # 'all'
 ntest = 1000 # 'all'
 neval = 'all' # 'all'### only for final testing, not training
 
+###############################################################################
+### parameters specific for textual triples. 
+textsim = 'L2' # how to compare a textual relation to KB relation
+vocab_size = 354936 # size of vocabulary
+word_dim = 300 # dimension of each word embedding
+word_file = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
+	# path to file containing word embeddings
+vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
+gamma = 0.01 # weight to use for cost of textual triple
+# assert ndim == word_dim
+numTextTrain = 10000 # num textual triples to use in each epoch of training
+
+###############################################################################
+###############################################################################
+# for the word-averaging model of sentence embeddings, 
+assert word_dim == ndim ### else can't compare sentence and entity embeddings
+
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE_Text/'
 
 if rel == True:
-	identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) \
+	identifier = 'TransE_text_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_REL'
 else:
-	identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) \
+	identifier = 'TransE_text_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_lrate_' + str(lremb)
 
 ###############################################################################
@@ -48,13 +63,14 @@ else:
 
 print 'identifier: ' + str(identifier)
 print 'models saved to path: ' + str(savepath)
-launch(experiment_type = 'FB15k_text', op='TransE_text', simfn= simfn, \
+launch_text(experiment_type = 'FB15k_text', op='TransE_text', simfn= simfn, \
 	ndim= ndim, marge= marge, \
 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
-	savepath= savepath + str(identifier), \
+	savepath= savepath + str(identifier), numTextTrain = numTextTrain, \
 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/')
+	textsim = textsim, vocab_size = vocab_size, vocab = vocab, \
+	word_dim=word_dim, word_file=word_file, gamma = gamma, datapath = datapath)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
@@ -63,46 +79,6 @@ RankingEval(neval=neval, loadmodel= savepath + str(identifier) \
 	+ '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
 RankingEvalFil(neval=neval, loadmodel= savepath + str(identifier) + \
 	'/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+
 ###############################################################################
 ###############################################################################
-### notes:
-'''
-calls FB15k_exp.launch()
-	- which then calls FB15k_exp.FB15kexp()
-
-	- FB15kexp():
-		creates left and right ops, for TransE this is
-		LayerTrans and Unstructured = identiy
-		
-		also creates random/loads embedding matrices 
-		embeddings = Embeddings(np.random, state.Nent, state.ndim) ENTITIES
-		relationVec = Embeddings(np.random, state.Nrel, state.ndim, 'relvec')
-        embeddings = [embeddings, relationVec, relationVec] meaning that left
-        and right relations are equal, there is only one relaitno paramter
-
-        cretes/evals similiarty function between left and right; from model.py
-
-        creates/compiles training and ranking functions:
-        trainfunc = TrainFn1Member(simfn, embeddings, leftop, rightop,
-                marge=state.marge, rel=False)
-        ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
-                subtensorspec=state.Nsyn)
-        rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
-                subtensorspec=state.Nsyn)
-
-	Controls training iterations:
-
-	outtmp = trainfunc(state.lremb, state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr) ### what is outtmp:
-	    :output mean(cost): average cost.
-    	:output mean(out): ratio of examples for which the margin is violated,
-                       i.e. for which an update occurs.
-
-	evaluation on dev data: FilteredRankingScoreIdx()
-
-Model.py:
-	- line 1070: no adam optimizer or anything just SGD. 
-FB15k_evaluation:
-	- RankingEval():
-
-'''
-

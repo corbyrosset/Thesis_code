@@ -1,12 +1,27 @@
 Code for Corby's thesis on jointly embedding knowledge graphs and textual instances of their triples
 
-TODO: fix sparse matrices in Clueweb_to_FB15k.py to properly store text as file
-TODO: implement MRR and Hits@10 in main training loops (from evaluate_KBC.py)
-TODO: in all models/*_models.py, output results for relationship ranking, 
-	e.g. ### TODO: self.rankrelfunc = RankRelFnIdx
-	e.g. RankingScoreIdx in evaluate_KBC.py
-TODO: FIX FilteredRankingScoreIdx in evaluate_KBC.py!
-TODO: implement 
+TODO: create a "high quality" textual triples dataset that filters out
+	sentences that are 
+	1) labeled with too many different triples (bc theyre not indicative 
+		of a unique relationship)
+	2) labeled with more than one relationship?
+	3) Trigram and Precision filtering of Toutanova: I counted for each 
+	pattern and each trigram in a pattern (trigram being a consecutive trigram 
+	in the dependency path including words and dependency links), the total 
+	number of occurrence. The precision for pattern or pattern trigram P is 
+	defined as follows:  for every entity pair e1,e2  which appears with P we 
+	record whether e1,e2 has any KB relation (in the training KB). Then the 
+	proportion of such e1,e2 that have a KB relation is defined as the 
+	precision. I had cutoffs on patterns and pattern trigrams, where if a 
+	pattern passed the cutoff or if one of its trigrams passed the cutoff, the 
+	pattern was included in the pruned set.
+
+TODO: create word embeddings matrix that indexes rows as individual words
+TODO: integrate the SIF word average embedding class into the 
+	FB15k_text_experiment file. (perhaps forget the RMPC part, since that can't
+	be part of backprop)
+TODO: use weightfile from paragrams code to actually do weighted average of 
+	words in sentence
 
 1. Filtering Clueweb Annotations down to FB15k
 -----------------------------------------------------------------
@@ -53,9 +68,14 @@ done writing triple components to their respective files
 
 
 
+The user can rank left and right entities, and optionally relations, during 
+training and during test. There are parameters for how many triples to
+rank after how many epochs in the main training loop.
 
-
-
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+-----------------------------------------------------------------
 
 
 

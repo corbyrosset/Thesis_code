@@ -1,0 +1,179 @@
+import pickle, sys
+sys.path.append('../src')
+import data_io # eval
+import numpy as np
+from scipy.stats import spearmanr
+from scipy.stats import pearsonr
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+from sklearn.decomposition import TruncatedSVD
+
+class SIF_word_averaging:
+
+    def __init__():
+        # Following is the word embeddings maps to use. Many options for this:
+        # 1) '../data/paragram_sl999_small.txt', # download it from John 
+        #       Wieting's github (https://github.com/jwieting/iclr2016)
+        # 2) '/Users/corbinrosset/Dropbox/GloVe/glove.840B.300d.txt'
+        self.wordfile = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
+                
+        self.weightfile = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/WordEmdgs/SIF/auxiliary_data/enwiki_vocab_min200.txt'
+        self.weightparas = 1e-3 # (0.01 works best?)
+
+        self.rmpcs = 3 # remove the first k principle components, (4 is best)
+        self.scoring_function = None
+        self.save_result = False 
+        self.LW = 1e-5
+        self.LC = 1e-5
+        self.eta = 0.05
+        self.We = None # word embeddings matrix
+
+    ###############################################################################
+    ###                         Helper Methods                                  ###
+    ###############################################################################
+
+    def getWordmap(textfile):
+        words={}
+        We = []
+        # f = open(textfile,'r')
+        # lines = f.readlines() ### omfg who did this
+        with open(textfile,'r') as f:
+            for (n,i) in enumerate(f):
+                i=i.split()
+                j = 1
+                v = []
+                while j < len(i):
+                    v.append(float(i[j]))
+                    j += 1
+                words[i[0]]=n
+                We.append(v)
+        return (words, np.array(We))
+
+    def prepare_data(list_of_seqs):
+        lengths = [len(s) for s in list_of_seqs]
+        n_samples = len(list_of_seqs)
+        maxlen = np.max(lengths)
+        x = np.zeros((n_samples, maxlen)).astype('int32')
+        x_mask = np.zeros((n_samples, maxlen)).astype('float32')
+        for idx, s in enumerate(list_of_seqs):
+            x[idx, :lengths[idx]] = s
+            x_mask[idx, :lengths[idx]] = 1.
+        x_mask = np.asarray(x_mask, dtype='float32')
+        return x, x_mask
+
+    def lookupIDX(words,w):
+        '''get index of out-of-vocab words'''
+        w = w.lower()
+        if len(w) > 1 and w[0] == '#':
+            w = w.replace("#","")
+        if w in words:
+            return words[w]
+        elif 'UUUNKKK' in words:
+            return words['UUUNKKK']
+        else:
+            return len(words) - 1 ### what does this do???
+
+    def getSeq(p1,words):
+        '''accepts the phrase as a string, return a list of indices corresponding to the words'''
+        p1 = p1.split()
+        X1 = []
+        for i in p1:
+            X1.append(lookupIDX(words,i))
+        return X1
+
+    def getSeqs(p1,p2,words):
+        return getSeq(p1, words), getSeq(p2, words)
+
+
+    ###########################################################################
+    ###                     SIF Averaging Methods                           ###
+    ###########################################################################
+
+    def get_weighted_average(self, x, w):
+        """
+        Compute the weighted average vectors
+        :param We: We[i,:] is the vector for word i
+        :param x: x[i, :] are the indices of the words in sentence i
+        :param w: w[i, :] are the weights for the words in sentence i
+        :return: emb[i, :] are the weighted average vector for sentence i
+        """
+        n_samples = x.shape[0]
+        emb = np.zeros((n_samples, self.We.shape[1]))
+        for i in xrange(n_samples):
+            emb[i,:] = w[i,:].dot(We[x[i,:],:]) / np.count_nonzero(w[i,:])
+        return emb
+
+    def compute_pc(self, X, npc=1):
+        """
+        Compute the principal components
+        :param X: X[i,:] is a data point
+        :param npc: number of principal components to remove
+        :return: component_[i,:] is the i-th pc
+        """
+        svd = TruncatedSVD(n_components=npc, n_iter=7, random_state=0)
+        svd.fit(X)
+        return svd.components_
+
+    def remove_pc(self, X, npc=1):
+        """
+        Remove the projection on the principal components
+        :param X: X[i,:] is a data point
+        :param npc: number of principal components to remove
+        :return: XX[i, :] is the data point after removing its projection
+        """
+        pc = compute_pc(X, npc)
+        if npc==1:
+            XX = X - X.dot(pc.transpose()) * pc
+        else:
+            XX = X - X.dot(pc.transpose()).dot(pc)
+        return XX
+
+
+    def weighted_average_sim_rmpc(self, x1, w1):
+        """
+        Compute the embedding of a sentence using weighted average + removing the projection on the first principal component
+        :param We: We[i,:] is the vector for word i
+        :param x1: x1[i, :] are the indices of the words in the sentence
+        :param w1: w1[i, :] are the weights for the words in the sentence 
+        :param self.rmpc: if >0, remove the projections of the sentence embeddings to their first principal component
+        :return: scores, scores[i] is the matching score of the pair i
+        """
+        emb1 = get_weighted_average(We, x1, w1)
+        if  params.rmpc > 0:
+            emb1 = remove_pc(emb1, params.rmpc)
+
+        # inn = (emb1 * emb2).sum(axis=1) # inner products
+        emb1norm = np.sqrt((emb1 * emb1).sum(axis=1))
+        # scores = inn / emb1norm  # cosine similarity
+        return emb1, emb1norm
+
+
+
+###############################################################################
+###                                 Main                                    ###
+###############################################################################
+
+params = params()
+parr4para = {}
+sarr4para = {}
+scoring_function = weighted_average_sim_rmpc
+wordfile = wordfiles[0]
+
+
+### load word embeddings map
+print 'loading word embeddings map...will take many minutes'
+(words, We) = data_io.getWordmap(wordfile)
+print 'word vectors loaded from %s' % wordfile
+    
+
+### tune weight and rmpc params in evaluation of similarity
+for weightpara in weightparas:
+    print '\n==================================\n'
+    #### load weight for each word using idf or tf-idf
+    word2weight = data_io.getWordWeight(weightfile, weightpara)
+    print 'done with word2weight' 
+    weight4ind = data_io.getWeight(words, word2weight)
+    print 'done with weight4ind'
+
+
+
