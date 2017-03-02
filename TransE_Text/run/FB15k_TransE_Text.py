@@ -11,12 +11,12 @@ datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 simfn = 'L2'
 ndim = 300 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
-marge = 0.5     # {0.5, 1.0}
+marge = 1.0     # {0.5, 1.0}
 lremb = 0.01   # {0.01, 0.001}
 lrparam = 0.01 # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
 totepochs = 500 # number of epochs
-test_all = 10   # number of epochs between ranking on validation sets again
+test_all = 1   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
@@ -40,7 +40,7 @@ word_dim = 300 # dimension of each word embedding
 word_file = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
 	# path to file containing word embeddings
 vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
-gamma = 0.01 # weight to use for cost of textual triple
+gamma = 0.01 #{0.001, 0.01, 0.1, 1} weight to use for cost of textual triple
 # assert ndim == word_dim
 numTextTrain = 10000 # num textual triples to use in each epoch of training
 

@@ -490,7 +490,9 @@ class TransE_text_model():
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
                 self.rightop = cPickle.load(f)
-                self.simfn = cPickle.load(f)
+                self.KBsim = cPickle.load(f)
+                self.textsim = cPickle.load(f)
+                self.word_embeddings = cPickle.load(f)
                 ### TODO: write the word embeddings to file as well
                 f.close()
             except:

@@ -97,7 +97,7 @@ def FB15kexp_text(state, channel):
         text_trainlidx[:, order]
         text_trainridx[:, order]
         text_trainoidx[:, order]
-        text_trainsent[order] ### TODO: sentences have shape [1, NUM] rather than (NUM,) it's annoying.
+        text_trainsent[order]
         
         # Negatives, TODO, these should be filtered as well?
         trainln = create_random_mat(trainl.shape, np.arange(state.Nsyn))
@@ -106,9 +106,6 @@ def FB15kexp_text(state, channel):
             np.arange(state.Nsyn))
         text_trainrn = create_random_mat(text_trainridx.shape, \
             np.arange(state.Nsyn))
-        # print np.shape(trainln)
-        # print np.shape(text_trainrn)
-        # print 'checkpoint 1'
 
         if state.rel == True: ### create negative relationship instances
             trainon =create_random_mat(traino.shape, np.arange(state.Nsyn_rel))
@@ -186,7 +183,7 @@ def FB15kexp_text(state, channel):
             else:
                 model.embeddings.normalize()
 
-        print >> sys.stderr, "------------------------------------------------------"
+        print >> sys.stderr, "------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
         print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates: %s%%" % (
@@ -241,7 +238,9 @@ def FB15kexp_text(state, channel):
             cPickle.dump(model.embeddings, f, -1)
             cPickle.dump(model.leftop, f, -1)
             cPickle.dump(model.rightop, f, -1)
-            cPickle.dump(model.simfn, f, -1)
+            cPickle.dump(model.KBsim, f, -1)
+            cPickle.dump(model.textsim, f, -1)
+            cPickle.dump(model.word_embeddings, f, -1)
             f.close()
             state.nbepochs = epoch_count
             print >> sys.stderr, "\t(ranking took %s seconds)" % (
