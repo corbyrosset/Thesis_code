@@ -11,13 +11,14 @@ from evaluate_KBC import RankingEval
 # launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
 simfn = 'L2'
-ndim = 50 # dimension of both relationship and entity embeddings
+margincostfunction = 'margincost' ### from top of Operations
+ndim = 150 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
-marge = 0.5     # {0.5, 1.0}
+marge = 0.5     # {0.5, 1.0} 
 lremb = 0.01   # {0.01, 0.001}
 lrparam = 0.01 # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
-totepochs = 500 # number of epochs
+totepochs = 300 # number of epochs
 test_all = 10   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
@@ -38,10 +39,10 @@ savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15
 
 if rel == True:
 	identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_REL'
+		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_REL'
 else:
 	identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_lrate_' + str(lremb)
+		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction)
 
 ###############################################################################
 ###############################################################################
@@ -49,7 +50,7 @@ else:
 print 'identifier: ' + str(identifier)
 print 'models saved to path: ' + str(savepath)
 launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
-	marge= marge, \
+	marge= marge, margincostfunction=margincostfunction, \
 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
 	savepath= savepath + str(identifier), \

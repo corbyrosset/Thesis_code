@@ -52,7 +52,7 @@ def FB15kexp_text(state, channel):
 
     ### load data
     trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, \
-    validridx, validoidx, testlidx, testridx, testoidx, true_triples \
+    validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
     = load_FB15k_data(state)
     print np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx)
 
@@ -67,8 +67,6 @@ def FB15kexp_text(state, channel):
     print np.shape(text_trainlidx), np.shape(text_trainridx), np.shape(text_trainoidx), np.shape(text_trainsent)
     text_batchsz = text_trainlidx.shape[1] / state.nbatches
 
-    ### model has properties: trainfunc, ranklfunc, rankrfunc, 
-    ### embeddings, leftop, rightop, and simfn
     model = TransE_text_model(state)
     vocab2Idx = model.word_embeddings.getVocab2Idx()
     vocabSize = model.word_embeddings.vocabSize
@@ -109,7 +107,7 @@ def FB15kexp_text(state, channel):
 
         if state.rel == True: ### create negative relationship instances
             trainon =create_random_mat(traino.shape, np.arange(state.Nsyn_rel))
-            text_trainon = create_random_mat(traino.shape, \
+            text_trainon = create_random_mat(text_trainoidx.shape, \
                 np.arange(state.Nsyn_rel))
         
         
@@ -135,21 +133,13 @@ def FB15kexp_text(state, channel):
                 out_kb += [outtmp[0] / float(KB_batchsize)]
                 out_kb_percent += [outtmp[1]]
 
-            # embeddings normalization
-            ### TODO: why only normalize embeddings[0]?? only normalize entity 
-            ### embs, not the relationships ones??
-            if type(model.embeddings) is list:
-                model.embeddings[0].normalize()
-            else:
-                model.embeddings.normalize()
-
             ### Training Textual Triple Minibatches
             text_tmpl  = text_trainlidx[:, i*text_batchsz:(i + 1)*text_batchsz]
             text_tmpr  = text_trainridx[:, i*text_batchsz:(i + 1)*text_batchsz]
             text_tmpo  = text_trainoidx[:, i*text_batchsz:(i + 1)*text_batchsz]
             text_tmpnl = text_trainln[:, i*text_batchsz:(i + 1)*text_batchsz]
             text_tmpnr = text_trainrn[:, i*text_batchsz:(i + 1)*text_batchsz]
-            ### regardles if rel == True, we need the negative relations
+            ### regardles if rel == True, we need the negative relations 4 text
             text_tmpno = text_trainon[:, i*text_batchsz:(i + 1)*text_batchsz]
             sent_idxs  = text_trainsent[i*text_batchsz:(i + 1)*text_batchsz]
             
@@ -168,10 +158,14 @@ def FB15kexp_text(state, channel):
             # print '\tskipped %s of %s triples bc bad text' % (skip_counter, len(sent_idx))
             
             # training iteration, it doesn't matter if state.rel == True
-            outtmp = model.trainFuncText(state.lremb, state.lrparam,
-                    text_tmpl, text_tmpr, text_tmpo, text_tmpnl, \
-                    text_tmpnr, text_tmpno, text_tmpsents, inv_lens, \
-                    state.gamma)
+            ### if using TrainMemberFn1Text
+            # outtmp = model.trainFuncText(state.lremb, state.lrparam,
+            #         text_tmpl, text_tmpr, text_tmpo, text_tmpnl, \
+            #         text_tmpnr, text_tmpno, text_tmpsents, inv_lens, \
+            #         state.gamma)
+            ### if using TrainFn1MemberTextONLY!!!
+            outtmp = model.trainFuncText(state.lremb, state.lrparam, \
+                text_tmpo, text_tmpno, text_tmpsents, inv_lens, state.gamma)
             out_text += [outtmp[0] / float(text_batchsz)]
             out_text_percent += [outtmp[1]]
 
@@ -229,7 +223,9 @@ def FB15kexp_text(state, channel):
                 cPickle.dump(model.embeddings, f, -1)
                 cPickle.dump(model.leftop, f, -1)
                 cPickle.dump(model.rightop, f, -1)
-                cPickle.dump(model.simfn, f, -1)
+                cPickle.dump(model.KBsim, f, -1)
+                cPickle.dump(model.textsim, f, -1)
+                cPickle.dump(model.word_embeddings, f, -1)
                 f.close()
                 print >> sys.stderr, "\t\tNEW BEST VALID >> test: %s" % (
                         state.besttest)
@@ -247,8 +243,8 @@ def FB15kexp_text(state, channel):
                 round(time.time() - timeref, 3))
             timeref = time.time()
             channel.save()
-    print >> sys.stderr, "------------------------------------------------------"
-    print >> sys.stderr, "------------------------------------------------------"
+    print >> sys.stderr, "------------------------------------------------------------"
+    print >> sys.stderr, "------------------------------------------------------------"
     return channel.COMPLETE
 
 
@@ -289,8 +285,9 @@ def FB15kexp(state, channel):
 
     ### load data
     trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, \
-    validridx, validoidx, testlidx, testridx, testoidx, true_triples \
+    validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
     = load_FB15k_data(state)
+    print np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx)
 
     ### model has properties: trainfunc, ranklfunc, rankrfunc, 
     ### embeddings, leftop, rightop, and simfn
@@ -316,10 +313,18 @@ def FB15kexp(state, channel):
         traino = traino[:, order]
         
         # Negatives, TODO, these should be filtered as well?
-        trainln = create_random_mat(trainl.shape, np.arange(state.Nsyn))
-        trainrn = create_random_mat(trainr.shape, np.arange(state.Nsyn))
-        if state.rel == True: ### create negative relationship instances
-            trainon = create_random_mat(traino.shape, np.arange(state.Nsyn_rel))
+        # trainln = create_random_mat(trainl.shape, np.arange(state.Nsyn))
+        # trainrn = create_random_mat(trainr.shape, np.arange(state.Nsyn))
+        # if state.rel == True: ### create negative relationship instances
+        #     trainon = create_random_mat(traino.shape, np.arange(state.Nsyn_rel))
+
+        if state.rel == True:
+            trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB, rels=state.Nsyn_rel)
+            # print np.shape(trainln), np.shape(trainrn), np.shape(trainon)
+        else:
+            trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB)
+            # print np.shape(trainln), np.shape(trainrn)
+
 
         for i in range(state.nbatches):
             tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
@@ -419,7 +424,7 @@ def FB15kexp(state, channel):
 ###############################################################################
 
 def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
-    Nent=16296, rhoE=1, \
+    Nent=16296, rhoE=1, margincostfunction='margincost', \
     rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
@@ -433,6 +438,7 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
     state.dataset = dataset
     state.savepath = savepath
     state.experiment_type = experiment_type
+    state.margincostfunction = margincostfunction
 
 
     state.Nent = Nent # Total number of entities
@@ -475,7 +481,7 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
 
 def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     dataset='FB15k', Nent=16296, rhoE=1, rhoL=5, Nsyn_rel = 1345, \
-    Nsyn=14951, Nrel=1345, loadmodel=False, \
+    Nsyn=14951, Nrel=1345, loadmodel=False, margincostfunction='margincost', \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
     ntrain = 'all', nvalid = 'all', ntest = 'all', textsim = 'L2', \
@@ -489,6 +495,7 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     state.dataset = dataset
     state.savepath = savepath
     state.experiment_type = experiment_type
+    state.margincostfunction = margincostfunction
 
 
     state.Nent = Nent # Total number of entities

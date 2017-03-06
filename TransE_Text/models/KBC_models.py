@@ -205,7 +205,7 @@ def RankRelFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None):
     return theano.function([idxl, idxr], [simi],
             on_unused_input='ignore')
 
-def TrainFn1Member(fnsim, embeddings, leftop, rightop, marge=1.0, rel=True):
+def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, rel=True):
     """
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
@@ -306,7 +306,7 @@ def TrainFn1Member(fnsim, embeddings, leftop, rightop, marge=1.0, rel=True):
     return theano.function(list_in, [T.mean(cost), T.mean(out)],
             updates=updates, on_unused_input='ignore')
     
-def Train1MemberText(KBsim, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
+def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
     """
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
@@ -352,15 +352,15 @@ def Train1MemberText(KBsim, textsim, KBembeddings, wordembeddings, leftop, right
     sent_avg = (sentinvleng.T * S.dot(wordembeddings.T, binary_sent.T)).T 
     # sent_avg should now be (minibatchsize, word_dim)
     
-    # similarity of true triple
+    ## similarity of true triple
     simi = KBsim(leftop(lhs, rell), rightop(rhs, relr))
-    # similarity for negative 'left' entity
+    ## similarity for negative 'left' entity
     similn = KBsim(leftop(lhsn, rell), rightop(rhs, relr))
-    # similirity for negative 'right' entity
+    ## similirity for negative 'right' entity
     simirn = KBsim(leftop(lhs, rell), rightop(rhsn, relr))
-    # similairty of textual relation embedding and true relation embedding
+    ## similairty of textual relation embedding and true relation embedding
     textsim_true = textsim(rell, sent_avg)
-    # similarity of textual relation embedding and negative relation embedding
+    ## similarity of textual relation embedding and negative relation embedding
     textsim_neg = textsim(relln, sent_avg)
 
     costl, outl = margincost(simi, similn, marge)
@@ -396,6 +396,102 @@ def Train1MemberText(KBsim, textsim, KBembeddings, wordembeddings, leftop, right
 
     ### update embeddings of KG (entities + relations) and word embeddings
     embedding_params = [embedding.E, wordembeddings]
+    if type(KBembeddings) == list:
+        embedding_params += [relationl.E] + [relationr.E]
+
+    update_embeddings = adam(cost,embedding_params, learning_rate=lrembeddings)
+    updates.update(update_embeddings)
+
+    """
+    Theano function inputs.
+    :input lrembeddings: learning rate for the embeddings.
+    :input lrparams: learning rate for the parameters.
+    :input inpl: sparse csr matrix representing the indexes of the positive
+                 triplet 'left' member, shape=(#examples,N [Embeddings]).
+    :input inpr: sparse csr matrix representing the indexes of the positive
+                 triplet 'right' member, shape=(#examples,N [Embeddings]).
+    :input inpo: sparse csr matrix representing the indexes of the positive
+                 triplet relation member, shape=(#examples,N [Embeddings]).
+    :input inpln: sparse csr matrix representing the indexes of the negative
+                  triplet 'left' member, shape=(#examples,N [Embeddings]).
+    :input inprn: sparse csr matrix representing the indexes of the negative
+                  triplet 'right' member, shape=(#examples,N [Embeddings]).
+    :input inpon: sparse csr matrix representing the indexes of the
+                      negative triplet relation member, shape=(#examples,N
+                      [Embeddings]).
+    :input binary_sent: variable length vector of integers representing words
+                    in the vocabulary (indexes into the wordEmbedding matrix)
+    :input sentinvleng: length of binary_sent vector
+    :input gamma: weight of cost of textual mention relation
+
+    Theano function output.
+    :output mean(cost): average cost.
+    :output mean(out): ratio of examples for which the margin is violated,
+                       i.e. for which an update occurs.
+    """
+    return theano.function(list_in, [T.mean(cost), T.mean(out)],
+            updates=updates, on_unused_input='ignore')
+
+def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
+    """
+    This function returns a theano function to perform a training iteration,
+    contrasting positive and negative triplets. members are given as sparse
+    matrices. For one positive triplet there are two or three (if rel == True)
+    negative triplets. To create a negative triplet we replace only one member
+    at a time.
+
+    :param fnsim: similarity function (on theano variables).
+    :param embeddings: an embeddings instance.
+    :param leftop: class for the 'left' operator.
+    :param rightop: class for the 'right' operator.
+    :param marge: marge for the cost function.
+    :param rel: boolean, if true we also contrast w.r.t. a negative relation
+                member.
+    """
+    _, relationl, relationr = parse_embeddings(KBembeddings)
+
+    # Inputs
+    lrparams = T.scalar('lrparams')
+    lrembeddings = T.scalar('lrembeddings')
+    inpo = S.csr_matrix()
+    inpon = S.csr_matrix()
+
+    # binary BoW representation of each sentence in the minibatch
+    binary_sent = S.csr_matrix() 
+    sentinvleng = T.dvector('inverselen') # inverse length of each sentence
+    gamma = T.scalar('weightText') 
+
+    # Graph
+    rell = S.dot(relationl.E, inpo).T
+    relr = S.dot(relationr.E, inpo).T
+    relln = S.dot(relationl.E, inpon).T
+    
+    sent_avg = (sentinvleng.T * S.dot(wordembeddings.T, binary_sent.T)).T 
+    ## sent_avg should now be (minibatchsize, word_dim)
+    ## similairty of textual relation embedding and true relation embedding
+    textsim_true = textsim(rell, sent_avg)
+    ## similarity of textual relation embedding and negative relation embedding
+    textsim_neg = textsim(relln, sent_avg)
+
+    costtext, outtext = margincost(textsim_true, textsim_neg, marge)
+    
+    cost = gamma*costtext #MAYBE DONT PUT THIS HERE
+    out = outtext
+
+    # List of inputs of the function
+    list_in = [lrembeddings, lrparams, inpo, inpon, binary_sent, sentinvleng, gamma]
+
+    updates = OrderedDict()
+    ### update parameters with a particular learning rate
+    params = leftop.params + rightop.params ### KG embedding params
+    if hasattr(textsim, 'params'):
+        params += textsim.params
+    # updates = sgd(cost, params, learning_rate=lrparams)
+    if params:
+        updates = adam(cost, params, learning_rate=lrparams)
+
+    ### update embeddings of KG (entities + relations) and word embeddings
+    embedding_params = [wordembeddings]
     if type(KBembeddings) == list:
         embedding_params += [relationl.E] + [relationr.E]
 
@@ -483,6 +579,7 @@ class TransE_text_model():
             ### similarity function of output of left and right ops
             self.KBsim = eval(state.simfn + 'sim') 
             self.textsim = eval(state.textsim + 'sim')
+            self.margincost = eval(state.margincostfunction)
         else:
             try:
                 print 'loading model from file: ' + str(state.loadmodel)
@@ -501,12 +598,20 @@ class TransE_text_model():
 
         # function compilation
         ### TODO: implement this training function
-        self.trainFuncKB = TrainFn1Member(self.KBsim, self.embeddings, \
-            self.leftop, self.rightop, marge=state.marge, rel=state.rel)
-        self.trainFuncText = Train1MemberText(self.KBsim, self.textsim, \
-            self.embeddings, self.word_embeddings.getEmbeddings(), \
+        self.trainFuncKB = TrainFn1Member(self.margincost, self.KBsim, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel)
+
+        self.trainFuncText = Train1MemberTextONLY(self.margincost, \
+            self.textsim, self.embeddings, \
+            self.word_embeddings.getEmbeddings(), \
             self.leftop, self.rightop, marge=state.marge, gamma=state.gamma, \
             rel=state.rel)
+
+        # self.trainFuncText = Train1MemberText(self.KBsim, self.textsim, \
+        #     self.embeddings, self.word_embeddings.getEmbeddings(), \
+        #     self.leftop, self.rightop, marge=state.marge, gamma=state.gamma, \
+        #     rel=state.rel)
         
         self.ranklfunc = RankLeftFnIdx(self.KBsim, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
@@ -560,6 +665,7 @@ class TransE_model():
 
             ### similarity function of output of left and right ops
             self.simfn = eval(state.simfn + 'sim') 
+            self.margincost = eval(state.margincostfunction)
         else:
             try:
                 print 'loading model from file: ' + str(state.loadmodel)
@@ -574,8 +680,9 @@ class TransE_model():
                 exit(1)
 
         # function compilation
-        self.trainfunc = TrainFn1Member(self.simfn, self.embeddings, \
-            self.leftop, self.rightop, marge=state.marge, rel=state.rel)
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel)
         self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
         self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \

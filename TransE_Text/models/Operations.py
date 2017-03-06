@@ -4,7 +4,10 @@ import scipy.sparse
 import theano
 import theano.sparse as S
 import theano.tensor as T
+from theano.tensor.nnet.conv import conv2d
+# from theano.tensor.signal.downsample import max_pool_2
 from collections import OrderedDict
+
 
 # Similarity functions -------------------------------------------------------
 def L1sim(left, right):
@@ -22,8 +25,28 @@ def Dotsim(left, right):
 
 # Cost ------------------------------------------------------------------------
 def margincost(pos, neg, marge=1.0):
+    # assert np.all(T.ge(neg, 0.0))
+    # assert np.all(T.ge(pos, 0.0))
     out = neg - pos + marge
     return T.sum(out * (out > 0)), out > 0 ### returns when margin violated
+
+#### DONT USE THESE, THEY DONT WORK ANY BETTER? 
+# def squared_margin_cost(pos, neg, marge=1.0, magnifier=10.0):
+#     out = neg - pos + marge
+#     return T.sum(magnifier* out * out * (out > 0)), out > 0 
+
+# def exp_margin_cost(pos, neg, marge=1.0, magnifier=5.0):
+#     out = neg - pos + marge
+#     loss = T.exp(magnifier * out)
+    
+#     # loss_pos = T.log(1 + T.exp(2*(marg_pos - pos)))
+#     # loss_neg = T.log(1 + T.exp(2*(neg - marg_neg)))
+#     # Dos Santos used marg_neg + neg instead of marg_neg - neg. That means
+#     # that, if say marg_neg = 0.5, then negative triples need to score below -0
+#     # .5 in order to incur zero loss. However, the scoring/similarity function 
+#     # is strictly nonnegative, so we have to modify marg_neg to be positive, 
+#     # and put a minus sign.
+#     return T.sum(loss * (out > 0.0)), out > 0.0 # returns when margin violated
 # -----------------------------------------------------------------------------
 
 
@@ -92,6 +115,21 @@ def adam(loss, all_params, learning_rate=0.001, b1=0.9, b2=0.999, e=1e-8,
         # updates[v_previous] = v
         updates[theta_previous] = theta
     # updates.append((t, t + 1.))
+    return updates
+
+def RMSprop(loss, all_params, lr=0.001, rho=0.9, epsilon=1e-6):
+    grads = T.grad(loss, all_params)
+    updates = OrderedDict()
+    for p, g in zip(params, grads):
+        acc = theano.shared(p.get_value() * 0.)
+        acc_new = rho * acc + (1 - rho) * g ** 2
+        gradient_scaling = T.sqrt(acc_new + epsilon)
+        g = g / gradient_scaling
+        # updates.append((acc, acc_new))
+        # updates[acc] = acc_new
+        # updates.append((p, p - lr * g))
+        updates[p] = (p - lr * g)
+
     return updates
 # -----------------------------------------------------------------------------
 
@@ -395,4 +433,71 @@ class WordEmbeddings(object):
 
     def getNormalizeFn(self):
         return self.normalize
+
+### from https://github.com/Newmu/Theano-Tutorials/blob/master/5_convolutional_net.py
+# class CNN:
+#     def floatX(X):
+#         return np.asarray(X, dtype=theano.config.floatX)
+
+#     def init_weights(shape):
+#         return theano.shared(floatX(np.random.randn(*shape) * 0.01))
+
+#     def rectify(X):
+#         return T.maximum(X, 0.)
+
+#     def softmax(X):
+#         e_x = T.exp(X - X.max(axis=1).dimshuffle(0, 'x'))
+#         return e_x / e_x.sum(axis=1).dimshuffle(0, 'x')
+
+#     def dropout(X, p=0.):
+#         if p > 0:
+#             retain_prob = 1 - p
+#             X *= srng.binomial(X.shape, p=retain_prob, dtype=theano.config.floatX)
+#             X /= retain_prob
+#         return X
+
+#     def model(X, w, w2, w3, w4, p_drop_conv, p_drop_hidden):
+#         l1a = rectify(conv2d(X, w, border_mode='full'))
+#         l1 = max_pool_2d(l1a, (2, 2))
+#         l1 = dropout(l1, p_drop_conv)
+
+#         l2a = rectify(conv2d(l1, w2))
+#         l2 = max_pool_2d(l2a, (2, 2))
+#         l2 = dropout(l2, p_drop_conv)
+
+#         l3a = rectify(conv2d(l2, w3))
+#         l3b = max_pool_2d(l3a, (2, 2))
+#         l3 = T.flatten(l3b, outdim=2)
+#         l3 = dropout(l3, p_drop_conv)
+
+#         l4 = rectify(T.dot(l3, w4))
+#         l4 = dropout(l4, p_drop_hidden)
+
+#         pyx = softmax(T.dot(l4, w_o))
+#         return l1, l2, l3, l4, pyx
+
+#     trX, teX, trY, teY = mnist(onehot=True)
+
+#     trX = trX.reshape(-1, 1, 28, 28)
+#     teX = teX.reshape(-1, 1, 28, 28)
+
+#     X = T.ftensor4()
+#     Y = T.fmatrix()
+
+#     w = init_weights((32, 1, 3, 3))
+#     w2 = init_weights((64, 32, 3, 3))
+#     w3 = init_weights((128, 64, 3, 3))
+#     w4 = init_weights((128 * 3 * 3, 625))
+#     w_o = init_weights((625, 10))
+
+#     noise_l1, noise_l2, noise_l3, noise_l4, noise_py_x = model(X, w, w2, w3, w4, 0.2, 0.5)
+#     l1, l2, l3, l4, py_x = model(X, w, w2, w3, w4, 0., 0.)
+#     y_x = T.argmax(py_x, axis=1)
+
+    # cost = T.mean(T.nnet.categorical_crossentropy(noise_py_x, Y))
+    # params = [w, w2, w3, w4, w_o]
+    # updates = RMSprop(cost, params, lr=0.001)
+
+    # train = theano.function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
+    # predict = theano.function(inputs=[X], outputs=y_x, allow_input_downcast=True)
 
