@@ -166,6 +166,8 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
     errl = []
     errr = []
     err_rel = []
+    print '\tRanking: evaluating rank on ' + str(len(idxl)) +' triples'
+    
     for l, o, r in zip(idxl, idxo, idxr):
         errl += [np.argsort(np.argsort((
             sl(r, o)[0]).flatten())[::-1]).flatten()[l] + 1]
@@ -174,6 +176,8 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
 
         if rank_rel is not None:
             err_rel += [np.argsort(np.argsort((rank_rel(l, r)[0]).flatten())[::-1]).flatten()[o] + 1]
+    if not rank_rel:
+        err_rel = [0]*len(idxl)
 
     return errl, errr, err_rel
 
@@ -193,7 +197,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
     errl = []
     errr = []
     err_rel = []
-    print 'FilteredRanking: evaluating rank on ' + str(len(idxl)) + ' triples'
+    print '\tFilteredRanking: evaluating rank on ' + str(len(idxl)) +' triples'
 
     for l, o, r in zip(idxl, idxo, idxr):
         il=np.argwhere(true_triples[:,0]==l).reshape(-1,)
@@ -226,6 +230,9 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
             # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from relation'
             scores_rel[rmv_idx_o] = -np.inf
             err_rel += [np.argsort(np.argsort(-scores_rel)).flatten()[o] + 1]
+    
+    if not rank_rel:
+        err_rel = [0]*len(idxl)
 
     return errl, errr, err_rel
 
@@ -238,9 +245,9 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
         to a file. Then call this file with the path to the best model as
         the first argument
     '''
-    print '\nRanking model on %s examples from test\nEach example ranked against %s other entities' % (neval, Nsyn)
+    print '\n\tRanking model on %s examples from test\nEach example ranked against %s other entities' % (neval, Nsyn)
     if rel == True:
-        print 'RELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel)
+        print '\tRELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel)
 
     # Load model
     f = open(loadmodel)

@@ -87,7 +87,7 @@ def negative_samples_filtered(pos_left, pos_rel, pos_right, KB, rels=None):
             row = (row[0], row[1], neg_r_idx[i])
             resample_cntr += 1
         assert (row[0], row[1], neg_r_idx[i]) not in KB
-    print 'resampled right %s times' % resample_cntr
+    # print 'resampled right %s times' % resample_cntr
 
     ### check if (neg_l_idx, rows_rel, rows_rhs) leads to conflicts
     check_left = np.concatenate([neg_l_idx, rows_rel, rows_rhs]).reshape(3,num_samples).T
@@ -102,7 +102,7 @@ def negative_samples_filtered(pos_left, pos_rel, pos_right, KB, rels=None):
             row = (neg_l_idx[i], row[1], row[2])
             resample_cntr += 1
         assert (neg_l_idx[i], row[1], row[2]) not in KB
-    print 'resampled left %s times' % resample_cntr
+    # print 'resampled left %s times' % resample_cntr
 
     ### check if (rows_lhs, neg_rel_idx, rows_rhs) leads to conflicts
     if rels:
@@ -118,7 +118,7 @@ def negative_samples_filtered(pos_left, pos_rel, pos_right, KB, rels=None):
                 row = (row[0], neg_rel_idx[i], row[2])
                 resample_cntr += 1
             assert (row[0], neg_rel_idx[i], row[2]) not in KB
-        print 'resampled relations %s times' % resample_cntr
+        # print 'resampled relations %s times' % resample_cntr
 
     if rels:
         return expand_to_mat(neg_l_idx.tolist(), num_entities), expand_to_mat(neg_rel_idx.tolist(), rels), expand_to_mat(neg_r_idx.tolist(), num_entities)
@@ -339,7 +339,6 @@ def load_FB15k_Clueweb_data(state):
             state.Nent)
     idxo = expand_to_mat(convert2idx(rel_train)[:state.numTextTrain], \
             state.Nrel)
-    print np.shape(text_train)
 
     # datatyp = 'valid'
     # lhs_valid = load_file(data_path + 'clueweb_FB15k_%s-lhs.pkl' % datatyp)

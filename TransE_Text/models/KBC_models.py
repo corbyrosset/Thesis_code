@@ -247,7 +247,6 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     costl, outl = margincost(simi, similn, marge)
     costr, outr = margincost(simi, simirn, marge)
     cost = costl + costr
-    out = T.concatenate([outl, outr])
     # List of inputs of the function
     list_in = [lrembeddings, lrparams,
             inpl, inpr, inpo, inpln, inprn]
@@ -259,7 +258,6 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
         simion = fnsim(leftop(lhs, relln), rightop(rhs, relrn))
         costo, outo = margincost(simi, simion, marge)
         cost += costo
-        out = T.concatenate([out, outo])
         list_in += [inpon]
 
 
@@ -303,7 +301,11 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     :output mean(out): ratio of examples for which the margin is violated,
                        i.e. for which an update occurs.
     """
-    return theano.function(list_in, [T.mean(cost), T.mean(out)],
+    if rel:
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outo), T.mean(outr)],
+            updates=updates, on_unused_input='ignore')
+    else:
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr)],
             updates=updates, on_unused_input='ignore')
     
 def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
@@ -368,7 +370,6 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
     costtext, outtext = margincost(textsim_true, textsim_neg, marge)
     
     cost = costl + costr + gamma*costtext #MAYBE DONT PUT THIS HERE
-    out = T.concatenate([outl, outr, outtext])
 
     ##### TODO: perhaps separate outputs into text and KB values as well??
 
@@ -381,7 +382,6 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
         simion = KBsim(leftop(lhs, relln), rightop(rhs, relrn))
         costo, outo = margincost(simi, simion, marge)
         cost += costo
-        out = T.concatenate([out, outo])
 
     updates = OrderedDict()
     ### update parameters with a particular learning rate
@@ -429,7 +429,12 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
     :output mean(out): ratio of examples for which the margin is violated,
                        i.e. for which an update occurs.
     """
-    return theano.function(list_in, [T.mean(cost), T.mean(out)],
+
+    if rel:
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outo), T.mean(outr), T.mean(outtext)],
+            updates=updates, on_unused_input='ignore')
+    else:
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr), T.mean(outtext)],
             updates=updates, on_unused_input='ignore')
 
 def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
@@ -602,16 +607,16 @@ class TransE_text_model():
             self.embeddings, self.leftop, self.rightop, marge=state.marge, \
             rel=state.rel)
 
-        self.trainFuncText = Train1MemberTextONLY(self.margincost, \
-            self.textsim, self.embeddings, \
-            self.word_embeddings.getEmbeddings(), \
-            self.leftop, self.rightop, marge=state.marge, gamma=state.gamma, \
-            rel=state.rel)
-
-        # self.trainFuncText = Train1MemberText(self.KBsim, self.textsim, \
-        #     self.embeddings, self.word_embeddings.getEmbeddings(), \
+        # self.trainFuncText = Train1MemberTextONLY(self.margincost, \
+        #     self.textsim, self.embeddings, \
+        #     self.word_embeddings.getEmbeddings(), \
         #     self.leftop, self.rightop, marge=state.marge, gamma=state.gamma, \
         #     rel=state.rel)
+
+        self.trainFuncText = Train1MemberText(self.margincost, self.KBsim, \
+            self.textsim, self.embeddings, \
+            self.word_embeddings.getEmbeddings(), self.leftop, self.rightop,\
+            marge=state.marge, gamma=state.gamma, rel=state.rel)
         
         self.ranklfunc = RankLeftFnIdx(self.KBsim, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)

@@ -25,13 +25,9 @@ def FB15kexp_text(state, channel):
     '''
         Main training loop for text-augmented KG-completion experiment
 
-        out = list of costs per minibatch for this epoch
-        outb = list of percentages of ??? that were updated per minibatch in this epoch??
-        restrain & state.train = ranks of all epoch train triples, and the mean thereof
-        resvalid & state.valid = ranks of all epoch dev triples, and the mean thereof
-
     '''
-    out_kb, out_kb_percent, out_text, out_text_percent = [], [], [], []
+    cost_kb, percent_left_kb, percent_rel_kb, percent_right_kb = [], [], [], []
+    cost_txt, percent_left_txt, percent_rel_txt, percent_right_txt, percent_txt = [], [], [], [], []
     state.bestvalid = -1
     model = None
     batchsize = -1
@@ -50,7 +46,7 @@ def FB15kexp_text(state, channel):
         if not os.path.isdir(state.savepath):
             os.mkdir(state.savepath)
 
-    ### load data
+    ### load KB data
     trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, \
     validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
     = load_FB15k_data(state)
@@ -58,7 +54,7 @@ def FB15kexp_text(state, channel):
 
     KB_batchsize = trainl.shape[1] / state.nbatches
 
-
+    ### load TEXT data
     text_trainlidx, text_trainridx, text_trainoidx, text_trainsent, \
     text_validlidx, text_validridx, text_validoidx, text_validsent, \
     text_testlidx, text_testridx, text_testoidx, text_testsent, \
@@ -67,6 +63,7 @@ def FB15kexp_text(state, channel):
     print np.shape(text_trainlidx), np.shape(text_trainridx), np.shape(text_trainoidx), np.shape(text_trainsent)
     text_batchsz = text_trainlidx.shape[1] / state.nbatches
 
+    ### get properties of text encoder
     model = TransE_text_model(state)
     vocab2Idx = model.word_embeddings.getVocab2Idx()
     vocabSize = model.word_embeddings.vocabSize
@@ -96,21 +93,15 @@ def FB15kexp_text(state, channel):
         text_trainridx[:, order]
         text_trainoidx[:, order]
         text_trainsent[order]
-        
-        # Negatives, TODO, these should be filtered as well?
-        trainln = create_random_mat(trainl.shape, np.arange(state.Nsyn))
-        trainrn = create_random_mat(trainr.shape, np.arange(state.Nsyn))
-        text_trainln = create_random_mat(text_trainlidx.shape, \
-            np.arange(state.Nsyn))
-        text_trainrn = create_random_mat(text_trainridx.shape, \
-            np.arange(state.Nsyn))
 
-        if state.rel == True: ### create negative relationship instances
-            trainon =create_random_mat(traino.shape, np.arange(state.Nsyn_rel))
-            text_trainon = create_random_mat(text_trainoidx.shape, \
-                np.arange(state.Nsyn_rel))
-        
-        
+        ### generate negative samples for KB
+        if state.rel == True:
+            trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB, rels=state.Nsyn_rel)
+        else:
+            trainln, trainrn = negative_samples_filtered(trainl, traino, trainr, KB)
+        ### generate negative samples for TEXT data
+        text_trainln, text_trainon, text_trainrn = negative_samples_filtered(text_trainlidx, text_trainoidx, text_trainridx, KB, rels=state.Nsyn_rel)
+
         for i in range(state.nbatches):
             ### Training KB Minibatches
             tmpl = trainl[:, i * KB_batchsize:(i + 1) * KB_batchsize]
@@ -120,18 +111,27 @@ def FB15kexp_text(state, channel):
             tmpnr = trainrn[:, i * KB_batchsize:(i + 1) * KB_batchsize]
             if state.rel == True:
                 tmpno = trainon[:, i * KB_batchsize:(i + 1) * KB_batchsize]
-            
-            # training iteration
+
             if state.rel == True: # (has tmpo as additional argument)
-                outtmp = model.trainFuncKB(state.lremb, state.lrparam,
-                        tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
-                out_kb += [outtmp[0] / float(KB_batchsize)]
-                out_kb_percent += [outtmp[1]]
+                batch_cost, per_l, per_o, per_r = model.trainFuncKB(state.lremb,\
+                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
+                cost_kb += [batch_cost / float(batchsize)]
+                percent_left_kb += [per_l]
+                percent_rel_kb += [per_o]
+                percent_right_kb += [per_r]
+
             else:
-                outtmp = model.trainFuncKB(state.lremb, state.lrparam,
-                        tmpl, tmpr, tmpo, tmpnl, tmpnr)
-                out_kb += [outtmp[0] / float(KB_batchsize)]
-                out_kb_percent += [outtmp[1]]
+                batch_cost, per_l, per_r = model.trainFuncKB(state.lremb, \
+                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr)
+                cost_kb += [batch_cost / float(batchsize)]
+                percent_left_kb += [per_l]
+                percent_right_kb += [per_r]
+
+            ### re-normalize embeddings between KB and TEXT triples?
+            if type(model.embeddings) is list:
+                model.embeddings[0].normalize()
+            else:
+                model.embeddings.normalize()
 
             ### Training Textual Triple Minibatches
             text_tmpl  = text_trainlidx[:, i*text_batchsz:(i + 1)*text_batchsz]
@@ -157,21 +157,30 @@ def FB15kexp_text(state, channel):
             # skip_counter = len(sent_idx) - len(keep_indices)
             # print '\tskipped %s of %s triples bc bad text' % (skip_counter, len(sent_idx))
             
-            # training iteration, it doesn't matter if state.rel == True
-            ### if using TrainMemberFn1Text
-            # outtmp = model.trainFuncText(state.lremb, state.lrparam,
-            #         text_tmpl, text_tmpr, text_tmpo, text_tmpnl, \
-            #         text_tmpnr, text_tmpno, text_tmpsents, inv_lens, \
-            #         state.gamma)
-            ### if using TrainFn1MemberTextONLY!!!
-            outtmp = model.trainFuncText(state.lremb, state.lrparam, \
-                text_tmpo, text_tmpno, text_tmpsents, inv_lens, state.gamma)
-            out_text += [outtmp[0] / float(text_batchsz)]
-            out_text_percent += [outtmp[1]]
 
-            # embeddings normalization
-            ### TODO: why only normalize embeddings[0]?? only normalize entity 
-            ### embs, not the relationships ones??
+            ### if using TrainFn1MemberTextONLY!!!
+            # batch_cost, per_text = model.trainFuncText(state.lremb, \
+            #     state.lrparam, text_tmpo, text_tmpno, text_tmpsents, \
+            #     inv_lens, state.gamma)
+            # cost_txt += [batch_cost / float(text_batchsz)]
+            # percent_txt += [per_text]
+            
+            if state.rel == True:
+                batch_cost, per_l, per_o, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
+                    text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
+                cost_txt += [batch_cost / float(batchsize)]
+                percent_left_txt += [per_l]
+                percent_rel_txt += [per_o]
+                percent_right_txt += [per_r]
+                percent_txt += [per_text]
+            else:
+                batch_cost, per_l, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
+                    text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
+                cost_txt += [batch_cost / float(batchsize)]
+                percent_left_txt += [per_l]
+                percent_right_txt += [per_r]
+                percent_txt += [per_text]
+
             if type(model.embeddings) is list:
                 model.embeddings[0].normalize()
             else:
@@ -180,43 +189,67 @@ def FB15kexp_text(state, channel):
         print >> sys.stderr, "------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
-        print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates: %s%%" % (
-                round(np.mean(out_kb), 4), round(np.std(out_kb), 4),
-                round(np.mean(out_kb_percent) * 100, 3))
-        print >> sys.stderr, "\tCOST Text >> %s +/- %s, %% updates: %s%%" % (
-                round(np.mean(out_text), 4), round(np.std(out_text), 4),
-                round(np.mean(out_text_percent) * 100, 3))
+
+        if state.rel:
+            print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (\
+                round(np.mean(cost_kb), 3), \
+                round(np.std(cost_kb), 3), \
+                round(np.mean(percent_left_kb) * 100, 2), \
+                round(np.mean(percent_rel_kb) * 100, 2), \
+                round(np.mean(percent_right_kb) * 100, 2))
+            print >> sys.stderr, "\tCOST TEXT >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%% Text: %s%%" % (round(np.mean(cost_txt), 3), \
+                round(np.std(cost_txt), 3), \
+                round(np.mean(percent_left_txt) * 100, 2), \
+                round(np.mean(percent_rel_txt) * 100, 2), \
+                round(np.mean(percent_right_txt) * 100, 2), \
+                round(np.mean(percent_txt) * 100, 2))
+        else:
+            print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(cost_kb), 3), \
+                round(np.std(cost_kb), 3), \
+                round(np.mean(percent_left_kb) * 100, 2),\
+                round(np.mean(percent_right_kb) * 100, 2))
+            print >> sys.stderr, "\tCOST TEXT >> %s +/- %s, %% updates Left: %s%% Right: %s%% Text: %s%%" % (round(np.mean(cost_txt), 3), \
+                round(np.std(cost_txt), 3), \
+                round(np.mean(percent_left_txt) * 100, 2), \
+                round(np.mean(percent_right_txt) * 100, 2), \
+                round(np.mean(percent_txt) * 100, 2))
+
         ### reset outputs
-        out_kb, out_kb_percent, out_text, out_text_percent = [], [], [], []
+        cost_kb, percent_left_kb, percent_rel_kb, percent_right_kb = [], [], [], []
+        cost_txt, percent_left_txt, percent_rel_txt, percent_right_txt, percent_txt = [], [], [], [], []
         timeref = time.time()
         
         ### only evaluate on KB triples, not textual ones
         if (epoch_count % state.test_all) == 0:
             ### evaluate by actually computing ranking metrics on some data
             if state.nvalid > 0:
-                resvalid = FilteredRankingScoreIdx(model.ranklfunc, \
+                verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, rank_rel=model.rankrelfunc)
-                state.valid = np.mean(resvalid[0] + resvalid[1])
+                state.valid = np.mean(verl + verr)# only tune on entity ranking
             else:
                 state.valid = 'not applicable'
+            
             if state.ntrain > 0:
-                restrain = FilteredRankingScoreIdx(model.ranklfunc, \
+                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, trainlidx, trainridx, trainoidx, \
                     true_triples, rank_rel=model.rankrelfunc)
-                state.train = np.mean(restrain[0] + restrain[1])
+                state.train = np.mean(terl + terr)# only tune on entity ranking
             else:
                 state.train = 'not applicable'
             
             print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
-                    state.valid, state.train)
+                    round(state.valid, 1), round(state.train, 1))
+            print >> sys.stderr, "\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
+            print >> sys.stderr, "\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1))
 
             ### save model that performs best on dev data
             if state.bestvalid == -1 or state.valid < state.bestvalid:
-                restest = FilteredRankingScoreIdx(model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples)
+                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
+                    model.rankrfunc, testlidx, testridx, testoidx,true_triples)
                 state.bestvalid = state.valid
                 state.besttrain = state.train
-                state.besttest = np.mean(restest[0] + restest[1])
+                state.besttest = np.mean(terl + terr)
                 state.bestepoch = epoch_count
                 # Save model best valid model
                 f = open(state.savepath + '/best_valid_model.pkl', 'w')
@@ -227,8 +260,7 @@ def FB15kexp_text(state, channel):
                 cPickle.dump(model.textsim, f, -1)
                 cPickle.dump(model.word_embeddings, f, -1)
                 f.close()
-                print >> sys.stderr, "\t\tNEW BEST VALID >> test: %s" % (
-                        state.besttest)
+                print >> sys.stderr, "\tNEW BEST TEST: %s\n\t\tMEAN RANK TEST Left: %s Rel: %s Right: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
             # Save current model
             f = open(state.savepath + '/current_model.pkl', 'w')
             cPickle.dump(model.embeddings, f, -1)
@@ -263,8 +295,7 @@ def FB15kexp(state, channel):
         resvalid & state.valid = ranks of all epoch dev triples, and the mean thereof
 
     '''
-    out = []
-    outb = []
+    out, percent_left, percent_rel, percent_right = [], [], [], []
     state.bestvalid = -1
     model = None
     batchsize = -1
@@ -301,7 +332,7 @@ def FB15kexp(state, channel):
     print 'num epochs: ' + str(state.totepochs)
     print 'num batches per epoch: ' + str(state.nbatches)
     print 'batchsize: ' + str(batchsize)
-    print 'left and right entity ranking functions will rank a triple against ' + str(state.Nsyn) + ' competitors'
+    print 'left and right entity ranking functions will rank a slot against ' + str(state.Nsyn) + ' competitors'
 
     print >> sys.stderr, "BEGIN TRAINING"
     timeref = time.time()
@@ -320,11 +351,8 @@ def FB15kexp(state, channel):
 
         if state.rel == True:
             trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB, rels=state.Nsyn_rel)
-            # print np.shape(trainln), np.shape(trainrn), np.shape(trainon)
         else:
-            trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB)
-            # print np.shape(trainln), np.shape(trainrn)
-
+            trainln, trainrn = negative_samples_filtered(trainl, traino, trainr, KB)
 
         for i in range(state.nbatches):
             tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
@@ -337,16 +365,20 @@ def FB15kexp(state, channel):
             
             # training iteration
             if state.rel == True: # (has tmpo as additional argument)
-                outtmp = model.trainfunc(state.lremb, state.lrparam,
-                        tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
-                out += [outtmp[0] / float(batchsize)]
-                outb += [outtmp[1]]
-            else:
-                outtmp = model.trainfunc(state.lremb, state.lrparam,
-                        tmpl, tmpr, tmpo, tmpnl, tmpnr)
-                out += [outtmp[0] / float(batchsize)]
-                outb += [outtmp[1]]
+                batch_cost, per_l, per_o, per_r = model.trainfunc(state.lremb,\
+                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
+                out += [batch_cost / float(batchsize)]
+                percent_left += [per_l]
+                percent_rel += [per_o]
+                percent_right += [per_r]
 
+            else:
+                batch_cost, per_l, per_r = model.trainfunc(state.lremb, \
+                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr)
+                out += [batch_cost / float(batchsize)]
+                percent_left += [per_l]
+                percent_right += [per_r]
+    
 
             # embeddings normalization
             ### TODO: why only normalize embeddings[0]?? only normalize entity 
@@ -359,39 +391,50 @@ def FB15kexp(state, channel):
         print >> sys.stderr, "------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
-        print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates: %s%%" % (
-                round(np.mean(out), 4), round(np.std(out), 4),
-                round(np.mean(outb) * 100, 3))
-        out = []
-        outb = []
+        if state.rel:
+            print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
+                round(np.std(out), 3), \
+                round(np.mean(percent_left) * 100, 2), \
+                round(np.mean(percent_rel) * 100, 2), \
+                round(np.mean(percent_right) * 100, 2))
+        else:
+            print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(out), 3),round(np.std(out), 3),\
+                round(np.mean(percent_left) * 100, 2), \
+                round(np.mean(percent_right) * 100, 2))
+
+        out, percent_left, percent_rel, percent_right = [], [], [], []
         timeref = time.time()
         
         if (epoch_count % state.test_all) == 0:
             ### evaluate by actually computing ranking metrics on some data
             if state.nvalid > 0:
-                resvalid = FilteredRankingScoreIdx(model.ranklfunc, \
+                verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, rank_rel=model.rankrelfunc)
-                state.valid = np.mean(resvalid[0] + resvalid[1])
+                state.valid = np.mean(verl + verr)# only tune on entity ranking
             else:
                 state.valid = 'not applicable'
+            
             if state.ntrain > 0:
-                restrain = FilteredRankingScoreIdx(model.ranklfunc, \
+                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, trainlidx, trainridx, trainoidx, \
                     true_triples, rank_rel=model.rankrelfunc)
-                state.train = np.mean(restrain[0] + restrain[1])
+                state.train = np.mean(terl + terr)# only tune on entity ranking
             else:
                 state.train = 'not applicable'
             
             print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
-                    state.valid, state.train)
+                    round(state.valid, 1), round(state.train, 1))
+            print >> sys.stderr, "\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
+            print >> sys.stderr, "\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1))
 
             ### save model that performs best on dev data
             if state.bestvalid == -1 or state.valid < state.bestvalid:
-                restest = FilteredRankingScoreIdx(model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples)
+                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
+                    model.rankrfunc, testlidx, testridx, testoidx,true_triples)
                 state.bestvalid = state.valid
                 state.besttrain = state.train
-                state.besttest = np.mean(restest[0] + restest[1])
+                state.besttest = np.mean(terl + terr)
                 state.bestepoch = epoch_count
                 # Save model best valid model
                 f = open(state.savepath + '/best_valid_model.pkl', 'w')
@@ -400,8 +443,7 @@ def FB15kexp(state, channel):
                 cPickle.dump(model.rightop, f, -1)
                 cPickle.dump(model.simfn, f, -1)
                 f.close()
-                print >> sys.stderr, "\t\tNEW BEST VALID >> test: %s" % (
-                        state.besttest)
+                print >> sys.stderr, "\tNEW BEST TEST: %s\n\t\tLeft: %s Rel: %s Right: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
             # Save current model
             f = open(state.savepath + '/current_model.pkl', 'w')
             cPickle.dump(model.embeddings, f, -1)

@@ -31,22 +31,22 @@ def margincost(pos, neg, marge=1.0):
     return T.sum(out * (out > 0)), out > 0 ### returns when margin violated
 
 #### DONT USE THESE, THEY DONT WORK ANY BETTER? 
-# def squared_margin_cost(pos, neg, marge=1.0, magnifier=10.0):
-#     out = neg - pos + marge
-#     return T.sum(magnifier* out * out * (out > 0)), out > 0 
+def squared_margin_cost(pos, neg, marge=1.0, magnifier=10.0):
+    out = neg - pos + marge
+    return T.sum(magnifier* out * out * (out > 0)), out > 0 
 
-# def exp_margin_cost(pos, neg, marge=1.0, magnifier=5.0):
-#     out = neg - pos + marge
-#     loss = T.exp(magnifier * out)
+def exp_margin_cost(pos, neg, marge=1.0, magnifier=5.0):
+    out = neg - pos + marge
+    loss = T.exp(magnifier * out)
     
-#     # loss_pos = T.log(1 + T.exp(2*(marg_pos - pos)))
-#     # loss_neg = T.log(1 + T.exp(2*(neg - marg_neg)))
-#     # Dos Santos used marg_neg + neg instead of marg_neg - neg. That means
-#     # that, if say marg_neg = 0.5, then negative triples need to score below -0
-#     # .5 in order to incur zero loss. However, the scoring/similarity function 
-#     # is strictly nonnegative, so we have to modify marg_neg to be positive, 
-#     # and put a minus sign.
-#     return T.sum(loss * (out > 0.0)), out > 0.0 # returns when margin violated
+    # loss_pos = T.log(1 + T.exp(2*(marg_pos - pos)))
+    # loss_neg = T.log(1 + T.exp(2*(neg - marg_neg)))
+    # Dos Santos used marg_neg + neg instead of marg_neg - neg. That means
+    # that, if say marg_neg = 0.5, then negative triples need to score below -0
+    # .5 in order to incur zero loss. However, the scoring/similarity function 
+    # is strictly nonnegative, so we have to modify marg_neg to be positive, 
+    # and put a minus sign.
+    return T.sum(loss * (out > 0.0)), out > 0.0 # returns when margin violated
 # -----------------------------------------------------------------------------
 
 
