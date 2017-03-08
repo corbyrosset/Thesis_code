@@ -16,28 +16,30 @@ def micro_evaluation_statistics(res, n):
         results is a tuple of (left_ranks, right_ranks) for all test triples
     '''
     left_ranks, right_ranks, rel_ranks = res
-
+    left_ranks  = np.array(left_ranks, dtype=np.float64)
+    right_ranks = np.array(right_ranks, dtype=np.float64)
     ### TODO: write evaluation for relationship ranking
     dres = {}
     dres['microlmean'] = np.mean(left_ranks)
     dres['microlmrr'] = np.mean(np.reciprocal(left_ranks))        
     dres['microlmedian'] = np.median(left_ranks)
-    dres['microlhits@n'] = np.mean(np.asarray(left_ranks) <= n) * 100
+    dres['microlhits@n'] = np.mean((left_ranks) <= n) * 100
     dres['micrormean'] = np.mean(right_ranks)
     dres['micrormrr'] = np.mean(np.reciprocal(right_ranks))                    
     dres['micrormedian'] = np.median(right_ranks)
-    dres['microrhits@n'] = np.mean(np.asarray(right_ranks) <= n) * 100
-    res_combined = left_ranks + right_ranks
+    dres['microrhits@n'] = np.mean((right_ranks) <= n) * 100
+    res_combined = np.append(left_ranks, right_ranks)
     dres['microgmean'] = np.mean(res_combined)
     dres['microgmedian'] = np.median(res_combined)
-    dres['microghits@n'] = np.mean(np.asarray(res_combined) <= n) * 100
+    dres['microghits@n'] = np.mean((res_combined) <= n) * 100
     dres['microgmrr'] = np.mean(np.reciprocal(res_combined))
     
     if rel_ranks:
+        rel_ranks = np.array(rel_ranks, dtype=np.float64)
         dres['microrelmean'] = np.mean(rel_ranks)
         dres['microrelmrr'] = np.mean(np.reciprocal(rel_ranks))        
         dres['microrelmedian'] = np.median(rel_ranks)
-        dres['microrelhits@n'] = np.mean(np.asarray(rel_ranks) <= n) * 100
+        dres['microrelhits@n'] = np.mean((rel_ranks) <= n) * 100
 
     return dres
 
@@ -74,6 +76,10 @@ def macro_evaluation_statistics(res, idxo, n):
         ranks_per_relation[i] = [[], [], []] # left, right, relation ranks per relation
 
     for i, (j, k) in enumerate(zip(left_ranks, right_ranks)):
+        assert j > 0
+        assert j < 14951
+        assert k > 0
+        assert k < 14951
         ranks_per_relation[idxo[i]][0] += [j]
         ranks_per_relation[idxo[i]][1] += [k]
 
@@ -85,30 +91,43 @@ def macro_evaluation_statistics(res, idxo, n):
 
 
     for i in listrel: # looks messy, but it's actually simple
+        ranks_per_relation[i][0] = np.array(ranks_per_relation[i][0], dtype=np.float64)
+        ranks_per_relation[i][1] = np.array(ranks_per_relation[i][1], dtype=np.float64)
+        res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
+
         left_mean_per_rel[i]     = np.mean(ranks_per_relation[i][0])
         right_mean_per_rel[i]    = np.mean(ranks_per_relation[i][1])
-        gen_mean_rank_per_rel[i] = np.mean(ranks_per_relation[i][0] + ranks_per_relation[i][1])
+        gen_mean_rank_per_rel[i] = np.mean(res_combined)
         left_mrr_per_rel[i] = np.mean(np.reciprocal(ranks_per_relation[i][0]))
         right_mrr_per_rel[i]= np.mean(np.reciprocal(ranks_per_relation[i][1]))
-        gen_mrr_per_rel[i]  = np.mean(np.reciprocal(ranks_per_relation[i][0] + ranks_per_relation[i][1]))
+        gen_mrr_per_rel[i]  = np.mean(np.reciprocal(res_combined))
+        rec = np.reciprocal(res_combined)
+        assert np.all(rec > 0)
+        assert np.all(rec <= 1)
+
+        # print np.max(rec), np.min(rec), np.max(ranks_per_relation[i][0]), np.min(ranks_per_relation[i][0])
         left_med_rank_per_rel[i] = np.median(ranks_per_relation[i][0])
         right_med_rank_per_rel[i]= np.median(ranks_per_relation[i][1])
-        gen_med_rank_per_rel[i]  = np.median(ranks_per_relation[i][0] + ranks_per_relation[i][1])
+        gen_med_rank_per_rel[i]  = np.median(res_combined)
         left_hitsatn_per_rel[i]  = np.mean(np.asarray(ranks_per_relation[i][0]) <= n) * 100
         right_hitsatn_per_rel[i] = np.mean(np.asarray(ranks_per_relation[i][1]) <= n) * 100
-        gen_hitsatn_per_rel[i]   = np.mean(np.asarray(ranks_per_relation[i][0] + ranks_per_relation[i][1]) <= n) * 100
+        gen_hitsatn_per_rel[i]   = np.mean(res_combined <= n) * 100
         
         if rel_ranks:
+            ranks_per_relation[i][2] = np.array(ranks_per_relation[i][2], dtype=np.float64)
+            res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
+            res_combined = np.append(res_combined, ranks_per_relation[i][2])
+
             rel_mean_rank[i] = np.mean(ranks_per_relation[i][2])
             rel_mrr[i] = np.mean(np.reciprocal(ranks_per_relation[i][2]))
             rel_med_rank[i] = np.median(ranks_per_relation[i][2])
             rel_hitsatn[i] = np.mean(np.asarray(ranks_per_relation[i][2]) <= n) * 100
 
             # also need to update generalized metrics to include relation ranks
-            gen_mean_rank_per_rel[i] = np.mean(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2])
-            gen_mrr_per_rel[i]       = np.mean(np.reciprocal(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2]))
-            gen_med_rank_per_rel[i]  = np.median(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][1])
-            gen_hitsatn_per_rel[i]   = np.mean(np.asarray(ranks_per_relation[i][0] + ranks_per_relation[i][1] + ranks_per_relation[i][2]) <= n) * 100
+            gen_mean_rank_per_rel[i] = np.mean(res_combined)
+            gen_mrr_per_rel[i]       = np.mean(res_combined)
+            gen_med_rank_per_rel[i]  = np.median(res_combined)
+            gen_hitsatn_per_rel[i]   = np.mean(res_combined <= n) * 100
 
 
     dres['ranks_per_relation']     = ranks_per_relation

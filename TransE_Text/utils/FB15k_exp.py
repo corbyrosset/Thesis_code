@@ -479,7 +479,7 @@ def FB15kexp(state, channel):
 ###############################################################################
 
 def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
-    Nent=16296, rhoE=1, margincostfunction='margincost', \
+    Nent=16296, rhoE=1, margincostfunction='margincost', reg=0.01, \
     rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
@@ -494,6 +494,7 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
     state.savepath = savepath
     state.experiment_type = experiment_type
     state.margincostfunction = margincostfunction
+    state.reg = reg
 
 
     state.Nent = Nent # Total number of entities

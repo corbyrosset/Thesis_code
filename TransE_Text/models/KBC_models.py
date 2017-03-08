@@ -205,7 +205,7 @@ def RankRelFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None):
     return theano.function([idxl, idxr], [simi],
             on_unused_input='ignore')
 
-def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, rel=True):
+def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, rel=True, reg=0.1):
     """
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
@@ -246,7 +246,9 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     simirn = fnsim(leftop(lhs, rell), rightop(rhsn, relr))
     costl, outl = margincost(simi, similn, marge)
     costr, outr = margincost(simi, simirn, marge)
-    cost = costl + costr
+    # regularize only relations, as entities are re-normalized
+    cost = costl + costr + reg*relationl.L2_sqr_norm 
+    
     # List of inputs of the function
     list_in = [lrembeddings, lrparams,
             inpl, inpr, inpo, inpln, inprn]
@@ -687,7 +689,7 @@ class TransE_model():
         # function compilation
         self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
             self.embeddings, self.leftop, self.rightop, marge=state.marge, \
-            rel=state.rel)
+            rel=state.rel, reg=state.reg)
         self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
         self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \

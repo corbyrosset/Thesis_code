@@ -356,6 +356,9 @@ class Embeddings(object):
         self.updates = OrderedDict({self.E: self.E / T.sqrt(T.sum(self.E ** 2, axis=0))})
         self.normalize = theano.function([], [], updates=self.updates)
 
+        self.L1_norm = T.sum(abs(self.E))
+        self.L2_sqr_norm = T.sum(self.E ** 2)
+
 class WordEmbeddings(object):
 
     def __init__(self, vocabSize, dim, wordFile=None, vocab=None):
@@ -425,6 +428,8 @@ class WordEmbeddings(object):
                 print 'if a wordfile is not supplied, you must supply a vocab'
                 exit()
             raise NotImplementedError
+        self.L1_norm = T.sum(abs(self.We))
+        self.L2_sqr_norm = T.sum(self.We ** 2)
 
 
     def getEmbeddings(self):
