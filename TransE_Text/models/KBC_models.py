@@ -247,7 +247,8 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     costl, outl = margincost(simi, similn, marge)
     costr, outr = margincost(simi, simirn, marge)
     # regularize only relations, as entities are re-normalized
-    cost = costl + costr + reg*relationl.L2_sqr_norm 
+    ### regularization actually breaks eventually?
+    cost = costl + costr #+ reg*relationl.L2_sqr_norm 
     
     # List of inputs of the function
     list_in = [lrembeddings, lrparams,
@@ -439,7 +440,7 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
         return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr), T.mean(outtext)],
             updates=updates, on_unused_input='ignore')
 
-def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.1):
+def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marg_text=2.0, gamma=0.1):
     """
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
@@ -480,7 +481,7 @@ def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, left
     ## similarity of textual relation embedding and negative relation embedding
     textsim_neg = textsim(relln, sent_avg)
 
-    costtext, outtext = margincost(textsim_true, textsim_neg, marge)
+    costtext, outtext = margincost(textsim_true, textsim_neg, marg_text)
     
     cost = gamma*costtext #MAYBE DONT PUT THIS HERE
     out = outtext
