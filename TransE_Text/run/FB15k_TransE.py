@@ -11,7 +11,7 @@ from evaluate_KBC import RankingEval
 # launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
 simfn = 'L2'
-margincostfunction = 'margincost' ### from top of Operations
+margincostfunction = 'squared_margin_cost' ### from top of Operations
 ndim = 150 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
 marge = 0.5     # {0.5, 1.0} 
@@ -25,6 +25,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
 rel = False   # whether to also rank relations
+reg = 0.01
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
@@ -56,7 +57,7 @@ launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
 	savepath= savepath + str(identifier), \
 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath=datapath')
+	datapath=datapath)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...

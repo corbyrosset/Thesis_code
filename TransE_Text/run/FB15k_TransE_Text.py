@@ -11,7 +11,7 @@ datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE_Text/'
 
 simfn = 'L2'
-margincostfunction = 'margincost' ### from top of Operations
+margincostfunction = 'squared_margin_cost' ### from top of Operations
 ndim = 100 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
 marge = 0.5     # {0.5, 1.0}
@@ -37,6 +37,7 @@ neval = 'all' # 'all'### only for final testing, not training
 
 ###############################################################################
 ### parameters specific for textual triples. 
+marg_text = 2.0
 textsim = 'L2' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
 word_dim = 100 # dimension of each word embedding
@@ -55,10 +56,12 @@ assert word_dim == ndim ### else can't compare sentence and entity embeddings
 
 if rel == True:
 	identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_REL'
+		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + '_lrate_' + \
+		str(lremb) + '_cost_' + str(margincostfunction) + '_REL'
 else:
 	identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction)
+		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + '_lrate_' + \
+		str(lremb) + '_cost_' + str(margincostfunction)
 ###############################################################################
 ###############################################################################
 
@@ -70,8 +73,9 @@ launch_text(experiment_type = 'FB15k_text', op='TransE_text', simfn= simfn, \
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
 	savepath= savepath + str(identifier), numTextTrain = numTextTrain, \
 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	textsim = textsim, vocab_size = vocab_size, vocab = vocab, \
-	word_dim=word_dim, word_file=word_file, gamma = gamma, datapath = datapath)
+	textsim = textsim, vocab_size = vocab_size, marg_text=marg_text, \
+	vocab = vocab, word_dim=word_dim, word_file=word_file, gamma = gamma,\
+	datapath = datapath)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...

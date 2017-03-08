@@ -437,7 +437,7 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
         return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr), T.mean(outtext)],
             updates=updates, on_unused_input='ignore')
 
-def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
+def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.1):
     """
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
@@ -607,16 +607,16 @@ class TransE_text_model():
             self.embeddings, self.leftop, self.rightop, marge=state.marge, \
             rel=state.rel)
 
-        # self.trainFuncText = Train1MemberTextONLY(self.margincost, \
-        #     self.textsim, self.embeddings, \
-        #     self.word_embeddings.getEmbeddings(), \
-        #     self.leftop, self.rightop, marge=state.marge, gamma=state.gamma, \
-        #     rel=state.rel)
-
-        self.trainFuncText = Train1MemberText(self.margincost, self.KBsim, \
+        self.trainFuncText = Train1MemberTextONLY(self.margincost, \
             self.textsim, self.embeddings, \
-            self.word_embeddings.getEmbeddings(), self.leftop, self.rightop,\
-            marge=state.marge, gamma=state.gamma, rel=state.rel)
+            self.word_embeddings.getEmbeddings(), \
+            self.leftop, self.rightop, marge=state.marg_text, \
+            gamma=state.gamma)
+
+        # self.trainFuncText = Train1MemberText(self.margincost, self.KBsim, \
+        #     self.textsim, self.embeddings, \
+        #     self.word_embeddings.getEmbeddings(), self.leftop, self.rightop,\
+        #     marge=state.marge, gamma=state.gamma, rel=state.rel)
         
         self.ranklfunc = RankLeftFnIdx(self.KBsim, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)

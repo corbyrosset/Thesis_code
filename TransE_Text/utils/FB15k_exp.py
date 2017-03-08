@@ -158,28 +158,31 @@ def FB15kexp_text(state, channel):
             # print '\tskipped %s of %s triples bc bad text' % (skip_counter, len(sent_idx))
             
 
-            ### if using TrainFn1MemberTextONLY!!!
-            # batch_cost, per_text = model.trainFuncText(state.lremb, \
-            #     state.lrparam, text_tmpo, text_tmpno, text_tmpsents, \
-            #     inv_lens, state.gamma)
-            # cost_txt += [batch_cost / float(text_batchsz)]
-            # percent_txt += [per_text]
+            ## if using TrainFn1MemberTextONLY!!!
+            batch_cost, per_text = model.trainFuncText(state.lremb, \
+                state.lrparam, text_tmpo, text_tmpno, text_tmpsents, \
+                inv_lens, state.gamma)
+            cost_txt += [batch_cost / float(text_batchsz)]
+            percent_txt += [per_text]
+            percent_left_txt += [0]
+            percent_rel_txt += [0]
+            percent_right_txt += [0]
 
-            if state.rel == True:
-                batch_cost, per_l, per_o, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
-                    text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
-                cost_txt += [batch_cost / float(text_batchsz)]
-                percent_left_txt += [per_l]
-                percent_rel_txt += [per_o]
-                percent_right_txt += [per_r]
-                percent_txt += [per_text]
-            else:
-                batch_cost, per_l, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
-                    text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
-                cost_txt += [batch_cost / float(text_batchsz)]
-                percent_left_txt += [per_l]
-                percent_right_txt += [per_r]
-                percent_txt += [per_text]
+            # if state.rel == True:
+            #     batch_cost, per_l, per_o, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
+            #         text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
+            #     cost_txt += [batch_cost / float(text_batchsz)]
+            #     percent_left_txt += [per_l]
+            #     percent_rel_txt += [per_o]
+            #     percent_right_txt += [per_r]
+            #     percent_txt += [per_text]
+            # else:
+            #     batch_cost, per_l, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
+            #         text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
+            #     cost_txt += [batch_cost / float(text_batchsz)]
+            #     percent_left_txt += [per_l]
+            #     percent_right_txt += [per_r]
+            #     percent_txt += [per_text]
 
             if type(model.embeddings) is list:
                 model.embeddings[0].normalize()
@@ -539,7 +542,7 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     ntrain = 'all', nvalid = 'all', ntest = 'all', textsim = 'L2', \
     vocab_size = 100000, word_dim = 300, word_file = None, vocab = None, \
     gamma = 0.01, seed=123, savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/', loadmodelBi=False, \
-    loadmodelTri=False, rel=False, numTextTrain=10000):
+    loadmodelTri=False, rel=False, numTextTrain=10000, marg_text=1.0):
 
     # Argument of the experiment script
     state = DD()
@@ -572,6 +575,7 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     state.lrparam = lrparam # learning rate for params of leftop, rightop, 
                             # and fnsim, if they have parametesr
 
+    state.marg_text = marg_text
     state.textsim = textsim  # how to compare a textual relation to KB relation
     state.vocab_size = vocab_size # size of vocabulary
     state.vocab = vocab # a hashset of vocab words

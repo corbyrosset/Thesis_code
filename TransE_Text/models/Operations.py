@@ -32,7 +32,7 @@ def margincost(pos, neg, marge=1.0):
 
 def squared_margin_cost(pos, neg, marge=1.0, magnifier=10.0):
     out = neg - pos + marge
-    return T.sum(magnifier* out * out * (out > 0)), out > 0 
+    return T.sum(magnifier * out * out * (out > 0)), out > 0 
 
 def exp_margin_cost(pos, neg, marge=1.0, magnifier=5.0):
     out = neg - pos + marge
