@@ -115,7 +115,7 @@ def FB15kexp_text(state, channel):
             if state.rel == True: # (has tmpo as additional argument)
                 batch_cost, per_l, per_o, per_r = model.trainFuncKB(state.lremb,\
                     state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
-                cost_kb += [batch_cost / float(batchsize)]
+                cost_kb += [batch_cost / float(KB_batchsize)]
                 percent_left_kb += [per_l]
                 percent_rel_kb += [per_o]
                 percent_right_kb += [per_r]
@@ -123,7 +123,7 @@ def FB15kexp_text(state, channel):
             else:
                 batch_cost, per_l, per_r = model.trainFuncKB(state.lremb, \
                     state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr)
-                cost_kb += [batch_cost / float(batchsize)]
+                cost_kb += [batch_cost / float(KB_batchsize)]
                 percent_left_kb += [per_l]
                 percent_right_kb += [per_r]
 
@@ -164,11 +164,11 @@ def FB15kexp_text(state, channel):
             #     inv_lens, state.gamma)
             # cost_txt += [batch_cost / float(text_batchsz)]
             # percent_txt += [per_text]
-            
+
             if state.rel == True:
                 batch_cost, per_l, per_o, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
                     text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
-                cost_txt += [batch_cost / float(batchsize)]
+                cost_txt += [batch_cost / float(text_batchsz)]
                 percent_left_txt += [per_l]
                 percent_rel_txt += [per_o]
                 percent_right_txt += [per_r]
@@ -176,7 +176,7 @@ def FB15kexp_text(state, channel):
             else:
                 batch_cost, per_l, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
                     text_tmpnl, text_tmpnr, text_tmpno, text_tmpsents, inv_lens, state.gamma)
-                cost_txt += [batch_cost / float(batchsize)]
+                cost_txt += [batch_cost / float(text_batchsz)]
                 percent_left_txt += [per_l]
                 percent_right_txt += [per_r]
                 percent_txt += [per_text]
@@ -245,8 +245,13 @@ def FB15kexp_text(state, channel):
 
             ### save model that performs best on dev data
             if state.bestvalid == -1 or state.valid < state.bestvalid:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
-                    model.rankrfunc, testlidx, testridx, testoidx,true_triples)
+                if state.rel:
+                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                    model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, rank_rel=model.rankrelfunc)
+                else:
+                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                        model.ranklfunc, model.rankrfunc, testlidx, testridx,\
+                        testoidx, true_triples)
                 state.bestvalid = state.valid
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)
@@ -430,8 +435,13 @@ def FB15kexp(state, channel):
 
             ### save model that performs best on dev data
             if state.bestvalid == -1 or state.valid < state.bestvalid:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
-                    model.rankrfunc, testlidx, testridx, testoidx,true_triples)
+                if state.rel:
+                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                    model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, rank_rel=model.rankrelfunc)
+                else:
+                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                        model.ranklfunc, model.rankrfunc, testlidx, testridx,\
+                        testoidx, true_triples)
                 state.bestvalid = state.valid
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)

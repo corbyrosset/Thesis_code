@@ -30,7 +30,6 @@ def margincost(pos, neg, marge=1.0):
     out = neg - pos + marge
     return T.sum(out * (out > 0)), out > 0 ### returns when margin violated
 
-#### DONT USE THESE, THEY DONT WORK ANY BETTER? 
 def squared_margin_cost(pos, neg, marge=1.0, magnifier=10.0):
     out = neg - pos + marge
     return T.sum(magnifier* out * out * (out > 0)), out > 0 
@@ -407,8 +406,11 @@ class WordEmbeddings(object):
                     self.vocab2indx[word] = counter
                     self.We.append(vec)
                     counter += 1
+            if 'UUUNKKK' not in self.vocab2indx:
+                self.vocab2indx['UUUNKKK'] = counter
+                self.We.append([0.01] * dim)
+                counter += 1
 
-            assert 'UUUNKKK' in self.vocab2indx
             temp = np.asarray(self.We, dtype=theano.config.floatX)
             self.We = theano.shared(value=temp, name='WordEmbedding')
             self.updates = OrderedDict({self.We: self.We / T.sqrt(T.sum(self.We ** 2, axis=0))})

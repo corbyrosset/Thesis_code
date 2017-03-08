@@ -268,14 +268,14 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
         params += KBsim.params
     # updates = sgd(cost, params, learning_rate=lrparams)
     if params:
-        updates = adam(cost, params, learning_rate=lrparams)
+        updates = sgd(cost, params, learning_rate=lrparams)
 
     ### update embeddings with a different learning rate
     embedding_params = [embedding.E]
     if type(embeddings) == list:
         embedding_params += [relationl.E] + [relationr.E]
 
-    update_embeddings = adam(cost,embedding_params, learning_rate=lrembeddings)
+    update_embeddings = sgd(cost,embedding_params, learning_rate=lrembeddings)
     updates.update(update_embeddings)
 
     """
@@ -392,14 +392,14 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
         params += textsim.params
     # updates = sgd(cost, params, learning_rate=lrparams)
     if params:
-        updates = adam(cost, params, learning_rate=lrparams)
+        updates = sgd(cost, params, learning_rate=lrparams)
 
     ### update embeddings of KG (entities + relations) and word embeddings
     embedding_params = [embedding.E, wordembeddings]
     if type(KBembeddings) == list:
         embedding_params += [relationl.E] + [relationr.E]
 
-    update_embeddings = adam(cost,embedding_params, learning_rate=lrembeddings)
+    update_embeddings = sgd(cost,embedding_params, learning_rate=lrembeddings)
     updates.update(update_embeddings)
 
     """
@@ -493,14 +493,14 @@ def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, left
         params += textsim.params
     # updates = sgd(cost, params, learning_rate=lrparams)
     if params:
-        updates = adam(cost, params, learning_rate=lrparams)
+        updates = sgd(cost, params, learning_rate=lrparams)
 
     ### update embeddings of KG (entities + relations) and word embeddings
     embedding_params = [wordembeddings]
     if type(KBembeddings) == list:
         embedding_params += [relationl.E] + [relationr.E]
 
-    update_embeddings = adam(cost,embedding_params, learning_rate=lrembeddings)
+    update_embeddings = sgd(cost,embedding_params, learning_rate=lrembeddings)
     updates.update(update_embeddings)
 
     """
