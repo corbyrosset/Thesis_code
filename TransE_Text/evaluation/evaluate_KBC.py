@@ -11,7 +11,7 @@ import theano
 import theano.sparse as S
 import theano.tensor as T
 
-def micro_evaluation_statistics(res, n):
+def micro_evaluation_statistics(res, n, rels=False):
     '''
         results is a tuple of (left_ranks, right_ranks) for all test triples
     '''
@@ -34,7 +34,7 @@ def micro_evaluation_statistics(res, n):
     dres['microghits@n'] = np.mean((res_combined) <= n) * 100
     dres['microgmrr'] = np.mean(np.reciprocal(res_combined))
     
-    if rel_ranks:
+    if rels:
         rel_ranks = np.array(rel_ranks, dtype=np.float64)
         dres['microrelmean'] = np.mean(rel_ranks)
         dres['microrelmrr'] = np.mean(np.reciprocal(rel_ranks))        
@@ -43,7 +43,7 @@ def micro_evaluation_statistics(res, n):
 
     return dres
 
-def macro_evaluation_statistics(res, idxo, n):
+def macro_evaluation_statistics(res, idxo, n, rels=False):
     '''
         computes macro-statistics, which weights mean ranks and hits @ 10 by 
         frequency with which each triple's relationship appears in the data.
@@ -94,6 +94,8 @@ def macro_evaluation_statistics(res, idxo, n):
         ranks_per_relation[i][0] = np.array(ranks_per_relation[i][0], dtype=np.float64)
         ranks_per_relation[i][1] = np.array(ranks_per_relation[i][1], dtype=np.float64)
         res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
+        assert np.all(res_combined) > 0
+        assert np.all(res_combined) < 14951
 
         left_mean_per_rel[i]     = np.mean(ranks_per_relation[i][0])
         right_mean_per_rel[i]    = np.mean(ranks_per_relation[i][1])
@@ -113,10 +115,12 @@ def macro_evaluation_statistics(res, idxo, n):
         right_hitsatn_per_rel[i] = np.mean(np.asarray(ranks_per_relation[i][1]) <= n) * 100
         gen_hitsatn_per_rel[i]   = np.mean(res_combined <= n) * 100
         
-        if rel_ranks:
+        if rels:
             ranks_per_relation[i][2] = np.array(ranks_per_relation[i][2], dtype=np.float64)
             res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
             res_combined = np.append(res_combined, ranks_per_relation[i][2])
+            assert np.all(res_combined) > 0
+            assert np.all(res_combined) < 14951
 
             rel_mean_rank[i] = np.mean(ranks_per_relation[i][2])
             rel_mrr[i] = np.mean(np.reciprocal(ranks_per_relation[i][2]))
@@ -125,7 +129,7 @@ def macro_evaluation_statistics(res, idxo, n):
 
             # also need to update generalized metrics to include relation ranks
             gen_mean_rank_per_rel[i] = np.mean(res_combined)
-            gen_mrr_per_rel[i]       = np.mean(res_combined)
+            gen_mrr_per_rel[i]       = np.mean(np.reciprocal(res_combined))
             gen_med_rank_per_rel[i]  = np.median(res_combined)
             gen_hitsatn_per_rel[i]   = np.mean(res_combined <= n) * 100
 
@@ -143,7 +147,7 @@ def macro_evaluation_statistics(res, idxo, n):
     dres['left_mrr_per_rel']  = left_mrr_per_rel
     dres['right_mrr_per_rel']  = right_mrr_per_rel
     dres['gen_mrr_per_rel']  = gen_mrr_per_rel    
-    if rel_ranks:
+    if rels:
         dres['rel_mean_rank'] = rel_mean_rank
         dres['rel_mrr'] = rel_mrr
         dres['rel_med_rank'] = rel_med_rank
@@ -161,7 +165,7 @@ def macro_evaluation_statistics(res, idxo, n):
     dres['macrolmrr']    = np.mean(left_mrr_per_rel.values())
     dres['macrormrr']    = np.mean(right_mrr_per_rel.values())
     dres['macrogmrr']    = np.mean(gen_mrr_per_rel.values())  
-    if rel_ranks:
+    if rels:
         dres['macrorelmean'] = np.mean(rel_mean_rank.values())
         dres['macrorelmrr'] = np.mean(rel_mrr.values())
         dres['macrorelmedian'] = np.mean(rel_med_rank.values())
@@ -306,8 +310,8 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, rank_rel=rankrelfunc)
 
     ### compute micro and macro mean rank and hits @ 10
-    dres = micro_evaluation_statistics(res, n)
-    dres.update(macro_evaluation_statistics(res, idxo, n))
+    dres = micro_evaluation_statistics(res, n, rel)
+    dres.update(macro_evaluation_statistics(res, idxo, n, rel))
 
     print "MICRO RAW:"
     print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
@@ -414,8 +418,8 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, rank_rel=rankrelfunc)
 
         ### compute micro and macro mean rank and hits @ 10
-    dres = micro_evaluation_statistics(restest, n)
-    dres.update(macro_evaluation_statistics(restest, idxo, n))
+    dres = micro_evaluation_statistics(restest, n, rel)
+    dres.update(macro_evaluation_statistics(restest, idxo, n, rel))
 
     print "MICRO FILTERED:"
     print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
