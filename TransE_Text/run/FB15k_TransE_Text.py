@@ -54,15 +54,12 @@ numTextTrain = 1000000 # num textual triples to use in each epoch of training
 ###############################################################################
 # for the word-averaging model of sentence embeddings, 
 assert word_dim == ndim ### else can't compare sentence and entity embeddings
-
+identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
+		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + '_lrate_' + \
+		str(lremb) + '_cost_' + str(margincostfunction) + '_role_' + \
+		str(textual_role)
 if rel == True:
-	identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + '_lrate_' + \
-		str(lremb) + '_cost_' + str(margincostfunction) + '_REL'
-else:
-	identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + '_lrate_' + \
-		str(lremb) + '_cost_' + str(margincostfunction)
+	identifier += '_REL'
 ###############################################################################
 ###############################################################################
 
