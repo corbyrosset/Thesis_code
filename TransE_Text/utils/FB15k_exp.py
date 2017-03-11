@@ -399,7 +399,7 @@ def FB15kexp(state, channel):
         print >> sys.stderr, "----------------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
-        print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/float(state.Nrel)), 5)
+        print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/float(state.Nrel), 5))
         if state.rel:
             print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
                 round(np.std(out), 3), \
