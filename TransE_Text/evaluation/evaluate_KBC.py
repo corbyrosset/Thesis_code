@@ -11,7 +11,7 @@ import theano
 import theano.sparse as S
 import theano.tensor as T
 
-def micro_evaluation_statistics(res, n, rels=False):
+def micro_evaluation_statistics(res, n, rel=False):
     '''
         results is a tuple of (left_ranks, right_ranks) for all test triples
     '''
@@ -34,7 +34,7 @@ def micro_evaluation_statistics(res, n, rels=False):
     dres['microghits@n'] = np.mean((res_combined) <= n) * 100
     dres['microgmrr'] = np.mean(np.reciprocal(res_combined))
     
-    if rels:
+    if rel:
         rel_ranks = np.array(rel_ranks, dtype=np.float64)
         dres['microrelmean'] = np.mean(rel_ranks)
         dres['microrelmrr'] = np.mean(np.reciprocal(rel_ranks))        
@@ -43,7 +43,7 @@ def micro_evaluation_statistics(res, n, rels=False):
 
     return dres
 
-def macro_evaluation_statistics(res, idxo, n, rels=False):
+def macro_evaluation_statistics(res, idxo, n, rel=False):
     '''
         computes macro-statistics, which weights mean ranks and hits @ 10 by 
         frequency with which each triple's relationship appears in the data.
@@ -85,7 +85,7 @@ def macro_evaluation_statistics(res, idxo, n, rels=False):
 
     # for i, j in enumerate(right_ranks):
     #     ranks_per_relation[idxo[i]][1] += [j]
-    if rel_ranks:
+    if rel:
         for i, j in enumerate(rel_ranks):
             ranks_per_relation[idxo[i]][2] += [j]
 
@@ -94,16 +94,18 @@ def macro_evaluation_statistics(res, idxo, n, rels=False):
         ranks_per_relation[i][0] = np.array(ranks_per_relation[i][0], dtype=np.float64)
         ranks_per_relation[i][1] = np.array(ranks_per_relation[i][1], dtype=np.float64)
         res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
+        assert np.size(ranks_per_relation[i][0]) == np.size(ranks_per_relation[i][1])
+        assert np.size(res_combined) == 2*np.size(ranks_per_relation[i][1])
         assert np.all(res_combined) > 0
-        assert np.all(res_combined) < 14951
+        assert np.all(res_combined) <= 14951
 
         left_mean_per_rel[i]     = np.mean(ranks_per_relation[i][0])
         right_mean_per_rel[i]    = np.mean(ranks_per_relation[i][1])
         gen_mean_rank_per_rel[i] = np.mean(res_combined)
         left_mrr_per_rel[i] = np.mean(np.reciprocal(ranks_per_relation[i][0]))
         right_mrr_per_rel[i]= np.mean(np.reciprocal(ranks_per_relation[i][1]))
-        gen_mrr_per_rel[i]  = np.mean(np.reciprocal(res_combined))
         rec = np.reciprocal(res_combined)
+        gen_mrr_per_rel[i]  = np.mean(rec)
         assert np.all(rec > 0)
         assert np.all(rec <= 1)
 
@@ -115,12 +117,12 @@ def macro_evaluation_statistics(res, idxo, n, rels=False):
         right_hitsatn_per_rel[i] = np.mean(np.asarray(ranks_per_relation[i][1]) <= n) * 100
         gen_hitsatn_per_rel[i]   = np.mean(res_combined <= n) * 100
         
-        if rels:
+        if rel:
             ranks_per_relation[i][2] = np.array(ranks_per_relation[i][2], dtype=np.float64)
             res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
             res_combined = np.append(res_combined, ranks_per_relation[i][2])
             assert np.all(res_combined) > 0
-            assert np.all(res_combined) < 14951
+            assert np.all(res_combined) <= 14951
 
             rel_mean_rank[i] = np.mean(ranks_per_relation[i][2])
             rel_mrr[i] = np.mean(np.reciprocal(ranks_per_relation[i][2]))
@@ -147,7 +149,7 @@ def macro_evaluation_statistics(res, idxo, n, rels=False):
     dres['left_mrr_per_rel']  = left_mrr_per_rel
     dres['right_mrr_per_rel']  = right_mrr_per_rel
     dres['gen_mrr_per_rel']  = gen_mrr_per_rel    
-    if rels:
+    if rel:
         dres['rel_mean_rank'] = rel_mean_rank
         dres['rel_mrr'] = rel_mrr
         dres['rel_med_rank'] = rel_med_rank
@@ -165,7 +167,7 @@ def macro_evaluation_statistics(res, idxo, n, rels=False):
     dres['macrolmrr']    = np.mean(left_mrr_per_rel.values())
     dres['macrormrr']    = np.mean(right_mrr_per_rel.values())
     dres['macrogmrr']    = np.mean(gen_mrr_per_rel.values())  
-    if rels:
+    if rel:
         dres['macrorelmean'] = np.mean(rel_mean_rank.values())
         dres['macrorelmrr'] = np.mean(rel_mrr.values())
         dres['macrorelmedian'] = np.mean(rel_med_rank.values())
