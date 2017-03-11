@@ -33,10 +33,11 @@ ntrain = 1000 # 'all' # number of examples to actually compute ranks for
 		      # if you set to 'all', it will take a very long time
 nvalid = 1000 # 'all'
 ntest = 1000 # 'all'
-neval = 'all' # 'all'### only for final testing, not training
+neval = 1000 #'all' # 'all'### only for final testing, not training
 
 ###############################################################################
-### parameters specific for textual triples. 
+### parameters specific for textual triples.
+textual_role = 'TextAsRelation' 
 marg_text = 2.0
 textsim = 'L2' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
@@ -75,7 +76,7 @@ print 'models saved to path: ' + str(savepath)
 # 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
 # 	textsim = textsim, vocab_size = vocab_size, marg_text=marg_text, \
 # 	vocab = vocab, word_dim=word_dim, word_file=word_file, gamma = gamma,\
-# 	datapath = datapath)
+# 	datapath = datapath, textual_role=textual_role)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...

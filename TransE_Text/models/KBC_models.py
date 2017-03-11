@@ -143,6 +143,8 @@ def RankLeftFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None):
     relr = (relationr.E[:, idxo]).reshape((1, relationr.D))
     tmp = rightop(rhs, relr)
     simi = fnsim(leftop(lhs, rell), tmp.reshape((1, tmp.shape[1])))
+    # print 'RankLeftFnIdx: rhs=%s, rell=%s, relr=%s, tmp=%s, simi=%s' % (np.shape(rhs), np.shape(rell), np.shape(relr), np.shape(tmp), np.shape(simi))
+
     """
     Theano function inputs.
     :input idxr: index value of the 'right' member.
@@ -205,7 +207,7 @@ def RankRelFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None):
     return theano.function([idxl, idxr], [simi],
             on_unused_input='ignore')
 
-def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, rel=True, reg=0.1):
+def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, rel=True, reg=0.001):
     """
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
@@ -247,8 +249,11 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     costl, outl = margincost(simi, similn, marge)
     costr, outr = margincost(simi, simirn, marge)
     # regularize only relations, as entities are re-normalized
-    ### regularization actually breaks eventually?
-    cost = costl + costr #+ reg*relationl.L2_sqr_norm 
+    ### TODO TODO regularization actually breaks eventually?
+    if reg == None:
+        cost = costl + costr #+ reg*relationl.L2_sqr_norm 
+    else:
+        cost = costl + costr + reg*relationl.L2_sqr_norm
     
     # List of inputs of the function
     list_in = [lrembeddings, lrparams,
@@ -311,8 +316,21 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
         return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr)],
             updates=updates, on_unused_input='ignore')
     
-def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
+def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
     """
+    Here we use the textual embedding *AS* the relation embedding; the
+    true relation is never used. 
+
+    score = s(h, r, r_text, t) = ||h + r_text - t|| (e.g. for transE)
+
+    Loss = gamma max{s(h, r', t) - s(h, r_text, t) + marge), 0}
+
+    if rel == True, then we need to rank the positive relation over negative 
+    ones. We are still using r_text as the positive relation, but since we
+    can't sample "negative texts" easily, we will compare r_text to r'
+    where r' is a KB relation embeddings that does NOT appear between 
+    entities h and t in the true KB. 
+
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
     matrices. For one positive triplet there are two or three (if rel == True)
@@ -440,8 +458,13 @@ def Train1MemberText(margincost, KBsim, textsim, KBembeddings, wordembeddings, l
         return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr), T.mean(outtext)],
             updates=updates, on_unused_input='ignore')
 
-def Train1MemberTextONLY(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marg_text=2.0, gamma=0.1):
+def Train1MemberTextReg(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marg_text=2.0, gamma=0.1):
     """
+    score(h, r, r_text, t) = ||r - r_text||
+    For r' a negative relation, the loss is
+    loss = score(h, r', r_text, t) - score(h, r, r_text, t) + marg_text
+
+
     This function returns a theano function to perform a training iteration,
     contrasting positive and negative triplets. members are given as sparse
     matrices. For one positive triplet there are two or three (if rel == True)
@@ -610,16 +633,20 @@ class TransE_text_model():
             self.embeddings, self.leftop, self.rightop, marge=state.marge, \
             rel=state.rel)
 
-        self.trainFuncText = Train1MemberTextONLY(self.margincost, \
-            self.textsim, self.embeddings, \
-            self.word_embeddings.getEmbeddings(), \
-            self.leftop, self.rightop, marge=state.marg_text, \
-            gamma=state.gamma)
-
-        # self.trainFuncText = Train1MemberText(self.margincost, self.KBsim, \
-        #     self.textsim, self.embeddings, \
-        #     self.word_embeddings.getEmbeddings(), self.leftop, self.rightop,\
-        #     marge=state.marge, gamma=state.gamma, rel=state.rel)
+        if state.textual_role == 'TextAsRegularizer':
+            self.trainFuncText = Train1MemberTextReg(self.margincost, \
+                self.textsim, self.embeddings, \
+                self.word_embeddings.getEmbeddings(), \
+                self.leftop, self.rightop, marge=state.marg_text, \
+                gamma=state.gamma)
+        elif state.textual_role == 'TextAsRelation':
+            self.trainFuncText = Train1MemberTextAsRel(self.margincost, \
+                self.KBsim, self.textsim, self.embeddings, \
+                self.word_embeddings.getEmbeddings(), self.leftop, \
+                self.rightop, marge=state.marge, gamma=state.gamma, \
+                rel=state.rel)
+        else:
+            raise ValueError("Must supply valid role for a textual instance!")
         
         self.ranklfunc = RankLeftFnIdx(self.KBsim, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)

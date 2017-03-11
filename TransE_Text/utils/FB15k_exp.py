@@ -189,7 +189,7 @@ def FB15kexp_text(state, channel):
             else:
                 model.embeddings.normalize()
 
-        print >> sys.stderr, "------------------------------------------------------------"
+        print >> sys.stderr, "----------------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
 
@@ -283,8 +283,8 @@ def FB15kexp_text(state, channel):
                 round(time.time() - timeref, 3))
             timeref = time.time()
             channel.save()
-    print >> sys.stderr, "------------------------------------------------------------"
-    print >> sys.stderr, "------------------------------------------------------------"
+    print >> sys.stderr, "----------------------------------------------------------------------"
+    print >> sys.stderr, "----------------------------------------------------------------------"
     return channel.COMPLETE
 
 
@@ -396,9 +396,10 @@ def FB15kexp(state, channel):
             else:
                 model.embeddings.normalize()
 
-        print >> sys.stderr, "------------------------------------------------------"
+        print >> sys.stderr, "----------------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
+        print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/float(state.Nrel)), 5)
         if state.rel:
             print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
                 round(np.std(out), 3), \
@@ -469,8 +470,8 @@ def FB15kexp(state, channel):
                 round(time.time() - timeref, 3))
             timeref = time.time()
             channel.save()
-    print >> sys.stderr, "------------------------------------------------------"
-    print >> sys.stderr, "------------------------------------------------------"
+    print >> sys.stderr, "----------------------------------------------------------------------"
+    print >> sys.stderr, "----------------------------------------------------------------------"
     return channel.COMPLETE
 
 ###############################################################################
@@ -576,6 +577,9 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     state.lrparam = lrparam # learning rate for params of leftop, rightop, 
                             # and fnsim, if they have parametesr
 
+    state.textual_role = textual_role # whether to interpret a text embedding
+                                      # as a form or regularization or as a 
+                                      # relation
     state.marg_text = marg_text
     state.textsim = textsim  # how to compare a textual relation to KB relation
     state.vocab_size = vocab_size # size of vocabulary

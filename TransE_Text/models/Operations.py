@@ -25,17 +25,32 @@ def Dotsim(left, right):
 
 # Cost ------------------------------------------------------------------------
 def margincost(pos, neg, marge=1.0):
+    '''
+        Margin ranking objective. All scores are nonnegative
+
+        :param pos: is the score of the positive triple (for transE, it should
+            be close to zero)
+        :param neg: is the score of the negative triple (for transE, this 
+            should be large and positive)
+        :param marge: is the margin by which the score of the negative triple 
+            should be above the score of the positive triple, because negative
+            triples have "higher energy" while positive ones have low energy.
+        Axioms: assert np.all(T.ge(neg, 0.0))
+                assert np.all(T.ge(pos, 0.0))
+    '''
     # assert np.all(T.ge(neg, 0.0))
     # assert np.all(T.ge(pos, 0.0))
-    out = neg - pos + marge
+    out = marge + pos - neg
+    # out = neg - pos + marge NOT THIS, it was backwards in the code!!!
+    # when it was backwards, it basically just clusters
     return T.sum(out * (out > 0)), out > 0 ### returns when margin violated
 
 def squared_margin_cost(pos, neg, marge=1.0, magnifier=10.0):
-    out = neg - pos + marge
+    out = marge + pos - neg
     return T.sum(magnifier * out * out * (out > 0)), out > 0 
 
 def exp_margin_cost(pos, neg, marge=1.0, magnifier=5.0):
-    out = neg - pos + marge
+    out = marge + pos - neg
     loss = T.exp(magnifier * out)
     
     # loss_pos = T.log(1 + T.exp(2*(marg_pos - pos)))
@@ -356,8 +371,8 @@ class Embeddings(object):
         self.updates = OrderedDict({self.E: self.E / T.sqrt(T.sum(self.E ** 2, axis=0))})
         self.normalize = theano.function([], [], updates=self.updates)
 
-        self.L1_norm = T.sum(abs(self.E))
-        self.L2_sqr_norm = T.sum(self.E ** 2)
+        self.L1_norm = T.sum(T.abs_(self.E))
+        self.L2_sqr_norm = T.sum(T.sqr(self.E))
 
 class WordEmbeddings(object):
 

@@ -77,9 +77,9 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
 
     for i, (j, k) in enumerate(zip(left_ranks, right_ranks)):
         assert j > 0
-        assert j < 14951
+        assert j <= 14951
         assert k > 0
-        assert k < 14951
+        assert k <= 14951
         ranks_per_relation[idxo[i]][0] += [j]
         ranks_per_relation[idxo[i]][1] += [k]
 
@@ -137,39 +137,39 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
 
 
     dres['ranks_per_relation']     = ranks_per_relation
-    dres['left_mean_per_rel']   = left_mean_per_rel
-    dres['right_mean_per_rel']   = right_mean_per_rel
-    dres['gen_mean_rank_per_rel']   = gen_mean_rank_per_rel
-    dres['left_med_rank_per_rel'] = left_med_rank_per_rel
+    dres['left_mean_per_rel']      = left_mean_per_rel
+    dres['right_mean_per_rel']     = right_mean_per_rel
+    dres['gen_mean_rank_per_rel']  = gen_mean_rank_per_rel
+    dres['left_med_rank_per_rel']  = left_med_rank_per_rel
     dres['right_med_rank_per_rel'] = right_med_rank_per_rel
-    dres['gen_med_rank_per_rel'] = gen_med_rank_per_rel
+    dres['gen_med_rank_per_rel']   = gen_med_rank_per_rel
     dres['left_hitsatn_per_rel']   = left_hitsatn_per_rel
-    dres['right_hitsatn_per_rel']   = right_hitsatn_per_rel
-    dres['gen_hitsatn_per_rel']   = gen_hitsatn_per_rel
-    dres['left_mrr_per_rel']  = left_mrr_per_rel
-    dres['right_mrr_per_rel']  = right_mrr_per_rel
-    dres['gen_mrr_per_rel']  = gen_mrr_per_rel    
+    dres['right_hitsatn_per_rel']  = right_hitsatn_per_rel
+    dres['gen_hitsatn_per_rel']    = gen_hitsatn_per_rel
+    dres['left_mrr_per_rel']       = left_mrr_per_rel
+    dres['right_mrr_per_rel']      = right_mrr_per_rel
+    dres['gen_mrr_per_rel']        = gen_mrr_per_rel    
     if rel:
         dres['rel_mean_rank'] = rel_mean_rank
-        dres['rel_mrr'] = rel_mrr
-        dres['rel_med_rank'] = rel_med_rank
-        dres['rel_hitsatn'] = rel_hitsatn
+        dres['rel_mrr']       = rel_mrr
+        dres['rel_med_rank']  = rel_med_rank
+        dres['rel_hitsatn']   = rel_hitsatn
 
     dres['macrolmean']   = np.mean(left_mean_per_rel.values())
-    dres['macrolmedian'] = np.mean(left_med_rank_per_rel.values())
+    dres['macrolmedian'] = np.median(left_med_rank_per_rel.values())
     dres['macrolhits@n'] = np.mean(left_hitsatn_per_rel.values())
     dres['macrormean']   = np.mean(right_mean_per_rel.values())
-    dres['macrormedian'] = np.mean(right_med_rank_per_rel.values())
+    dres['macrormedian'] = np.median(right_med_rank_per_rel.values())
     dres['macrorhits@n'] = np.mean(right_hitsatn_per_rel.values())
     dres['macrogmean']   = np.mean(gen_mean_rank_per_rel.values())
-    dres['macrogmedian'] = np.mean(gen_med_rank_per_rel.values())
+    dres['macrogmedian'] = np.median(gen_med_rank_per_rel.values())
     dres['macroghits@n'] = np.mean(gen_hitsatn_per_rel.values())
     dres['macrolmrr']    = np.mean(left_mrr_per_rel.values())
     dres['macrormrr']    = np.mean(right_mrr_per_rel.values())
     dres['macrogmrr']    = np.mean(gen_mrr_per_rel.values())  
     if rel:
-        dres['macrorelmean'] = np.mean(rel_mean_rank.values())
-        dres['macrorelmrr'] = np.mean(rel_mrr.values())
+        dres['macrorelmean']   = np.mean(rel_mean_rank.values())
+        dres['macrorelmrr']    = np.mean(rel_mrr.values())
         dres['macrorelmedian'] = np.mean(rel_med_rank.values())
         dres['macrorelhits@n'] = np.mean(rel_hitsatn.values())  
 
@@ -192,15 +192,24 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
     errr = []
     err_rel = []
     print '\tRanking: evaluating rank on ' + str(len(idxl)) +' triples'
-    
+    ### TODO: these will still be reversed, find a way to un-reverse them!
     for l, o, r in zip(idxl, idxo, idxr):
-        errl += [np.argsort(np.argsort((
-            sl(r, o)[0]).flatten())[::-1]).flatten()[l] + 1]
-        errr += [np.argsort(np.argsort((
-            sr(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
+        ### ORIGINAL:
+        # errl += [np.argsort(np.argsort((
+        #     sl(r, o)[0]).flatten())[::-1]).flatten()[l] + 1]
+        # errr += [np.argsort(np.argsort((
+        #     sr(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
+
+        scores_l = (sl(r, o)[0]).flatten()
+        scores_r = (sr(l, o)[0]).flatten()
+        errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
+        errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
         if rank_rel is not None:
-            err_rel += [np.argsort(np.argsort((rank_rel(l, r)[0]).flatten())[::-1]).flatten()[o] + 1]
+            # err_rel += [np.argsort(np.argsort((rank_rel(l, r)[0]).flatten())[::-1]).flatten()[o] + 1]
+            scores_rel = (rank_rel(l, r)[0]).flatten()
+            err_rel += [np.argsort(np.argsort(scores_rel)).flatten()[o] + 1]
+
     if not rank_rel:
         err_rel = [0]*len(idxl)
 
@@ -234,16 +243,16 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
         rmv_idx_l = [true_triples[i,0] for i in inter_l if true_triples[i,0] != l]
         scores_l = (sl(r, o)[0]).flatten()
         # print '\tremoved ' + str(len(rmv_idx_l)) + ' true triples from left'
-        scores_l[rmv_idx_l] = -np.inf
-        errl += [np.argsort(np.argsort(-scores_l)).flatten()[l] + 1]
+        scores_l[rmv_idx_l] = np.inf
+        errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
 
         ### right
         inter_r = [i for i in il if i in io]
         rmv_idx_r = [true_triples[i,2] for i in inter_r if true_triples[i,2] != r]
         scores_r = (sr(l, o)[0]).flatten()
         # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from right'
-        scores_r[rmv_idx_r] = -np.inf
-        errr += [np.argsort(np.argsort(-scores_r)).flatten()[r] + 1]
+        scores_r[rmv_idx_r] = np.inf
+        errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
         ### relations
         if rank_rel is not None:
@@ -253,8 +262,8 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
             # rmv_idx_o = [i for i in inter_o if true_triples[i,1] != o]
             scores_rel = (rank_rel(l, r)[0]).flatten()
             # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from relation'
-            scores_rel[rmv_idx_o] = -np.inf
-            err_rel += [np.argsort(np.argsort(-scores_rel)).flatten()[o] + 1]
+            scores_rel[rmv_idx_o] = np.inf
+            err_rel += [np.argsort(np.argsort(scores_rel)).flatten()[o] + 1]
     
     if not rank_rel:
         err_rel = [0]*len(idxl)
@@ -419,7 +428,7 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     # restest = (error_left entities, error_right_entities)
     restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, rank_rel=rankrelfunc)
 
-        ### compute micro and macro mean rank and hits @ 10
+    ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(restest, n, rel)
     dres.update(macro_evaluation_statistics(restest, idxo, n, rel))
 
