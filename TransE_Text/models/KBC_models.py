@@ -637,7 +637,7 @@ class TransE_text_model():
             self.trainFuncText = Train1MemberTextReg(self.margincost, \
                 self.textsim, self.embeddings, \
                 self.word_embeddings.getEmbeddings(), \
-                self.leftop, self.rightop, marge=state.marg_text, \
+                self.leftop, self.rightop, marg_text=state.marg_text, \
                 gamma=state.gamma)
         elif state.textual_role == 'TextAsRelation':
             self.trainFuncText = Train1MemberTextAsRel(self.margincost, \

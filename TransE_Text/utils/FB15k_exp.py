@@ -192,6 +192,7 @@ def FB15kexp_text(state, channel):
         print >> sys.stderr, "----------------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
+        print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/float(state.Nrel), 5))
 
         if state.rel:
             print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (\
@@ -544,7 +545,8 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     ntrain = 'all', nvalid = 'all', ntest = 'all', textsim = 'L2', \
     vocab_size = 100000, word_dim = 300, word_file = None, vocab = None, \
     gamma = 0.01, seed=123, savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/', loadmodelBi=False, \
-    loadmodelTri=False, rel=False, numTextTrain=10000, marg_text=1.0):
+    loadmodelTri=False, rel=False, numTextTrain=10000, marg_text=1.0, \
+    textual_role='TextAsRegularizer'):
 
     # Argument of the experiment script
     state = DD()

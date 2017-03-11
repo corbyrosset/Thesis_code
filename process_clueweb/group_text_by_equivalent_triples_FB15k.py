@@ -55,7 +55,8 @@ idx_2_sent_map = {}
 ### data structures to be built
 text_per_triple_cntr = {} # count total number of textual instances f.e. triple
 unique_text_per_triple = {} # set of unique text mentions f.e. triple
-triple_per_text = {} # converse of unique_text_per_triple, i.e. the set of triples labeled on each unique textual instance. This is frightening...
+triple_per_text = {} # converse of unique_text_per_triple, i.e. the SIZE of the set of triples labeled on each unique textual instance. 
+rels_per_text = {} # set of unique relationships per sentence
 
 ###############################################################################
 ###                                 Main                                    ###
@@ -66,24 +67,12 @@ idx2entity = pickle.load(open(FB15k_path + 'FB15k_idx2entity.pkl', 'r'))
 num_entities_union_rels = np.max(entity2idx.values()) + 1
 
 datatyp = 'all'
-f = open(data_path + input_prefix + '%s-lhs.pkl' % datatyp, 'r')
-g = open(data_path + input_prefix + '%s-rhs.pkl' % datatyp, 'r')
-h = open(data_path + input_prefix + '%s-rel.pkl' % datatyp, 'r')
-s = open(data_path + input_prefix + '%s-sent.pkl' % datatyp, 'r')
-sent2idx = open(data_path + input_prefix + '%s-sent2idx.pkl' % datatyp, 'r')
-idx2sent = open(data_path + input_prefix + '%s-idx2sent.pkl' % datatyp, 'r')
-LHS = pickle.load(f)
-RHS = pickle.load(g)
-REL = pickle.load(h)
-SENT = pickle.load(s)
-unique_sent_map = pickle.load(sent2idx)
-idx_2_sent_map = pickle.load(idx2sent)
-f.close()
-g.close()
-h.close()
-s.close()
-sent2idx.close()
-idx2sent.close()
+LHS = pickle.load(open(data_path + input_prefix + '%s-lhs.pkl' % datatyp, 'r'))
+RHS = pickle.load(open(data_path + input_prefix + '%s-rhs.pkl' % datatyp, 'r'))
+REL = pickle.load(open(data_path + input_prefix + '%s-rel.pkl' % datatyp, 'r'))
+SENT=pickle.load(open(data_path + input_prefix + '%s-sent.pkl' % datatyp, 'r'))
+unique_sent_map = pickle.load(open(data_path + input_prefix + '%s-sent2idx.pkl' % datatyp, 'r'))
+idx_2_sent_map = pickle.load(open(data_path + input_prefix + '%s-idx2sent.pkl' % datatyp, 'r'))
 print 'loaded necessary FB15k_clueweb data'
 
 ### they need to be csc's in order to be fast
@@ -104,6 +93,8 @@ rows_rhs, cols_rhs, vals_rhs = sp.find(RHS)
 counter_1 = 0
 for lhs, rel, rhs, sent in zip(rows_lhs, rows_rel, rows_rhs, SENT):
 	triple = (lhs, rel, rhs)
+	int(lhs) and int(rel) and int(rhs) # make sure these dont throw errors
+	
 	### text_per_triple_cntr
 	# if triple not in text_per_triple_cntr:
 	# 	text_per_triple_cntr[triple] = 1
@@ -117,18 +108,30 @@ for lhs, rel, rhs, sent in zip(rows_lhs, rows_rel, rows_rhs, SENT):
 	# 	unique_text_per_triple[triple].add(sent)
 
 	### triple_per_text
-	if sent not in triple_per_text:
-		triple_per_text[sent] = set([triple])
+	# if sent not in triple_per_text:
+	# 	triple_per_text[sent] = set([triple])
+	# else:
+	# 	triple_per_text[sent].add(triple)
+
+	### rels_per_text
+	if sent not in rels_per_text:
+		rels_per_text[sent] = set([rel])
 	else:
-		triple_per_text[sent].add(triple)
+		rels_per_text[sent].add(rel)
 
 	
 	# print idx2entity[lhs], idx2entity[rel], idx2entity[rhs], idx_2_sent_map[sent]
 
 ### make triple_per_text only store the lens of the sets, not the sets:
-for k, v in triple_per_text.items():
-	triple_per_text[k] = len(v)
+# for k, v in triple_per_text.items():
+# 	triple_per_text[k] = len(v)
+# 	assert len(v) > 0
+
+### make rels_per_text only store the lens of the sets, not the sets:
+for k, v in rels_per_text.items():
+	rels_per_text[k] = list(v)
 	assert len(v) > 0
+assert len(rels_per_text) == NUM_UNIQUE_SENTENCES
 
 # srtd_triples = sorted(text_per_triple_cntr, key=text_per_triple_cntr.__getitem__, reverse=True)
 # srtd_text_per_triple = sorted(triple_per_text.items(), key= lambda (k, v): v, reverse=True)
@@ -153,15 +156,11 @@ for k, v in triple_per_text.items():
 ###                              Persist                                    ###
 ###############################################################################
 
-# f = open(data_path + output_prefix + '-counts.pkl', 'w')
-# g = open(data_path + output_prefix + '-text_sets.pkl', 'w')
-# h = open(data_path + output_prefix + '-triple_per_text_count.pkl', 'w')
-# pickle.dump(text_per_triple_cntr, f, -1)
-# pickle.dump(unique_text_per_triple, g, -1)
-# pickle.dump(triple_per_text, h, -1)
-# f.close()
-# g.close()
-# h.close()
+#pickle.dump(text_per_triple_cntr, open(data_path + output_prefix + '-counts.pkl', 'w'), -1)
+#pickle.dump(unique_text_per_triple, open(data_path + output_prefix + '-text_sets.pkl', 'w'), -1)
+#pickle.dump(triple_per_text, open(data_path + output_prefix + '-triple_per_text_count.pkl', 'w'), -1)
+pickle.dump(rels_per_text, open(data_path + output_prefix + '-rels_per_text.pkl', 'w'), -1)
+
 print 'done writing triple components to their respective files'
 
 ###############################################################################

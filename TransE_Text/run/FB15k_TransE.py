@@ -12,9 +12,9 @@ from evaluate_KBC import RankingEval
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
 simfn = 'L2'
 margincostfunction = 'margincost' ### from top of Operations
-ndim = 150 # dimension of both relationship and entity embeddings
+ndim = 50 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
-marge = 1.0     # {0.5, 1.0} 
+marge = 0.5     # {0.5, 1.0} 
 lremb = 0.01   # {0.01, 0.001}
 lrparam = 0.01 # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -24,7 +24,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = False   # whether to also rank relations
+rel = True   # whether to also rank relations
 reg = None #0.1 ### if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would

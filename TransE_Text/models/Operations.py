@@ -290,6 +290,19 @@ class LayerMat(object):
         rx = x.reshape((x.shape[0], x.shape[1], 1))
         return self.act((rx * ry).sum(1))
 
+class BilinearDiag(object):
+    """
+    Class for a layer with two input vectors that performs the elementwise 
+    product of the 'left member' and 'right member'
+    """
+
+    def __init__(self):
+        """Constructor."""
+        self.params = []
+
+    def __call__(self, x, y):
+        """Forward function."""
+        return x*y
 
 class LayerTrans(object):
     """
