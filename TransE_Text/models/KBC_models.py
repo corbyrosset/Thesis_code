@@ -323,7 +323,12 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
 
     score = s(h, r, r_text, t) = ||h + r_text - t|| (e.g. for transE)
 
-    Loss = gamma max{s(h, r', t) - s(h, r_text, t) + marge), 0}
+    Loss = gamma * [
+              max{s(h, r_text, t) - s(h', r_text, t) + marge), 0}
+            + max{s(h, r_text, t) - s(h, r_text, t') + marge), 0}
+            ]
+    if rel == True, add to loss:
+        gamma * max{s(h, r_text, t) - s(h, r', t) + marge), 0}
 
     if rel == True, then we need to rank the positive relation over negative 
     ones. We are still using r_text as the positive relation, but since we
@@ -365,8 +370,8 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
     # Graph
     lhs = S.dot(embedding.E, inpl).T
     rhs = S.dot(embedding.E, inpr).T
-    rell = S.dot(relationl.E, inpo).T
-    relr = S.dot(relationr.E, inpo).T
+    # rell = S.dot(relationl.E, inpo).T
+    # relr = S.dot(relationr.E, inpo).T
     relln = S.dot(relationl.E, inpon).T
     lhsn = S.dot(embedding.E, inpln).T
     rhsn = S.dot(embedding.E, inprn).T
@@ -375,34 +380,28 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
     sent_avg = (sentinvleng.T * S.dot(wordembeddings.T, binary_sent.T)).T 
     # sent_avg should now be (minibatchsize, word_dim)
     
-    ## similarity of true triple
-    simi = KBsim(leftop(lhs, rell), rightop(rhs, relr))
+    ## similarity of true triple with textual relation instead of KB relation
+    simi = KBsim(leftop(lhs, sent_avg), rightop(rhs, sent_avg))
     ## similarity for negative 'left' entity
-    similn = KBsim(leftop(lhsn, rell), rightop(rhs, relr))
+    similn = KBsim(leftop(lhsn, sent_avg), rightop(rhs, sent_avg))
     ## similirity for negative 'right' entity
-    simirn = KBsim(leftop(lhs, rell), rightop(rhsn, relr))
-    ## similairty of textual relation embedding and true relation embedding
-    textsim_true = textsim(rell, sent_avg)
-    ## similarity of textual relation embedding and negative relation embedding
-    textsim_neg = textsim(relln, sent_avg)
-
+    simirn = KBsim(leftop(lhs, sent_avg), rightop(rhsn, sent_avg))
     costl, outl = margincost(simi, similn, marge)
     costr, outr = margincost(simi, simirn, marge)
-    costtext, outtext = margincost(textsim_true, textsim_neg, marge)
     
-    cost = costl + costr + gamma*costtext #MAYBE DONT PUT THIS HERE
+    cost = gamma*(costl + costr)
 
     ##### TODO: perhaps separate outputs into text and KB values as well??
 
     # List of inputs of the function
-    list_in = [lrembeddings, lrparams, inpl, inpr, inpo, inpln, inprn, inpon, \
+    list_in = [lrembeddings, lrparams, inpl, inpr, inpln, inprn, inpon, \
         binary_sent, sentinvleng, gamma]
 
     if rel: #In addition to ranking text to its relation, rank relation 
         relrn = S.dot(relationr.E, inpon).T
         simion = KBsim(leftop(lhs, relln), rightop(rhs, relrn))
         costo, outo = margincost(simi, simion, marge)
-        cost += costo
+        cost += gamma*costo
 
     updates = OrderedDict()
     ### update parameters with a particular learning rate
@@ -452,10 +451,10 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
     """
 
     if rel:
-        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outo), T.mean(outr), T.mean(outtext)],
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outo), T.mean(outr)],
             updates=updates, on_unused_input='ignore')
     else:
-        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr), T.mean(outtext)],
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr)],
             updates=updates, on_unused_input='ignore')
 
 def Train1MemberTextReg(margincost, textsim, KBembeddings, wordembeddings, leftop, rightop, marg_text=2.0, gamma=0.1):

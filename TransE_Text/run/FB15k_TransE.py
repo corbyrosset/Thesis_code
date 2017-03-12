@@ -12,7 +12,7 @@ from evaluate_KBC import RankingEval
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
 simfn = 'L2'
 margincostfunction = 'margincost' ### from top of Operations
-ndim = 50 # dimension of both relationship and entity embeddings
+ndim = 150 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150}
 marge = 0.5     # {0.5, 1.0} 
 lremb = 0.01   # {0.01, 0.001}
@@ -51,13 +51,13 @@ else:
 
 print 'identifier: ' + str(identifier)
 print 'models saved to path: ' + str(savepath)
-launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
-	marge= marge, margincostfunction=margincostfunction, \
-	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
-	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
-	savepath= savepath + str(identifier), reg=reg, \
-	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath=datapath)
+# launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
+# 	marge= marge, margincostfunction=margincostfunction, \
+# 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
+# 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
+# 	savepath= savepath + str(identifier), reg=reg, \
+# 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
+# 	datapath=datapath)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...

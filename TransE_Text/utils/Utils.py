@@ -333,6 +333,7 @@ def load_FB15k_Clueweb_data(state):
     text_train = np.array(cPickle.load(open(data_path + 'clueweb_FB15k_filtered_%s-sent.pkl' % datatyp)))[:state.numTextTrain]
     rel_train = rel_train[-state.Nrel:, :]
     ### TODO: reformat input data so you don't need to do '[0, :].tolist()'
+    print 'using %s out of %s available textual mentions' % (state.numTextTrain, np.size(lhs_train))
     idxl = expand_to_mat(convert2idx(lhs_train)[:state.numTextTrain], \
             state.Nent)
     idxr = expand_to_mat(convert2idx(rhs_train)[:state.numTextTrain], \

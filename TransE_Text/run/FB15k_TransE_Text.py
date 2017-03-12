@@ -12,14 +12,14 @@ savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15
 
 simfn = 'L2'
 margincostfunction = 'margincost' ### from top of Operations
-ndim = 50 # dimension of both relationship and entity embeddings
-	       # {10, 50, 100, 150}
-marge = 0.5     # {0.5, 1.0}
-lremb = 0.01   # {0.01, 0.001}
-lrparam = 0.01 # {0.01, 0.001}
+ndim = 200 # dimension of both relationship and entity embeddings
+	      # {10, 50, 100, 150}
+marge = 0.2     # {0.5, 1.0}
+lremb = 0.01    # {0.01, 0.001}
+lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
-totepochs = 50  # number of epochs should be 500
-test_all = 5   # number of epochs between ranking on validation sets again
+totepochs = 300  # number of epochs should be 500
+test_all = 10    # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
@@ -37,18 +37,19 @@ neval = 'all' # 'all'### only for final testing, not training
 
 ###############################################################################
 ### parameters specific for textual triples.
-textual_role = 'TextAsRegularizer' 
+textual_role = 'TextAsRelation' # {TextAsRegularizer, TextAsRelation}
 marg_text = 1.0
 textsim = 'L2' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
-word_dim = 50 # dimension of each word embedding
+word_dim = 200 # dimension of each word embedding
 # word_file = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
-word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.50d.txt'
+word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.200d.txt'
 	# path to file containing word embeddings
 vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
 gamma = 1.0 #{0.01, 0.1, 1} weight to use for cost of textual triple
 # assert ndim == word_dim
 numTextTrain = 1000000 # num textual triples to use in each epoch of training
+					   # maximum is 10413174
 
 ###############################################################################
 ###############################################################################

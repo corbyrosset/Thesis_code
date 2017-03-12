@@ -80,6 +80,7 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
         assert j <= 14951
         assert k > 0
         assert k <= 14951
+        # idxo[i] is the relation integer of test triple i
         ranks_per_relation[idxo[i]][0] += [j]
         ranks_per_relation[idxo[i]][1] += [k]
 
@@ -319,7 +320,10 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
         rankrelfunc = None
  
     res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, rank_rel=rankrelfunc)
-
+    left_ranks, right_ranks, rel_ranks = res
+    print 'left_ranks: %s, right_ranks: %s, rel_ranks: %s' % (np.shape(left_ranks), np.shape(right_ranks), np.shape(rel_ranks))
+    print 'max left_ranks: %s, max right_ranks: %s, max rel_ranks: %s' % (np.max(left_ranks), np.max(right_ranks), np.max(rel_ranks))
+    
     ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(res, n, rel)
     dres.update(macro_evaluation_statistics(res, idxo, n, rel))

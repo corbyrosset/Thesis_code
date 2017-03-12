@@ -159,14 +159,28 @@ def FB15kexp_text(state, channel):
             
 
             ## if using TrainFn1MemberTextONLY!!!
-            batch_cost, per_text = model.trainFuncText(state.lremb, \
-                state.lrparam, text_tmpo, text_tmpno, text_tmpsents, \
-                inv_lens, state.gamma)
-            cost_txt += [batch_cost / float(text_batchsz)]
-            percent_txt += [per_text]
-            percent_left_txt += [0]
-            percent_rel_txt += [0]
-            percent_right_txt += [0]
+            if state.textual_role == 'TextAsRegularizer':
+                batch_cost, per_text = model.trainFuncText(state.lremb, \
+                    state.lrparam, text_tmpo, text_tmpno, text_tmpsents, \
+                    inv_lens, state.gamma)
+                cost_txt += [batch_cost / float(text_batchsz)]
+                percent_txt += [per_text]
+                percent_left_txt += [0]
+                percent_rel_txt += [0]
+                percent_right_txt += [0]
+            elif state.textual_role == 'TextAsRelation':
+                batch_cost, per_l, per_o, per_r = model.trainFuncText(\
+                    state.lremb, state.lrparam, text_tmpl, text_tmpr, \
+                    text_tmpnl, text_tmpnr, text_tmpno, \
+                    text_tmpsents, inv_lens, state.gamma)
+                cost_txt += [batch_cost / float(text_batchsz)]
+                percent_txt += [0]
+                percent_left_txt += [per_l]
+                percent_rel_txt += [per_o]
+                percent_right_txt += [per_r]
+            else:
+                print 'must have valid textual_role'
+                exit(1)
 
             # if state.rel == True:
             #     batch_cost, per_l, per_o, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
