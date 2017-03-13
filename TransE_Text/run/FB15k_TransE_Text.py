@@ -46,7 +46,7 @@ word_dim = 200 # dimension of each word embedding
 word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.200d.txt'
 	# path to file containing word embeddings
 vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
-gamma = 1.0 #{0.01, 0.1, 1} weight to use for cost of textual triple
+gamma = 0.5 #{0.01, 0.1, 1} weight to use for cost of textual triple
 # assert ndim == word_dim
 numTextTrain = 1000000 # num textual triples to use in each epoch of training
 					   # maximum is 10413174
