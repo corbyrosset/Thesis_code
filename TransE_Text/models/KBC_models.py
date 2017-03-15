@@ -372,7 +372,6 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
     rhs = S.dot(embedding.E, inpr).T
     # rell = S.dot(relationl.E, inpo).T
     # relr = S.dot(relationr.E, inpo).T
-    relln = S.dot(relationl.E, inpon).T
     lhsn = S.dot(embedding.E, inpln).T
     rhsn = S.dot(embedding.E, inprn).T
     ### wordembeddings (dim, numWords), binary_sent (batchsize, numWords)
@@ -397,7 +396,8 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
     list_in = [lrembeddings, lrparams, inpl, inpr, inpln, inprn, inpon, \
         binary_sent, sentinvleng, gamma]
 
-    if rel: #In addition to ranking text to its relation, rank relation 
+    if rel: #In addition to ranking text to its relation, rank relation
+        relln = S.dot(relationl.E, inpon).T
         relrn = S.dot(relationr.E, inpon).T
         simion = KBsim(leftop(lhs, relln), rightop(rhs, relrn))
         costo, outo = margincost(simi, simion, marge)
@@ -416,8 +416,6 @@ def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddin
 
     ### update embeddings of KG (entities + relations) and word embeddings
     embedding_params = [embedding.E, wordembeddings]
-    if type(KBembeddings) == list:
-        embedding_params += [relationl.E] + [relationr.E]
 
     update_embeddings = sgd(cost,embedding_params, learning_rate=lrembeddings)
     updates.update(update_embeddings)
@@ -558,6 +556,105 @@ def Train1MemberTextReg(margincost, textsim, KBembeddings, wordembeddings, lefto
     return theano.function(list_in, [T.mean(cost), T.mean(out)],
             updates=updates, on_unused_input='ignore')
 
+def TrainFnPath(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, reg=0.001):
+    """
+    Instead of just ranking a positive triple with one relation against a 
+    negative triple with one relation, we allow relation paths as long 
+    as fnsim is composable, like transE or BilinearDiag. 
+
+    Just like TrainFn1Member, we have only one negative sample per positive
+    path. However, relation ranking is not allowed, because it doesn't really
+    make sense to rank this "positive path" above a "negative path" - how 
+    would you sample the negative path easily?
+
+    :param fnsim: similarity function (on theano variables).
+    :param embeddings: an embeddings instance.
+    :param leftop: class for the 'left' operator.
+    :param rightop: class for the 'right' operator.
+    :param marge: marge for the cost function.
+    :param rel: boolean, if true we also contrast w.r.t. a negative relation
+                member.
+    """
+    raise NotImplementedError
+
+    embedding, relationl, relationr = parse_embeddings(embeddings)
+
+    # Inputs
+    inpr = S.csr_matrix()
+    inpl = S.csr_matrix()
+    inpo = S.csr_matrix()
+    inpln = S.csr_matrix()
+    inprn = S.csr_matrix()
+    lrparams = T.scalar('lrparams')
+    lrembeddings = T.scalar('lrembeddings')
+
+    # Graph
+    lhs = S.dot(embedding.E, inpl).T
+    rhs = S.dot(embedding.E, inpr).T
+    rell = S.dot(relationl.E, inpo).T
+    relr = S.dot(relationr.E, inpo).T
+    lhsn = S.dot(embedding.E, inpln).T
+    rhsn = S.dot(embedding.E, inprn).T
+    simi = fnsim(leftop(lhs, rell), rightop(rhs, relr))
+    # Negative 'left' member
+    similn = fnsim(leftop(lhsn, rell), rightop(rhs, relr))
+    # Negative 'right' member
+    simirn = fnsim(leftop(lhs, rell), rightop(rhsn, relr))
+    costl, outl = margincost(simi, similn, marge)
+    costr, outr = margincost(simi, simirn, marge)
+    # regularize only relations, as entities are re-normalized
+    ### TODO TODO regularization actually breaks eventually?
+    if reg == None:
+        cost = costl + costr #+ reg*relationl.L2_sqr_norm 
+    else:
+        cost = costl + costr + reg*relationl.L2_sqr_norm
+    
+    # List of inputs of the function
+    list_in = [lrembeddings, lrparams,
+            inpl, inpr, inpo, inpln, inprn]
+
+    updates = OrderedDict()
+    ### update parameters with a particular learning rate
+    params = leftop.params + rightop.params ### KG embedding params
+    if hasattr(fnsim, 'params'):
+        params += KBsim.params
+    # updates = sgd(cost, params, learning_rate=lrparams)
+    if params:
+        updates = sgd(cost, params, learning_rate=lrparams)
+
+    ### update embeddings with a different learning rate
+    embedding_params = [embedding.E]
+    if type(embeddings) == list:
+        embedding_params += [relationl.E] + [relationr.E]
+
+    update_embeddings = sgd(cost,embedding_params, learning_rate=lrembeddings)
+    updates.update(update_embeddings)
+
+    """
+    Theano function inputs.
+    :input lrembeddings: learning rate for the embeddings.
+    :input lrparams: learning rate for the parameters.
+    :input inpl: sparse csr matrix representing the indexes of the positive
+                 triplet 'left' member, shape=(#examples,N [Embeddings]).
+    :input inpr: sparse csr matrix representing the indexes of the positive
+                 triplet 'right' member, shape=(#examples,N [Embeddings]).
+    :input inpo: sparse csr matrix representing the indexes of the positive
+                 triplet relation member, shape=(#examples,N [Embeddings]).
+    :input inpln: sparse csr matrix representing the indexes of the negative
+                  triplet 'left' member, shape=(#examples,N [Embeddings]).
+    :input inprn: sparse csr matrix representing the indexes of the negative
+                  triplet 'right' member, shape=(#examples,N [Embeddings]).
+    :opt input inpon: sparse csr matrix representing the indexes of the
+                      negative triplet relation member, shape=(#examples,N
+                      [Embeddings]).
+
+    Theano function output.
+    :output mean(cost): average cost.
+    :output mean(out): ratio of examples for which the margin is violated,
+                       i.e. for which an update occurs.
+    """
+    return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr)],
+            updates=updates, on_unused_input='ignore')
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
@@ -657,9 +754,7 @@ class TransE_text_model():
         else:
             self.rankrelfunc = None
 
-
-
-
+# ----------------------------------------------------------------------------
 class TransE_model():
 
     def __init__(self, state):
@@ -727,4 +822,71 @@ class TransE_model():
         else:
             self.rankrelfunc = None
 
+# ----------------------------------------------------------------------------
+class BilinearDiag_model():
+    '''
+        For BilinearDiag, the score of a triple is just 
+        dot(e_h, r \elemwisemult e_t) because r is a diagonal square matrix, 
+        which is really just a vector, so use the same embeddings as TransE
+    '''
+
+    def __init__(self, state):
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerBilinearDiag()
+            self.rightop = Unstructured()
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
+                    'relvec')
+                self.embeddings = [embeddings, relationVec, relationVec]
+            else:
+                try:
+                    print 'loading embeddings from ' + str(state.loademb)
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    print type(self.embeddings)
+                    f.close()
+                except:
+                    print 'could not load embeddings'
+                    exit(1)
+        
+            assert type(self.embeddings) is list
+
+            ### similarity function of output of left and right ops
+            if state.simfn != 'Dot':
+                raise ValueError('BilinearDiag must use dotproduct similarity')
+            self.simfn = Dotsim 
+            if 'pos_high' not in state.margincostfunction:
+                raise ValueError('BilinearDiag must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                print 'loading model from file: ' + str(state.loadmodel)
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.simfn = cPickle.load(f)
+                f.close()
+            except:
+                print 'could not load model...'
+                exit(1)
+
+        # function compilation
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
+        else:
+            self.rankrelfunc = None
 

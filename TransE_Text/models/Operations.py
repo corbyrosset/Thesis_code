@@ -22,6 +22,25 @@ def Dotsim(left, right):
     return T.sum(left * right, axis=1)
 # -----------------------------------------------------------------------------
 
+def margincost_pos_high(pos, neg, marge=1.0):
+    '''
+        Margin ranking objective. All scores are nonnegative
+
+        :param pos: is the score of the positive triple (for bilinear, it should be high)
+        :param neg: is the score of the negative triple (for bilinear, this 
+            should be low)
+        :param marge: is the margin by which the score of the negative triple 
+            should be above the score of the positive triple, because negative
+            triples have "higher energy" while positive ones have low energy.
+        Axioms: assert np.all(T.ge(neg, 0.0))
+                assert np.all(T.ge(pos, 0.0))
+    '''
+    # assert np.all(T.ge(neg, 0.0))
+    # assert np.all(T.ge(pos, 0.0))
+    out = neg + marge - pos
+    # out = neg - pos + marge NOT THIS, it was backwards in the code!!!
+    # when it was backwards, it basically just clusters
+    return T.sum(out * (out > 0)), out > 0 ### returns when margin violated
 
 # Cost ------------------------------------------------------------------------
 def margincost(pos, neg, marge=1.0):
@@ -150,7 +169,7 @@ def RMSprop(loss, all_params, lr=0.001, rho=0.9, epsilon=1e-6):
 
 # Layers ----------------------------------------------------------------------
 class Layer(object):
-    """Class for a layer with one input vector w/o biases."""
+    """Class for a layer to transform a vector of dim n_inp to one of n_out w/o biases."""
 
     def __init__(self, rng, act, n_inp, n_out, tag=''):
         """
@@ -180,7 +199,12 @@ class Layer(object):
 
 
 class LayerLinear(object):
-    """Class for a layer with two inputs vectors with biases."""
+    """
+       A 'Layer' specically means for a leftop or right operation, that is, 
+       how to combine two vectors (one of dim n_inpl, the other of dim n_inpr)
+       into a single vector of dim n_out. Includes biases and activation 
+       function.
+    """
 
     def __init__(self, rng, act, n_inpl, n_inpr, n_out, tag=''):
         """
@@ -290,7 +314,7 @@ class LayerMat(object):
         rx = x.reshape((x.shape[0], x.shape[1], 1))
         return self.act((rx * ry).sum(1))
 
-class BilinearDiag(object):
+class LayerBilinearDiag(object):
     """
     Class for a layer with two input vectors that performs the elementwise 
     product of the 'left member' and 'right member'

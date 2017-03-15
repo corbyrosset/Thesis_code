@@ -32,6 +32,7 @@ def FB15kexp_text(state, channel):
     model = None
     batchsize = -1
     timeref = -1
+    reverseRanking = False
 
     # Show experiment parameters
     print >> sys.stderr, state
@@ -64,7 +65,16 @@ def FB15kexp_text(state, channel):
     text_batchsz = text_trainlidx.shape[1] / state.nbatches
 
     ### get properties of text encoder
-    model = TransE_text_model(state)
+    if state.op == 'TransE':
+        model = TransE_text_model(state)
+    elif state.op == 'BilinearDiag':
+        model = BilinearDiag_model(state)
+        reverseRanking = True
+        raise NotImplementedError
+    else:
+        raise ValueError('Must supply valid model type')
+    assert hasattr(model, 'trainfunc')
+
     vocab2Idx = model.word_embeddings.getVocab2Idx()
     vocabSize = model.word_embeddings.vocabSize
 
@@ -169,10 +179,14 @@ def FB15kexp_text(state, channel):
                 percent_rel_txt += [0]
                 percent_right_txt += [0]
             elif state.textual_role == 'TextAsRelation':
-                batch_cost, per_l, per_o, per_r = model.trainFuncText(\
+                outputs = model.trainFuncText(\
                     state.lremb, state.lrparam, text_tmpl, text_tmpr, \
                     text_tmpnl, text_tmpnr, text_tmpno, \
                     text_tmpsents, inv_lens, state.gamma)
+                if state.rel == True:
+                    (batch_cost, per_l, per_o, per_r) = outputs
+                else:
+                    (batch_cost, per_l, per_o) = outputs 
                 cost_txt += [batch_cost / float(text_batchsz)]
                 percent_txt += [0]
                 percent_left_txt += [per_l]
@@ -243,7 +257,7 @@ def FB15kexp_text(state, channel):
             if state.nvalid > 0:
                 verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
-                    true_triples, rank_rel=model.rankrelfunc)
+                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.valid = np.mean(verl + verr)# only tune on entity ranking
             else:
                 state.valid = 'not applicable'
@@ -251,7 +265,7 @@ def FB15kexp_text(state, channel):
             if state.ntrain > 0:
                 terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, trainlidx, trainridx, trainoidx, \
-                    true_triples, rank_rel=model.rankrelfunc)
+                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.train = np.mean(terl + terr)# only tune on entity ranking
             else:
                 state.train = 'not applicable'
@@ -263,13 +277,9 @@ def FB15kexp_text(state, channel):
 
             ### save model that performs best on dev data
             if state.bestvalid == -1 or state.valid < state.bestvalid:
-                if state.rel:
-                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
-                    model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, rank_rel=model.rankrelfunc)
-                else:
-                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
-                        model.ranklfunc, model.rankrfunc, testlidx, testridx,\
-                        testoidx, true_triples)
+                terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+
                 state.bestvalid = state.valid
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)
@@ -323,6 +333,9 @@ def FB15kexp(state, channel):
     model = None
     batchsize = -1
     timeref = -1
+    reverseRanking = False # for TransE, score the best fit to be near
+                           # zero, so ranking is from low to high
+                           # in BilinearDiag, it's the opposite
 
     # Show experiment parameters
     print >> sys.stderr, state
@@ -345,7 +358,15 @@ def FB15kexp(state, channel):
 
     ### model has properties: trainfunc, ranklfunc, rankrfunc, 
     ### embeddings, leftop, rightop, and simfn
-    model = TransE_model(state)
+    if state.op == 'TransE':
+        model = TransE_model(state)
+    elif state.op == 'BilinearDiag':
+        model = BilinearDiag_model(state)
+        reverseRanking = True
+    else:
+        raise ValueError('Must supply valid model type')
+    assert hasattr(model, 'trainfunc')
+
     if state.rel == True:
         print 'Training to rank RELATIONS as well!'
         assert model.rankrelfunc is not None
@@ -434,7 +455,7 @@ def FB15kexp(state, channel):
             if state.nvalid > 0:
                 verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
-                    true_triples, rank_rel=model.rankrelfunc)
+                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.valid = np.mean(verl + verr)# only tune on entity ranking
             else:
                 state.valid = 'not applicable'
@@ -442,7 +463,7 @@ def FB15kexp(state, channel):
             if state.ntrain > 0:
                 terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, trainlidx, trainridx, trainoidx, \
-                    true_triples, rank_rel=model.rankrelfunc)
+                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.train = np.mean(terl + terr)# only tune on entity ranking
             else:
                 state.train = 'not applicable'
@@ -454,13 +475,9 @@ def FB15kexp(state, channel):
 
             ### save model that performs best on dev data
             if state.bestvalid == -1 or state.valid < state.bestvalid:
-                if state.rel:
-                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
-                    model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, rank_rel=model.rankrelfunc)
-                else:
-                    terl, terr, ter_rel = FilteredRankingScoreIdx(\
-                        model.ranklfunc, model.rankrfunc, testlidx, testridx,\
-                        testoidx, true_triples)
+                terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+                
                 state.bestvalid = state.valid
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)
@@ -525,6 +542,7 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
     # state.loadmodelTri = loadmodelTri
     state.loademb = loademb ### load previously trained embeddings?
     
+    assert op == 'BilinearDiag' or op == 'TransE'
     state.op = op
     state.simfn = simfn
     state.ndim = ndim # dimension of both relationship and entity embeddings

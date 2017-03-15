@@ -181,11 +181,9 @@ def load_file(path):
     return sp.csc_matrix(cPickle.load(open(path)),
             dtype=theano.config.floatX)
 
-
 def convert2idx(spmat):
     rows, cols = spmat.nonzero()
     return rows[np.argsort(cols)]
-
 
 def load_FB15k_data(state):
     '''
@@ -406,4 +404,33 @@ def load_FB15k_Clueweb_data(state):
     return idxl, idxr, idxo, text_train, idxvl, idxvr, idxvo, text_valid, \
         idxtl, idxtr, idxto, text_test, text_per_triple_cntr, \
         unique_text_per_triple, triple_per_text, sent2idx, idx2sent
+
+def load_path_data(state):
+    '''
+        The data was provided by Kelvin Guu et al from "Traversing Knowledge 
+        Graphs in Vector Space" (http://arxiv.org/pdf/1506.01094.pdf)
+        
+        Their github as at: 
+            https://github.com/jpmpentwater/traversing_knowledge_graphs 
+
+        A sample of their data is here, and there are some obvious problems
+
+        1 roger_bacon nationality england
+        2 leona_helmsley  profession  businessperson
+        3 robert_hodgins  gender,**gender,place_of_birth,**location,profession    artist
+        4 george_w_towns  gender,**gender,gender,**gender cristobal_rojas
+        5 franklin_delano_roosevelt_jr    profession  politician
+        6 mullah_dadullah religion    islam
+
+        What does example 4 even mean? I think **relation means the inverse
+        relation. Also these do not conform to the FB15k schema, it is not
+        clear how to convert it...
+
+        Regardless, the format of each triple will be the same as before:
+        each path triple is represented as a column in 3 separate matrices,
+        each one-hot. Except now the relation column has multiple hot rows,
+        each corresponding to the relation on the path.
+
+    '''
+    raise NotImplementedError
 

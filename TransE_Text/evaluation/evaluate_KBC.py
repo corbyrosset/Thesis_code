@@ -176,7 +176,7 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
 
     return dres
 
-def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
+def RankingScoreIdx(sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=None):
     """
     To be used only during testing? In RankingEval()
 
@@ -201,14 +201,23 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
         # errr += [np.argsort(np.argsort((
         #     sr(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
 
-        scores_l = (sl(r, o)[0]).flatten()
-        scores_r = (sr(l, o)[0]).flatten()
+        if reverseRanking: 
+        # sorting from high scores to low scores is best to worst
+            scores_l = -1*(sl(r, o)[0]).flatten()
+            scores_r = -1*(sr(l, o)[0]).flatten()
+        else:
+        # sorting from low scores to high scores is best worst
+            scores_l = (sl(r, o)[0]).flatten()
+            scores_r = (sr(l, o)[0]).flatten()
         errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
         errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
         if rank_rel is not None:
             # err_rel += [np.argsort(np.argsort((rank_rel(l, r)[0]).flatten())[::-1]).flatten()[o] + 1]
-            scores_rel = (rank_rel(l, r)[0]).flatten()
+            if reverseRanking:
+                scores_rel = -1*(rank_rel(l, r)[0]).flatten()
+            else:
+                scores_rel = (rank_rel(l, r)[0]).flatten()
             err_rel += [np.argsort(np.argsort(scores_rel)).flatten()[o] + 1]
 
     if not rank_rel:
@@ -218,7 +227,7 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, rank_rel=None):
 
 ### apparently not used either... but it should be, we should compute
 ### metrics over lists where multiple valid triples don't appear!
-def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=None):
+def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanking, rank_rel=None):
     """
     This function computes the rank list of the lhs and rhs, over a list of
     lhs, rhs and rel indexes.
@@ -242,17 +251,25 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
         ### left 
         inter_l = [i for i in ir if i in io]
         rmv_idx_l = [true_triples[i,0] for i in inter_l if true_triples[i,0] != l]
-        scores_l = (sl(r, o)[0]).flatten()
-        # print '\tremoved ' + str(len(rmv_idx_l)) + ' true triples from left'
-        scores_l[rmv_idx_l] = np.inf
+        if reverseRanking:
+            scores_l = -1*(sl(r, o)[0]).flatten()
+            scores_l[rmv_idx_l] = -1*np.inf
+        else:
+            scores_l = (sl(r, o)[0]).flatten()
+            scores_l[rmv_idx_l] = np.inf
+
         errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
 
         ### right
         inter_r = [i for i in il if i in io]
         rmv_idx_r = [true_triples[i,2] for i in inter_r if true_triples[i,2] != r]
-        scores_r = (sr(l, o)[0]).flatten()
-        # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from right'
-        scores_r[rmv_idx_r] = np.inf
+
+        if reverseRanking:
+            scores_r = -1*(sr(l, o)[0]).flatten()
+            scores_r[rmv_idx_r] = -1*np.inf
+        else:
+            scores_r = (sr(l, o)[0]).flatten()
+            scores_r[rmv_idx_r] = np.inf
         errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
         ### relations
@@ -261,9 +278,12 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
             rmv_idx_o = [true_triples[i,1] for i in inter_o if true_triples[i,1] != o]
             ### why is it not this:
             # rmv_idx_o = [i for i in inter_o if true_triples[i,1] != o]
-            scores_rel = (rank_rel(l, r)[0]).flatten()
-            # print '\tremoved ' + str(len(rmv_idx_r)) + ' true triples from relation'
-            scores_rel[rmv_idx_o] = np.inf
+            if reverseRanking:
+                scores_rel = -1*(rank_rel(l, r)[0]).flatten()
+                scores_rel[rmv_idx_o] = -1*np.inf
+            else:
+                scores_rel = (rank_rel(l, r)[0]).flatten()
+                scores_rel[rmv_idx_o] = np.inf
             err_rel += [np.argsort(np.argsort(scores_rel)).flatten()[o] + 1]
     
     if not rank_rel:
@@ -271,7 +291,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, rank_rel=Non
 
     return errl, errr, err_rel
 
-def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', rel = False, Nsyn_rel = 1345,
+def RankingEval(datapath, reverseRanking, rel = False, Nsyn_rel = 1345,
     dataset='FB15k-test', loadmodel='best_valid_model.pkl', neval='all', 
     Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl'):
 
@@ -319,7 +339,7 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     else:
         rankrelfunc = None
  
-    res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, rank_rel=rankrelfunc)
+    res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, reverseRanking, rank_rel=rankrelfunc)
     left_ranks, right_ranks, rel_ranks = res
     print 'left_ranks: %s, right_ranks: %s, rel_ranks: %s' % (np.shape(left_ranks), np.shape(right_ranks), np.shape(rel_ranks))
     print 'max left_ranks: %s, max right_ranks: %s, max rel_ranks: %s' % (np.max(left_ranks), np.max(right_ranks), np.max(rel_ranks))
@@ -361,7 +381,7 @@ def RankingEval(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_T
     return dres
 
 ### apparently not used?
-def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', rel = False, dataset='FB15k', 
+def RankingEvalFil(datapath, reverseRanking, rel = False, dataset='FB15k', 
     op='TransE', neval='all', loadmodel='best_valid_model.pkl', 
     fold=0, Nrel=1345, Nsyn=14951, Nsyn_rel = 1345, n=10):
 
@@ -430,7 +450,7 @@ def RankingEvalFil(datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/Trans
     true_triples=np.concatenate([idxtl,idxvl,idxl,idxto,idxvo,idxo,idxtr,idxvr,idxr]).reshape(3,idxtl.shape[0]+idxvl.shape[0]+idxl.shape[0]).T
 
     # restest = (error_left entities, error_right_entities)
-    restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, rank_rel=rankrelfunc)
+    restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, reverseRanking, rank_rel=rankrelfunc)
 
     ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(restest, n, rel)
@@ -473,7 +493,6 @@ if __name__ == '__main__':
     '''for instance, call this file from the run/ directory as 
         python evaluate_KBC.py ../run/FB15k_TransE/best_valid_model.pkl
     '''
-    # print 'this file is still TODO'
-    # exit(1)
-    RankingEval(loadmodel=sys.argv[1])
-    RankingEvalFil(loadmodel=sys.argv[1])
+    # RankingEval(loadmodel=sys.argv[1])
+    # RankingEvalFil(loadmodel=sys.argv[1])
+    print 'TODO'
