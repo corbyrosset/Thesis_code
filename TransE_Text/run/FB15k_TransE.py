@@ -10,13 +10,13 @@ from evaluate_KBC import RankingEval
 
 # launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
 #    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
-simfn = 'L1'
+simfn = 'L2'
 margincostfunction = 'margincost' ### from top of Operations
-ndim = 150 # dimension of both relationship and entity embeddings
-	       # {10, 50, 100, 150}
-marge = 0.5     # {0.5, 1.0} 
-lremb = 0.01   # {0.01, 0.001}
-lrparam = 0.01 # {0.01, 0.001}
+ndim = 50 # dimension of both relationship and entity embeddings
+	       # {10, 50, 100, 150, 200}
+marge = 1.0     # {0.5, 1.0} 
+lremb = 0.01    # {0.01, 0.001}
+lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
 totepochs = 500 # number of epochs
 test_all = 10   # number of epochs between ranking on validation sets again
@@ -24,8 +24,8 @@ Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = True   # whether to also rank relations
-reg = None #0.01 #0.1 ### if None, no regularization (= 0.0)
+rel = False      # whether to also rank relations
+reg = 0.1       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
@@ -61,52 +61,12 @@ launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
-RankingEval(datapath=datapath, neval=neval, loadmodel= savepath + \
+RankingEval(datapath=datapath, reverseRanking=False, neval=neval, loadmodel= savepath + \
 	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
 	Nsyn_rel=Nsyn_rel)
-RankingEvalFil(datapath=datapath, neval=neval, loadmodel= savepath + \
+RankingEvalFil(datapath=datapath, reverseRanking=False, neval=neval, loadmodel= savepath + \
 	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
 	Nsyn_rel=Nsyn_rel)
 ###############################################################################
 ###############################################################################
-### notes:
-'''
-calls FB15k_exp.launch()
-	- which then calls FB15k_exp.FB15kexp()
-
-	- FB15kexp():
-		creates left and right ops, for TransE this is
-		LayerTrans and Unstructured = identiy
-		
-		also creates random/loads embedding matrices 
-		embeddings = Embeddings(np.random, state.Nent, state.ndim) ENTITIES
-		relationVec = Embeddings(np.random, state.Nrel, state.ndim, 'relvec')
-        embeddings = [embeddings, relationVec, relationVec] meaning that left
-        and right relations are equal, there is only one relaitno paramter
-
-        cretes/evals similiarty function between left and right; from model.py
-
-        creates/compiles training and ranking functions:
-        trainfunc = TrainFn1Member(simfn, embeddings, leftop, rightop,
-                marge=state.marge, rel=False)
-        ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
-                subtensorspec=state.Nsyn)
-        rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
-                subtensorspec=state.Nsyn)
-
-	Controls training iterations:
-
-	outtmp = trainfunc(state.lremb, state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr) ### what is outtmp:
-	    :output mean(cost): average cost.
-    	:output mean(out): ratio of examples for which the margin is violated,
-                       i.e. for which an update occurs.
-
-	evaluation on dev data: FilteredRankingScoreIdx()
-
-Model.py:
-	- line 1070: no adam optimizer or anything just SGD. 
-FB15k_evaluation:
-	- RankingEval():
-
-'''
 

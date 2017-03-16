@@ -241,19 +241,21 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     relr = S.dot(relationr.E, inpo).T
     lhsn = S.dot(embedding.E, inpln).T
     rhsn = S.dot(embedding.E, inprn).T
+
+    # Score of positive triple, the objective could make this lower or higher
+    # than the score of a negative triple, depending on which model youre using
     simi = fnsim(leftop(lhs, rell), rightop(rhs, relr))
-    # Negative 'left' member
+    # Make a negative triple by corrupting left entity
     similn = fnsim(leftop(lhsn, rell), rightop(rhs, relr))
-    # Negative 'right' member
+    # Make another negative triple by corrupting right entity
     simirn = fnsim(leftop(lhs, rell), rightop(rhsn, relr))
     costl, outl = margincost(simi, similn, marge)
     costr, outr = margincost(simi, simirn, marge)
-    # regularize only relations, as entities are re-normalized
-    ### TODO TODO regularization actually breaks eventually?
+    # regularize only relations, since entities are re-normalized to unit L2
     if reg == None:
-        cost = costl + costr #+ reg*relationl.L2_sqr_norm 
+        cost = costl + costr 
     else:
-        cost = costl + costr + reg*relationl.L2_sqr_norm
+        cost = costl + costr + (reg/2)*relationl.L2_sqr_norm + (reg/2)*relationr.L2_sqr_norm
     
     # List of inputs of the function
     list_in = [lrembeddings, lrparams,
@@ -556,6 +558,9 @@ def Train1MemberTextReg(margincost, textsim, KBembeddings, wordembeddings, lefto
     return theano.function(list_in, [T.mean(cost), T.mean(out)],
             updates=updates, on_unused_input='ignore')
 
+def Train1MemberTextAsRelAndReg():
+    raise NotImplementedError
+
 def TrainFnPath(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, reg=0.001):
     """
     Instead of just ranking a positive triple with one relation against a 
@@ -607,7 +612,7 @@ def TrainFnPath(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, reg=0
     if reg == None:
         cost = costl + costr #+ reg*relationl.L2_sqr_norm 
     else:
-        cost = costl + costr + reg*relationl.L2_sqr_norm
+        cost = costl + costr + (reg/2)*relationl.L2_sqr_norm + (reg/2)*relationr.L2_sqr_norm
     
     # List of inputs of the function
     list_in = [lrembeddings, lrparams,
@@ -660,52 +665,46 @@ def TrainFnPath(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, reg=0
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 
-class TransE_text_model():
+class Baseline1_model():
     '''
-        This uses a word-averaging operator to extract a vector from a textual triple
+        Only consider entity embeddings. The score of a triple (e_h, r, e_t)
+        is simply dot(e_h, e_t). This basically just clusters entities that
+        co-occur together, which isn't a bad idea. Certainly entities that
+        don't co-occur should be ranked below those that do, but that's just
+        not enough, hency why this is a baseline that should be beaten. 
+
+        Of course normalize entity embeddings to L2 unit norm
     '''
 
     def __init__(self, state):
-        '''define 
-            self.leftop, 
-            self.rightop, 
-            self.embeddings,
-            self.relationsVec,
-            self.trainfunc,
-            self.ranklfunc,
-            self.rankrfunc,
-        '''
         if not state.loadmodel:
             # operators, left and right ops are for distance function
-            self.leftop  = LayerTrans()
+            self.leftop  = Unstructured()
             self.rightop = Unstructured()
             
             # Entity embeddings
             if not state.loademb:
                 embeddings = Embeddings(np.random, state.Nent, state.ndim, \
                     'emb')
-                relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
-                    'relvec')
-                self.embeddings = [embeddings, relationVec, relationVec]
+                self.embeddings = embeddings
             else:
                 try:
                     print 'loading embeddings from ' + str(state.loademb)
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
-                    print type(self.embeddings)
                     f.close()
                 except:
                     print 'could not load embeddings'
                     exit(1)
-        
-            assert type(self.embeddings) is list
-
-            ### Word Embeddings
-            self.word_embeddings = WordEmbeddings(state.vocab_size, state.word_dim, wordFile=state.word_file, vocab = state.vocab)
 
             ### similarity function of output of left and right ops
-            self.KBsim = eval(state.simfn + 'sim') 
-            self.textsim = eval(state.textsim + 'sim')
+            if state.simfn != 'Dot':
+                raise ValueError('Baseline1 must use dot similarity')
+            self.simfn = Dotsim 
+            if 'pos_high' not in state.margincostfunction:
+                raise ValueError('Basleline1 must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            if state.reg != None:
+                raise ValueError('no regularization for Baseline1 because there are no relations to regularize')
             self.margincost = eval(state.margincostfunction)
         else:
             try:
@@ -714,43 +713,22 @@ class TransE_text_model():
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
                 self.rightop = cPickle.load(f)
-                self.KBsim = cPickle.load(f)
-                self.textsim = cPickle.load(f)
-                self.word_embeddings = cPickle.load(f)
-                ### TODO: write the word embeddings to file as well
+                self.simfn = cPickle.load(f)
                 f.close()
             except:
                 print 'could not load model...'
                 exit(1)
 
         # function compilation
-        ### TODO: implement this training function
-        self.trainFuncKB = TrainFn1Member(self.margincost, self.KBsim, \
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
             self.embeddings, self.leftop, self.rightop, marge=state.marge, \
-            rel=state.rel)
-
-        if state.textual_role == 'TextAsRegularizer':
-            self.trainFuncText = Train1MemberTextReg(self.margincost, \
-                self.textsim, self.embeddings, \
-                self.word_embeddings.getEmbeddings(), \
-                self.leftop, self.rightop, marg_text=state.marg_text, \
-                gamma=state.gamma)
-        elif state.textual_role == 'TextAsRelation':
-            self.trainFuncText = Train1MemberTextAsRel(self.margincost, \
-                self.KBsim, self.textsim, self.embeddings, \
-                self.word_embeddings.getEmbeddings(), self.leftop, \
-                self.rightop, marge=state.marge, gamma=state.gamma, \
-                rel=state.rel)
-        else:
-            raise ValueError("Must supply valid role for a textual instance!")
-        
-        self.ranklfunc = RankLeftFnIdx(self.KBsim, self.embeddings, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
-        self.rankrfunc = RankRightFnIdx(self.KBsim, self.embeddings, \
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
         if state.rel == True: 
-            self.rankrelfunc = RankRelFnIdx(self.KBsim, self.embeddings, \
-                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
+            raise ValueError('There are no relations to rank for Baseline1')
         else:
             self.rankrelfunc = None
 
@@ -784,13 +762,14 @@ class TransE_model():
                     print 'loading embeddings from ' + str(state.loademb)
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
-                    print type(self.embeddings)
                     f.close()
                 except:
                     print 'could not load embeddings'
                     exit(1)
         
             assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
+
 
             ### similarity function of output of left and right ops
             self.simfn = eval(state.simfn + 'sim') 
@@ -842,19 +821,20 @@ class BilinearDiag_model():
                     'emb')
                 relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
                     'relvec')
+                ### dummy right relations...
                 self.embeddings = [embeddings, relationVec, relationVec]
             else:
                 try:
                     print 'loading embeddings from ' + str(state.loademb)
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
-                    print type(self.embeddings)
                     f.close()
                 except:
                     print 'could not load embeddings'
                     exit(1)
         
             assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
 
             ### similarity function of output of left and right ops
             if state.simfn != 'Dot':
@@ -890,3 +870,258 @@ class BilinearDiag_model():
         else:
             self.rankrelfunc = None
 
+# ----------------------------------------------------------------------------
+class ModelE_model():
+    '''
+        Model E from "Relation Extraction with Matrix Factorization and 
+        Universal Schemas" by Riedel et al ACL 2013
+
+        Each relation is represented by two k-dim vectors, r_h and r_t 
+
+        The score of a triple (e_h, r, e_t) is
+        f(e_h, r, e_t) = dot(r_h, e_h) + dot(r_t, e_t)
+
+        We implement this kind of unintuitively as: 
+        left = r_h \elemwisemultiply e_h
+        right = r_h \elemwisemultiply e_h
+        fnsim = T.sum(left, axis = 1) + T.sum(right, axis = 1)
+
+        
+        which is maximized when the triple is true. I think there are 
+        unit L2 norm constraints on entities, but not sure about 
+        relations...
+
+        We cannot rank relations bc we cannot sample negative 
+        ones.
+    '''
+
+    def __init__(self, state):
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerBilinearDiag()
+            self.rightop = LayerBilinearDiag()
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationVecLeft = Embeddings(np.random, state.Nrel, state.ndim, 'relvecleft')
+                relationVecRight = Embeddings(np.random, state.Nrel, state.ndim, 'relvecright')
+                self.embeddings = [embeddings, relationVecLeft, relationVecRight]
+            else:
+                try:
+                    print 'loading embeddings from ' + str(state.loademb)
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    f.close()
+                except:
+                    print 'could not load embeddings'
+                    exit(1)
+        
+            assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
+
+            ### similarity function of output of left and right ops
+            if state.simfn != 'Sum':
+                raise ValueError('Model E must use sum as similarity')
+            self.simfn = Sumsim 
+            if 'pos_high' not in state.margincostfunction:
+                raise ValueError('Model E must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                print 'loading model from file: ' + str(state.loadmodel)
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.simfn = cPickle.load(f)
+                f.close()
+            except:
+                print 'could not load model...'
+                exit(1)
+
+        # function compilation
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            raise ValueError('For Model E, we cannot sample negative relations, so we cannot apply the margin ranking objective to relations')
+        else:
+            self.rankrelfunc = None
+
+# ----------------------------------------------------------------------------
+class BilinearDiagExtended_model():
+    '''
+        In the spirit of Model E, make two relation vectors for each KB relation, and then multiply the first one by the first entity elementwise, do the same to the second entity, then take some similarity metric between these two vectors, like dot or L2. 
+
+        That is, the score of a triple is just 
+        fnsim((e_h \elemwisemult r_h), (e_t \elemwisemult r_t)) 
+
+        Like Model E, we cannot rank relations bc we cannot sample negative 
+        ones.
+    '''
+
+    def __init__(self, state):
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerBilinearDiag()
+            self.rightop = LayerBilinearDiag()
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationVecLeft = Embeddings(np.random, state.Nrel, state.ndim, 'relvecleft')
+                relationVecRight = Embeddings(np.random, state.Nrel, state.ndim, 'relvecright')
+                self.embeddings = [embeddings, relationVecLeft, relationVecRight]
+            else:
+                try:
+                    print 'loading embeddings from ' + str(state.loademb)
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    f.close()
+                except:
+                    print 'could not load embeddings'
+                    exit(1)
+        
+            assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
+
+            ### similarity function of output of left and right ops
+            
+            self.simfn = eval(state.simfn + 'sim') 
+            if 'pos_high' not in state.margincostfunction:
+                raise ValueError('BilinearDiagExtended must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                print 'loading model from file: ' + str(state.loadmodel)
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.simfn = cPickle.load(f)
+                f.close()
+            except:
+                print 'could not load model...'
+                exit(1)
+
+        # function compilation
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            raise ValueError('For Model E, we cannot sample negative relations, so we cannot apply the margin ranking objective to relations')
+        else:
+            self.rankrelfunc = None
+
+# ----------------------------------------------------------------------------
+class TransE_text_model():
+    '''
+        This uses a word-averaging operator to extract a vector from a textual triple
+    '''
+
+    def __init__(self, state):
+        '''define 
+            self.leftop, 
+            self.rightop, 
+            self.embeddings,
+            self.relationsVec,
+            self.trainfunc,
+            self.ranklfunc,
+            self.rankrfunc,
+        '''
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerTrans()
+            self.rightop = Unstructured()
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
+                    'relvec')
+                ### dummy right relations...
+                self.embeddings = [embeddings, relationVec, relationVec]
+            else:
+                try:
+                    print 'loading embeddings from ' + str(state.loademb)
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    f.close()
+                except:
+                    print 'could not load embeddings'
+                    exit(1)
+        
+            assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
+
+            ### Word Embeddings
+            self.word_embeddings = WordEmbeddings(state.vocab_size, state.word_dim, wordFile=state.word_file, vocab = state.vocab)
+
+            ### similarity function of output of left and right ops
+            self.KBsim = eval(state.simfn + 'sim') 
+            self.textsim = eval(state.textsim + 'sim')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                print 'loading model from file: ' + str(state.loadmodel)
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.KBsim = cPickle.load(f)
+                self.textsim = cPickle.load(f)
+                self.word_embeddings = cPickle.load(f)
+                ### TODO: write the word embeddings to file as well
+                f.close()
+            except:
+                print 'could not load model...'
+                exit(1)
+
+        self.trainFuncKB = TrainFn1Member(self.margincost, self.KBsim, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel)
+
+        if state.textual_role == 'TextAsRegularizer':
+            self.trainFuncText = Train1MemberTextReg(self.margincost, \
+                self.textsim, self.embeddings, \
+                self.word_embeddings.getEmbeddings(), \
+                self.leftop, self.rightop, marg_text=state.marg_text, \
+                gamma=state.gamma)
+        elif state.textual_role == 'TextAsRelation':
+            self.trainFuncText = Train1MemberTextAsRel(self.margincost, \
+                self.KBsim, self.textsim, self.embeddings, \
+                self.word_embeddings.getEmbeddings(), self.leftop, \
+                self.rightop, marge=state.marge, gamma=state.gamma, \
+                rel=state.rel)
+        elif state.textual_role == 'TextAsRelAndReg':
+            self.trainFuncText = Train1MemberTextAsRelAndReg(self.margincost, \
+                self.KBsim, self.textsim, self.embeddings, \
+                self.word_embeddings.getEmbeddings(), self.leftop, \
+                self.rightop, marge=state.marge, gamma=state.gamma, \
+                rel=state.rel)
+        else:
+            raise ValueError("Must supply valid role for a textual instance!")
+        
+        self.ranklfunc = RankLeftFnIdx(self.KBsim, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.KBsim, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            self.rankrelfunc = RankRelFnIdx(self.KBsim, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
+        else:
+            self.rankrelfunc = None
+
+# ----------------------------------------------------------------------------

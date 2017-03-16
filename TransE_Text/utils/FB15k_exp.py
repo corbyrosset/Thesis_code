@@ -28,7 +28,7 @@ def FB15kexp_text(state, channel):
     '''
     cost_kb, percent_left_kb, percent_rel_kb, percent_right_kb = [], [], [], []
     cost_txt, percent_left_txt, percent_rel_txt, percent_right_txt, percent_txt = [], [], [], [], []
-    state.bestvalid = -1
+    state.bestvalidMRR = -1
     model = None
     batchsize = -1
     timeref = -1
@@ -69,8 +69,8 @@ def FB15kexp_text(state, channel):
         model = TransE_text_model(state)
     elif state.op == 'BilinearDiag':
         model = BilinearDiag_model(state)
-        reverseRanking = True
-        raise NotImplementedError
+        reverseRanking = True # don't even give the user the option to set this
+        raise NotImplementedError('BilinearDiag_model not yet implemented for textual relations')
     else:
         raise ValueError('Must supply valid model type')
     assert hasattr(model, 'trainfunc')
@@ -220,7 +220,10 @@ def FB15kexp_text(state, channel):
         print >> sys.stderr, "----------------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
-        print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/float(state.Nrel), 5))
+        if state.reg != None:
+            print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % \
+            (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
+            float(state.Nrel), 5))
 
         if state.rel:
             print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (\
@@ -258,7 +261,8 @@ def FB15kexp_text(state, channel):
                 verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
-                state.valid = np.mean(verl + verr)# only tune on entity ranking
+                state.validMR = np.mean(verl + verr)# only tune on entity ranking
+                state.validMRR = np.mean(np.recipracol(verl + verr))
             else:
                 state.valid = 'not applicable'
             
@@ -271,16 +275,17 @@ def FB15kexp_text(state, channel):
                 state.train = 'not applicable'
             
             print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
-                    round(state.valid, 1), round(state.train, 1))
+                    round(state.validMR, 1), round(state.train, 1))
             print >> sys.stderr, "\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
             print >> sys.stderr, "\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1))
+            print >> sys.stderr, "\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4))
 
             ### save model that performs best on dev data
-            if state.bestvalid == -1 or state.valid < state.bestvalid:
+            if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
                 terl, terr, ter_rel = FilteredRankingScoreIdx(\
                 model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
 
-                state.bestvalid = state.valid
+                state.bestvalidMRR = state.validMRR
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)
                 state.bestepoch = epoch_count
@@ -293,8 +298,16 @@ def FB15kexp_text(state, channel):
                 cPickle.dump(model.textsim, f, -1)
                 cPickle.dump(model.word_embeddings, f, -1)
                 f.close()
-                print >> sys.stderr, "\tNEW BEST TEST: %s\n\t\tMEAN RANK TEST Left: %s Rel: %s Right: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
-            # Save current model
+                print >> sys.stderr, "\tNEW BEST TEST MR: %s\n\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
+            else:
+                if failedImprovements == 0:
+                    print >> sys.stderr, "EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all)
+                    channel.COMPLETE
+                    exit(1)
+                print >> sys.stderr, "\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1)
+                failedImprovements -= 1
+            
+            # Save current model regardless
             f = open(state.savepath + '/current_model.pkl', 'w')
             cPickle.dump(model.embeddings, f, -1)
             cPickle.dump(model.leftop, f, -1)
@@ -322,6 +335,9 @@ def FB15kexp(state, channel):
     '''
         Main training loop
 
+        Early stopping after 3 rankings on validation data with no improvement 
+        in MRR. 
+
         out = list of costs per minibatch for this epoch
         outb = list of percentages of ??? that were updated per minibatch in this epoch??
         restrain & state.train = ranks of all epoch train triples, and the mean thereof
@@ -329,13 +345,15 @@ def FB15kexp(state, channel):
 
     '''
     out, percent_left, percent_rel, percent_right = [], [], [], []
-    state.bestvalid = -1
+    state.bestvalidMRR = -1
     model = None
     batchsize = -1
     timeref = -1
     reverseRanking = False # for TransE, score the best fit to be near
                            # zero, so ranking is from low to high
                            # in BilinearDiag, it's the opposite
+    failedImprovements = 3 # number of chance it gets to improve on Valid MRR
+                           # before early stopping
 
     # Show experiment parameters
     print >> sys.stderr, state
@@ -363,6 +381,15 @@ def FB15kexp(state, channel):
     elif state.op == 'BilinearDiag':
         model = BilinearDiag_model(state)
         reverseRanking = True
+    elif state.op == 'ModelE':
+        model = ModelE_model(state)
+        reverseRanking = True
+    elif state.op == 'BilinearDiagExtended':
+        model = BilinearDiagExtended_model(state)
+        reverseRanking = True
+    elif state.op == 'Baseline1':
+        model = Baseline1_model(state)
+        reverseRanking = True
     else:
         raise ValueError('Must supply valid model type')
     assert hasattr(model, 'trainfunc')
@@ -386,12 +413,6 @@ def FB15kexp(state, channel):
         trainl = trainl[:, order]
         trainr = trainr[:, order]
         traino = traino[:, order]
-        
-        # Negatives, TODO, these should be filtered as well?
-        # trainln = create_random_mat(trainl.shape, np.arange(state.Nsyn))
-        # trainrn = create_random_mat(trainr.shape, np.arange(state.Nsyn))
-        # if state.rel == True: ### create negative relationship instances
-        #     trainon = create_random_mat(traino.shape, np.arange(state.Nsyn_rel))
 
         if state.rel == True:
             trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB, rels=state.Nsyn_rel)
@@ -422,7 +443,6 @@ def FB15kexp(state, channel):
                 out += [batch_cost / float(batchsize)]
                 percent_left += [per_l]
                 percent_right += [per_r]
-    
 
             # embeddings normalization
             ### TODO: why only normalize embeddings[0]?? only normalize entity 
@@ -435,7 +455,10 @@ def FB15kexp(state, channel):
         print >> sys.stderr, "----------------------------------------------------------------------"
         print >> sys.stderr, "EPOCH %s (%s seconds):" % (
                 epoch_count, round(time.time() - timeref, 3))
-        print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/float(state.Nrel), 5))
+        if state.reg != None:
+            print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % \
+            (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
+            float(state.Nrel), 5))
         if state.rel:
             print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
                 round(np.std(out), 3), \
@@ -456,7 +479,8 @@ def FB15kexp(state, channel):
                 verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
-                state.valid = np.mean(verl + verr)# only tune on entity ranking
+                state.validMR = np.mean(verl + verr)# only tune on entity ranking
+                state.validMRR = np.mean(np.reciprocal(verl + verr))
             else:
                 state.valid = 'not applicable'
             
@@ -469,16 +493,18 @@ def FB15kexp(state, channel):
                 state.train = 'not applicable'
             
             print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
-                    round(state.valid, 1), round(state.train, 1))
+                    round(state.validMR, 1), round(state.train, 1))
             print >> sys.stderr, "\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
             print >> sys.stderr, "\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1))
+            print >> sys.stderr, "\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4))
 
             ### save model that performs best on dev data
-            if state.bestvalid == -1 or state.valid < state.bestvalid:
+            if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
                 terl, terr, ter_rel = FilteredRankingScoreIdx(\
                 model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 
-                state.bestvalid = state.valid
+                failedImprovements = 3
+                state.bestvalidMRR = state.validMRR
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)
                 state.bestepoch = epoch_count
@@ -489,8 +515,15 @@ def FB15kexp(state, channel):
                 cPickle.dump(model.rightop, f, -1)
                 cPickle.dump(model.simfn, f, -1)
                 f.close()
-                print >> sys.stderr, "\tNEW BEST TEST: %s\n\t\tLeft: %s Rel: %s Right: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
-            # Save current model
+                print >> sys.stderr, "\tNEW BEST TEST MR: %s\n\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
+            else:
+                if failedImprovements == 0:
+                    print >> sys.stderr, "EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all)
+                    channel.COMPLETE
+                    exit(1)
+                print >> sys.stderr, "\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1)
+                failedImprovements -= 1
+            # Save current model regardless
             f = open(state.savepath + '/current_model.pkl', 'w')
             cPickle.dump(model.embeddings, f, -1)
             cPickle.dump(model.leftop, f, -1)
@@ -502,6 +535,8 @@ def FB15kexp(state, channel):
                 round(time.time() - timeref, 3))
             timeref = time.time()
             channel.save()
+
+
     print >> sys.stderr, "----------------------------------------------------------------------"
     print >> sys.stderr, "----------------------------------------------------------------------"
     return channel.COMPLETE
@@ -542,7 +577,6 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
     # state.loadmodelTri = loadmodelTri
     state.loademb = loademb ### load previously trained embeddings?
     
-    assert op == 'BilinearDiag' or op == 'TransE'
     state.op = op
     state.simfn = simfn
     state.ndim = ndim # dimension of both relationship and entity embeddings

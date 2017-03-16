@@ -10,11 +10,11 @@ from evaluate_KBC import RankingEval
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE_Text/'
 
-simfn = 'L2'
+simfn = 'L1'
 margincostfunction = 'margincost' ### from top of Operations
-ndim = 200 # dimension of both relationship and entity embeddings
+ndim = 50 # dimension of both relationship and entity embeddings
 	      # {10, 50, 100, 150}
-marge = 0.2     # {0.5, 1.0}
+marge = 1.0     # {0.5, 1.0}
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -24,7 +24,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = True   # whether to also rank relations
+rel = False   # whether to also rank relations
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
@@ -41,12 +41,12 @@ textual_role = 'TextAsRelation' # {TextAsRegularizer, TextAsRelation}
 marg_text = 1.0
 textsim = 'L2' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
-word_dim = 200 # dimension of each word embedding
+word_dim = 50 # dimension of each word embedding
 # word_file = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
-word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.200d.txt'
+word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.50d.txt'
 	# path to file containing word embeddings
 vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
-gamma = 0.5 #{0.01, 0.1, 1} weight to use for cost of textual triple
+gamma = 1.0 #{0.01, 0.1, 1} weight to use for cost of textual triple
 # assert ndim == word_dim
 numTextTrain = 1000000 # num textual triples to use in each epoch of training
 					   # maximum is 10413174
@@ -79,10 +79,10 @@ launch_text(experiment_type = 'FB15k_text', op='TransE_text', simfn= simfn, \
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
-RankingEval(datapath=datapath, neval=neval, loadmodel= savepath + \
+RankingEval(datapath=datapath, reverseRanking=False, neval=neval, loadmodel= savepath + \
 	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
 	Nsyn_rel=Nsyn_rel)
-RankingEvalFil(datapath=datapath, neval=neval, loadmodel= savepath + \
+RankingEvalFil(datapath=datapath, reverseRanking=False, neval=neval, loadmodel= savepath + \
 	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
 	Nsyn_rel=Nsyn_rel)
 

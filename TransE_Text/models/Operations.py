@@ -10,6 +10,11 @@ from collections import OrderedDict
 
 
 # Similarity functions -------------------------------------------------------
+def Sumsim(left, right):
+    '''for model E'''
+    # return T.sum(left + right)
+    return T.sum(left, axis=1) + T.sum(right, axis=1)
+
 def L1sim(left, right):
     return - T.sum(T.abs_(left - right), axis=1)
 
@@ -166,8 +171,10 @@ def RMSprop(loss, all_params, lr=0.001, rho=0.9, epsilon=1e-6):
     return updates
 # -----------------------------------------------------------------------------
 
-
 # Layers ----------------------------------------------------------------------
+# For all the __call__ methods below, assume x and y are minibatches of size 
+# b by k where b is the minibatch size and k is the dimension of entity/rels
+
 class Layer(object):
     """Class for a layer to transform a vector of dim n_inp to one of n_out w/o biases."""
 
@@ -342,26 +349,16 @@ class LayerTrans(object):
         """Forward function."""
         return x+y
 
-class LayerdMat(object):
-    """
-    
-    """
 
+class LayerDot(object):
+    '''
+    For Model E and any other models that use a dot product. 
+    '''
     def __init__(self):
-        """
-        Constructor.
-
-        :note: there is no parameter declared in this layer, the parameters
-               are the embeddings of the 'right' member, therefore their
-               dimension have to fit with those declared here: n_inp * n_out.
-        """
         self.params = []
 
     def __call__(self, x, y):
-        """Forward function."""
-        # More details on the class and constructor comments.
-
-        return x * y
+        T.sum(x * y, axis=1)
 
 class Unstructured(object):
     """
