@@ -11,8 +11,7 @@ from collections import OrderedDict
 
 # Similarity functions -------------------------------------------------------
 def Sumsim(left, right):
-    '''for model E'''
-    # return T.sum(left + right)
+    '''For model E, kind of hacky, see the ModelE_model class in KBC_models'''
     return T.sum(left, axis=1) + T.sum(right, axis=1)
 
 def L1sim(left, right):

@@ -8,9 +8,7 @@ from evaluate_KBC import RankingEval
 ###############################################################################
 ###############################################################################
 
-# launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
-#    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
-simfn = 'Dot'
+simfn = 'Dot' ### cannot change this for Baseline1
 margincostfunction = 'margincost_pos_high' ### from top of Operations
 ndim = 50 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}

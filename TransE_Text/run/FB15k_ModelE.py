@@ -8,9 +8,7 @@ from evaluate_KBC import RankingEval
 ###############################################################################
 ###############################################################################
 
-# launch(op='TransE', simfn='L2', ndim=50, nhid=50, marge=0.5, lremb=0.01, lrparam=0.01,
-#    nbatches=100, totepochs=500, test_all=10, neval=1000, savepath='FB15k_TransE', datapath='../data/', dataset='FB15k')
-simfn = 'Sum'
+simfn = 'Sum' ### cannot change this for model E
 margincostfunction = 'margincost_pos_high' ### from top of Operations
 reverseRanking = True # rank from best -> worst <=> high to low score
 
