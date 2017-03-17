@@ -950,7 +950,8 @@ class ModelE_model():
         self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
         if state.rel == True: 
-            raise ValueError('For Model E, we cannot sample negative relations, so we cannot apply the margin ranking objective to relations')
+            self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
         else:
             self.rankrelfunc = None
 
@@ -1020,7 +1021,8 @@ class BilinearDiagExtended_model():
         self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
             self.leftop, self.rightop, subtensorspec=state.Nsyn)
         if state.rel == True: 
-            raise ValueError('For Model E, we cannot sample negative relations, so we cannot apply the margin ranking objective to relations')
+            self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
         else:
             self.rankrelfunc = None
 

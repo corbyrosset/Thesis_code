@@ -302,8 +302,8 @@ def FB15kexp_text(state, channel):
             else:
                 if failedImprovements == 0:
                     print >> sys.stderr, "EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all)
-                    channel.COMPLETE
-                    exit(1)
+                    break
+                    
                 print >> sys.stderr, "\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1)
                 failedImprovements -= 1
             
@@ -519,8 +519,7 @@ def FB15kexp(state, channel):
             else:
                 if failedImprovements == 0:
                     print >> sys.stderr, "EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all)
-                    channel.COMPLETE
-                    exit(1)
+                    break
                 print >> sys.stderr, "\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1)
                 failedImprovements -= 1
             # Save current model regardless
