@@ -183,6 +183,9 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=None):
     This function computes the rank list of the lhs and rhs, over a list of
     lhs, rhs and rel indexes.
 
+    NOTE: if A = np.argsort(np.argsort(a)), then A[i] gives the rank of a[i] in
+    a sorted in increasing order. 
+
     :param sl: "Score left", Theano function created with RankLeftFnIdx().
     :param sr: "Score Right", Theano function created with RankRightFnIdx().
     :param idxl: list of 'left' indices, which correspond to test triples
@@ -253,11 +256,15 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
         rmv_idx_l = [true_triples[i,0] for i in inter_l if true_triples[i,0] != l]
         if reverseRanking:
             scores_l = -1*(sl(r, o)[0]).flatten()
-            scores_l[rmv_idx_l] = -1*np.inf
+            scores_l[rmv_idx_l] = np.inf ### i think this needs to be np.inf
+                                         ### rather than -1*np.inf
         else:
             scores_l = (sl(r, o)[0]).flatten()
             scores_l[rmv_idx_l] = np.inf
 
+        # TODO: remove the assert
+        ranks = np.argsort(np.argsort(scores_l)).flatten()
+        assert (not numpy.isinf(ranks[l])) and (not np.isinf(-1*ranks[l]))
         errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
 
         ### right
@@ -266,10 +273,14 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
 
         if reverseRanking:
             scores_r = -1*(sr(l, o)[0]).flatten()
-            scores_r[rmv_idx_r] = -1*np.inf
+            scores_r[rmv_idx_r] = np.inf ### i think this needs to be np.inf
         else:
             scores_r = (sr(l, o)[0]).flatten()
             scores_r[rmv_idx_r] = np.inf
+
+        # TODO: remove the assert
+        ranks = np.argsort(np.argsort(scores_r)).flatten()
+        assert (not numpy.isinf(ranks[r])) and (not np.isinf(-1*ranks[r]))
         errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
         ### relations
@@ -280,10 +291,14 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
             # rmv_idx_o = [i for i in inter_o if true_triples[i,1] != o]
             if reverseRanking:
                 scores_rel = -1*(rank_rel(l, r)[0]).flatten()
-                scores_rel[rmv_idx_o] = -1*np.inf
+                scores_rel[rmv_idx_o] = np.inf #i think this needs to be np.inf
             else:
                 scores_rel = (rank_rel(l, r)[0]).flatten()
                 scores_rel[rmv_idx_o] = np.inf
+
+            # TODO: remove the assert
+            ranks = np.argsort(np.argsort(scores_rel)).flatten()
+            assert (not numpy.isinf(ranks[o])) and (not np.isinf(-1*ranks[o]))
             err_rel += [np.argsort(np.argsort(scores_rel)).flatten()[o] + 1]
     
     if not rank_rel:
