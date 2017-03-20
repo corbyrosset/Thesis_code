@@ -48,7 +48,7 @@ if rel == True:
 
 # I hate to do this here, but it is needed for .log to be in right place
 if not os.path.isdir(savepath + identifier + '/'):
-	os.mkdir(savepath + identifier + '/')
+	os.makedirs(savepath + identifier + '/')
 logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 	
 
@@ -75,7 +75,7 @@ RankingEval(datapath, logger, reverseRanking=True, neval=neval, \
 RankingEvalFil(datapath, logger, reverseRanking=True, neval=neval, \
 	loadmodel=savepath+str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
-send_notification(identifier, logFile)
+# send_notification(identifier, logFile)
 ###############################################################################
 ###############################################################################
 
