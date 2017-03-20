@@ -1,0 +1,1837 @@
+Corbins-MacBook-Pro:run corbinrosset$ python FB15k_TransE.py 
+Couldn't import dot_parser, loading of dot files will not be possible.
+identifier: TransE_L2_ndim_150_marg_0.5_lrate_0.01_cost_margincost_REL
+models saved to path: /Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/
+DD{'ndim': 150, 'test_all': 10, 'Nsyn_rel': 1345, 'totepochs': 500, 'bestvalid': -1, 'loadmodel': False, 'lremb': 0.01, 'nvalid': 1000, 'seed': 123, 'marge': 0.5, 'margincostfunction': 'margincost', 'simfn': 'L2', 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/TransE_L2_ndim_150_marg_0.5_lrate_0.01_cost_margincost_REL', 'dataset': 'FB15k', 'nbatches': 100, 'lrparam': 0.01, 'loademb': False, 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', 'ntrain': 1000, 'Nrel': 1345, 'experiment_type': 'FB15kexp', 'rel': True, 'Nent': 16296, 'ntest': 1000, 'Nsyn': 14951, 'reg': None, 'op': 'TransE'}
+loaded FB15k data in: 1.786353 seconds
+(16296, 483142) (16296, 483142) (1345, 483142) (1000,)
+Training to rank RELATIONS as well!
+loaded data and constructed model...
+num epochs: 500
+num batches per epoch: 100
+batchsize: 4831
+left and right entity ranking functions will rank a slot against 14951 competitors
+BEGIN TRAINING
+----------------------------------------------------------------------
+EPOCH 1 (42.524 seconds):
+	COST >> 0.768 +/- 0.162, % updates Left: 88.15% Rel: 19.4% Right: 82.06%
+----------------------------------------------------------------------
+EPOCH 2 (44.123 seconds):
+	COST >> 0.469 +/- 0.045, % updates Left: 72.11% Rel: 8.18% Right: 64.57%
+----------------------------------------------------------------------
+EPOCH 3 (44.704 seconds):
+	COST >> 0.359 +/- 0.018, % updates Left: 59.77% Rel: 6.19% Right: 53.55%
+----------------------------------------------------------------------
+EPOCH 4 (44.057 seconds):
+	COST >> 0.311 +/- 0.01, % updates Left: 52.19% Rel: 5.3% Right: 46.8%
+----------------------------------------------------------------------
+EPOCH 5 (46.489 seconds):
+	COST >> 0.284 +/- 0.007, % updates Left: 47.35% Rel: 4.64% Right: 42.65%
+----------------------------------------------------------------------
+EPOCH 6 (42.03 seconds):
+	COST >> 0.267 +/- 0.007, % updates Left: 44.09% Rel: 4.37% Right: 39.87%
+----------------------------------------------------------------------
+EPOCH 7 (43.161 seconds):
+	COST >> 0.255 +/- 0.005, % updates Left: 41.76% Rel: 4.12% Right: 38.04%
+----------------------------------------------------------------------
+EPOCH 8 (41.261 seconds):
+	COST >> 0.247 +/- 0.006, % updates Left: 40.09% Rel: 3.86% Right: 36.65%
+----------------------------------------------------------------------
+EPOCH 9 (39.254 seconds):
+	COST >> 0.24 +/- 0.006, % updates Left: 38.8% Rel: 3.65% Right: 35.56%
+----------------------------------------------------------------------
+EPOCH 10 (43.749 seconds):
+	COST >> 0.234 +/- 0.006, % updates Left: 37.92% Rel: 3.58% Right: 34.68%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1383.0, train: 1066.2
+		MEAN RANK TRAIN: Left: 1416.2 Rel: 110.3 Right: 716.1
+		MEAN RANK VALID: Left: 1669.2 Rel: 103.2 Right: 1096.8
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1415.8
+		Left: 1750.1 Rel: 107.2 Right: 1081.5
+	(ranking took 238.041 seconds)
+----------------------------------------------------------------------
+EPOCH 11 (51.039 seconds):
+	COST >> 0.23 +/- 0.005, % updates Left: 36.97% Rel: 3.4% Right: 33.95%
+----------------------------------------------------------------------
+EPOCH 12 (50.785 seconds):
+	COST >> 0.226 +/- 0.005, % updates Left: 36.35% Rel: 3.29% Right: 33.55%
+----------------------------------------------------------------------
+EPOCH 13 (50.809 seconds):
+	COST >> 0.222 +/- 0.005, % updates Left: 35.78% Rel: 3.23% Right: 32.97%
+----------------------------------------------------------------------
+EPOCH 14 (45.844 seconds):
+	COST >> 0.219 +/- 0.005, % updates Left: 35.22% Rel: 3.13% Right: 32.53%
+----------------------------------------------------------------------
+EPOCH 15 (46.082 seconds):
+	COST >> 0.217 +/- 0.005, % updates Left: 34.79% Rel: 3.07% Right: 32.15%
+----------------------------------------------------------------------
+EPOCH 16 (43.899 seconds):
+	COST >> 0.215 +/- 0.005, % updates Left: 34.46% Rel: 3.02% Right: 31.77%
+----------------------------------------------------------------------
+EPOCH 17 (44.662 seconds):
+	COST >> 0.213 +/- 0.005, % updates Left: 34.06% Rel: 2.94% Right: 31.48%
+----------------------------------------------------------------------
+EPOCH 18 (46.508 seconds):
+	COST >> 0.21 +/- 0.006, % updates Left: 33.73% Rel: 2.89% Right: 31.21%
+----------------------------------------------------------------------
+EPOCH 19 (46.818 seconds):
+	COST >> 0.209 +/- 0.006, % updates Left: 33.53% Rel: 2.87% Right: 31.1%
+----------------------------------------------------------------------
+EPOCH 20 (46.723 seconds):
+	COST >> 0.208 +/- 0.005, % updates Left: 33.25% Rel: 2.84% Right: 30.88%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1318.0, train: 1012.1
+		MEAN RANK TRAIN: Left: 1384.2 Rel: 113.8 Right: 640.1
+		MEAN RANK VALID: Left: 1602.8 Rel: 105.9 Right: 1033.3
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1354.9
+		Left: 1731.0 Rel: 112.0 Right: 978.8
+	(ranking took 255.545 seconds)
+----------------------------------------------------------------------
+EPOCH 21 (53.971 seconds):
+	COST >> 0.206 +/- 0.006, % updates Left: 33.09% Rel: 2.77% Right: 30.67%
+----------------------------------------------------------------------
+EPOCH 22 (47.822 seconds):
+	COST >> 0.205 +/- 0.006, % updates Left: 32.91% Rel: 2.75% Right: 30.38%
+----------------------------------------------------------------------
+EPOCH 23 (47.095 seconds):
+	COST >> 0.203 +/- 0.006, % updates Left: 32.68% Rel: 2.75% Right: 30.2%
+----------------------------------------------------------------------
+EPOCH 24 (49.446 seconds):
+	COST >> 0.203 +/- 0.006, % updates Left: 32.47% Rel: 2.71% Right: 30.1%
+----------------------------------------------------------------------
+EPOCH 25 (46.648 seconds):
+	COST >> 0.201 +/- 0.006, % updates Left: 32.25% Rel: 2.63% Right: 29.91%
+----------------------------------------------------------------------
+EPOCH 26 (47.342 seconds):
+	COST >> 0.201 +/- 0.006, % updates Left: 32.16% Rel: 2.64% Right: 29.88%
+----------------------------------------------------------------------
+EPOCH 27 (45.895 seconds):
+	COST >> 0.2 +/- 0.006, % updates Left: 32.08% Rel: 2.59% Right: 29.7%
+----------------------------------------------------------------------
+EPOCH 28 (46.459 seconds):
+	COST >> 0.199 +/- 0.006, % updates Left: 31.9% Rel: 2.59% Right: 29.52%
+----------------------------------------------------------------------
+EPOCH 29 (46.72 seconds):
+	COST >> 0.198 +/- 0.005, % updates Left: 31.81% Rel: 2.59% Right: 29.45%
+----------------------------------------------------------------------
+EPOCH 30 (49.777 seconds):
+	COST >> 0.197 +/- 0.005, % updates Left: 31.7% Rel: 2.54% Right: 29.3%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1274.6, train: 965.0
+		MEAN RANK TRAIN: Left: 1365.7 Rel: 116.3 Right: 564.3
+		MEAN RANK VALID: Left: 1586.6 Rel: 109.0 Right: 962.7
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1305.6
+		Left: 1697.9 Rel: 114.7 Right: 913.3
+	(ranking took 246.634 seconds)
+----------------------------------------------------------------------
+EPOCH 31 (47.909 seconds):
+	COST >> 0.197 +/- 0.005, % updates Left: 31.55% Rel: 2.52% Right: 29.18%
+----------------------------------------------------------------------
+EPOCH 32 (43.029 seconds):
+	COST >> 0.195 +/- 0.005, % updates Left: 31.43% Rel: 2.52% Right: 29.05%
+----------------------------------------------------------------------
+EPOCH 33 (45.251 seconds):
+	COST >> 0.196 +/- 0.005, % updates Left: 31.42% Rel: 2.46% Right: 29.11%
+----------------------------------------------------------------------
+EPOCH 34 (48.332 seconds):
+	COST >> 0.194 +/- 0.005, % updates Left: 31.27% Rel: 2.45% Right: 29.05%
+----------------------------------------------------------------------
+EPOCH 35 (49.852 seconds):
+	COST >> 0.194 +/- 0.005, % updates Left: 31.22% Rel: 2.4% Right: 28.95%
+----------------------------------------------------------------------
+EPOCH 36 (48.748 seconds):
+	COST >> 0.193 +/- 0.006, % updates Left: 31.05% Rel: 2.47% Right: 28.81%
+----------------------------------------------------------------------
+EPOCH 37 (41.348 seconds):
+	COST >> 0.193 +/- 0.005, % updates Left: 31.1% Rel: 2.38% Right: 28.71%
+----------------------------------------------------------------------
+EPOCH 38 (42.001 seconds):
+	COST >> 0.192 +/- 0.005, % updates Left: 30.94% Rel: 2.4% Right: 28.68%
+----------------------------------------------------------------------
+EPOCH 39 (37.468 seconds):
+	COST >> 0.192 +/- 0.006, % updates Left: 30.93% Rel: 2.35% Right: 28.5%
+----------------------------------------------------------------------
+EPOCH 40 (38.073 seconds):
+	COST >> 0.191 +/- 0.005, % updates Left: 30.76% Rel: 2.37% Right: 28.5%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1262.3, train: 958.3
+		MEAN RANK TRAIN: Left: 1389.4 Rel: 115.9 Right: 527.2
+		MEAN RANK VALID: Left: 1578.3 Rel: 109.6 Right: 946.2
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1301.2
+		Left: 1697.6 Rel: 115.4 Right: 904.7
+	(ranking took 214.273 seconds)
+----------------------------------------------------------------------
+EPOCH 41 (42.999 seconds):
+	COST >> 0.191 +/- 0.006, % updates Left: 30.77% Rel: 2.39% Right: 28.39%
+----------------------------------------------------------------------
+EPOCH 42 (41.239 seconds):
+	COST >> 0.191 +/- 0.005, % updates Left: 30.73% Rel: 2.37% Right: 28.45%
+----------------------------------------------------------------------
+EPOCH 43 (40.702 seconds):
+	COST >> 0.191 +/- 0.005, % updates Left: 30.69% Rel: 2.35% Right: 28.33%
+----------------------------------------------------------------------
+EPOCH 44 (42.79 seconds):
+	COST >> 0.19 +/- 0.005, % updates Left: 30.61% Rel: 2.32% Right: 28.28%
+----------------------------------------------------------------------
+EPOCH 45 (41.177 seconds):
+	COST >> 0.19 +/- 0.005, % updates Left: 30.56% Rel: 2.32% Right: 28.23%
+----------------------------------------------------------------------
+EPOCH 46 (41.04 seconds):
+	COST >> 0.189 +/- 0.005, % updates Left: 30.4% Rel: 2.28% Right: 28.22%
+----------------------------------------------------------------------
+EPOCH 47 (37.011 seconds):
+	COST >> 0.189 +/- 0.005, % updates Left: 30.42% Rel: 2.31% Right: 28.05%
+----------------------------------------------------------------------
+EPOCH 48 (36.488 seconds):
+	COST >> 0.188 +/- 0.005, % updates Left: 30.38% Rel: 2.29% Right: 28.06%
+----------------------------------------------------------------------
+EPOCH 49 (36.042 seconds):
+	COST >> 0.188 +/- 0.005, % updates Left: 30.21% Rel: 2.28% Right: 28.03%
+----------------------------------------------------------------------
+EPOCH 50 (36.049 seconds):
+	COST >> 0.188 +/- 0.005, % updates Left: 30.36% Rel: 2.28% Right: 28.04%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1244.1, train: 952.1
+		MEAN RANK TRAIN: Left: 1399.5 Rel: 118.5 Right: 504.7
+		MEAN RANK VALID: Left: 1568.8 Rel: 110.2 Right: 919.3
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1278.3
+		Left: 1691.9 Rel: 117.2 Right: 864.7
+	(ranking took 211.602 seconds)
+----------------------------------------------------------------------
+EPOCH 51 (44.072 seconds):
+	COST >> 0.187 +/- 0.005, % updates Left: 30.24% Rel: 2.26% Right: 27.88%
+----------------------------------------------------------------------
+EPOCH 52 (48.704 seconds):
+	COST >> 0.186 +/- 0.005, % updates Left: 30.13% Rel: 2.21% Right: 27.82%
+----------------------------------------------------------------------
+EPOCH 53 (47.602 seconds):
+	COST >> 0.187 +/- 0.006, % updates Left: 30.12% Rel: 2.22% Right: 27.95%
+----------------------------------------------------------------------
+EPOCH 54 (50.223 seconds):
+	COST >> 0.186 +/- 0.005, % updates Left: 30.17% Rel: 2.24% Right: 27.78%
+----------------------------------------------------------------------
+EPOCH 55 (47.606 seconds):
+	COST >> 0.186 +/- 0.005, % updates Left: 30.08% Rel: 2.21% Right: 27.83%
+----------------------------------------------------------------------
+EPOCH 56 (48.781 seconds):
+	COST >> 0.186 +/- 0.005, % updates Left: 30.01% Rel: 2.18% Right: 27.81%
+----------------------------------------------------------------------
+EPOCH 57 (47.743 seconds):
+	COST >> 0.185 +/- 0.004, % updates Left: 29.85% Rel: 2.21% Right: 27.64%
+----------------------------------------------------------------------
+EPOCH 58 (48.812 seconds):
+	COST >> 0.185 +/- 0.005, % updates Left: 29.92% Rel: 2.18% Right: 27.66%
+----------------------------------------------------------------------
+EPOCH 59 (48.322 seconds):
+	COST >> 0.185 +/- 0.005, % updates Left: 29.83% Rel: 2.17% Right: 27.63%
+----------------------------------------------------------------------
+EPOCH 60 (46.986 seconds):
+	COST >> 0.185 +/- 0.005, % updates Left: 29.77% Rel: 2.23% Right: 27.51%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1247.4, train: 925.4
+		MEAN RANK TRAIN: Left: 1397.5 Rel: 119.4 Right: 453.3
+		MEAN RANK VALID: Left: 1593.0 Rel: 110.2 Right: 901.8
+	(ranking took 153.363 seconds)
+----------------------------------------------------------------------
+EPOCH 61 (47.321 seconds):
+	COST >> 0.184 +/- 0.005, % updates Left: 29.84% Rel: 2.15% Right: 27.47%
+----------------------------------------------------------------------
+EPOCH 62 (49.818 seconds):
+	COST >> 0.185 +/- 0.005, % updates Left: 29.74% Rel: 2.17% Right: 27.49%
+----------------------------------------------------------------------
+EPOCH 63 (50.394 seconds):
+	COST >> 0.184 +/- 0.005, % updates Left: 29.78% Rel: 2.17% Right: 27.44%
+----------------------------------------------------------------------
+EPOCH 64 (50.663 seconds):
+	COST >> 0.184 +/- 0.005, % updates Left: 29.69% Rel: 2.21% Right: 27.39%
+----------------------------------------------------------------------
+EPOCH 65 (51.018 seconds):
+	COST >> 0.183 +/- 0.005, % updates Left: 29.67% Rel: 2.17% Right: 27.43%
+----------------------------------------------------------------------
+EPOCH 66 (49.948 seconds):
+	COST >> 0.183 +/- 0.005, % updates Left: 29.56% Rel: 2.15% Right: 27.39%
+----------------------------------------------------------------------
+EPOCH 67 (47.382 seconds):
+	COST >> 0.183 +/- 0.005, % updates Left: 29.54% Rel: 2.16% Right: 27.38%
+----------------------------------------------------------------------
+EPOCH 68 (48.87 seconds):
+	COST >> 0.183 +/- 0.005, % updates Left: 29.52% Rel: 2.16% Right: 27.25%
+----------------------------------------------------------------------
+EPOCH 69 (50.73 seconds):
+	COST >> 0.183 +/- 0.005, % updates Left: 29.55% Rel: 2.1% Right: 27.25%
+----------------------------------------------------------------------
+EPOCH 70 (50.674 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.45% Rel: 2.13% Right: 27.23%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1244.4, train: 919.9
+		MEAN RANK TRAIN: Left: 1400.5 Rel: 120.7 Right: 439.3
+		MEAN RANK VALID: Left: 1602.1 Rel: 111.7 Right: 886.6
+	(ranking took 158.325 seconds)
+----------------------------------------------------------------------
+EPOCH 71 (45.608 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.44% Rel: 2.11% Right: 27.25%
+----------------------------------------------------------------------
+EPOCH 72 (50.321 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.45% Rel: 2.11% Right: 27.19%
+----------------------------------------------------------------------
+EPOCH 73 (55.922 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.45% Rel: 2.16% Right: 27.23%
+----------------------------------------------------------------------
+EPOCH 74 (55.813 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.36% Rel: 2.13% Right: 27.14%
+----------------------------------------------------------------------
+EPOCH 75 (51.812 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.45% Rel: 2.13% Right: 27.04%
+----------------------------------------------------------------------
+EPOCH 76 (50.082 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.37% Rel: 2.08% Right: 27.09%
+----------------------------------------------------------------------
+EPOCH 77 (51.12 seconds):
+	COST >> 0.181 +/- 0.005, % updates Left: 29.34% Rel: 2.08% Right: 27.08%
+----------------------------------------------------------------------
+EPOCH 78 (51.122 seconds):
+	COST >> 0.182 +/- 0.005, % updates Left: 29.3% Rel: 2.09% Right: 27.07%
+----------------------------------------------------------------------
+EPOCH 79 (52.649 seconds):
+	COST >> 0.181 +/- 0.005, % updates Left: 29.3% Rel: 2.1% Right: 27.0%
+----------------------------------------------------------------------
+EPOCH 80 (54.426 seconds):
+	COST >> 0.181 +/- 0.005, % updates Left: 29.26% Rel: 2.07% Right: 26.99%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1239.8, train: 922.0
+		MEAN RANK TRAIN: Left: 1417.4 Rel: 122.0 Right: 426.6
+		MEAN RANK VALID: Left: 1611.0 Rel: 114.4 Right: 868.6
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1274.0
+		Left: 1714.4 Rel: 120.8 Right: 833.6
+	(ranking took 242.094 seconds)
+----------------------------------------------------------------------
+EPOCH 81 (51.637 seconds):
+	COST >> 0.181 +/- 0.005, % updates Left: 29.12% Rel: 2.06% Right: 26.9%
+----------------------------------------------------------------------
+EPOCH 82 (53.026 seconds):
+	COST >> 0.181 +/- 0.005, % updates Left: 29.12% Rel: 2.09% Right: 26.85%
+----------------------------------------------------------------------
+EPOCH 83 (57.165 seconds):
+	COST >> 0.18 +/- 0.006, % updates Left: 29.06% Rel: 2.08% Right: 26.95%
+----------------------------------------------------------------------
+EPOCH 84 (53.54 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.09% Rel: 2.05% Right: 26.85%
+----------------------------------------------------------------------
+EPOCH 85 (49.205 seconds):
+	COST >> 0.181 +/- 0.005, % updates Left: 29.14% Rel: 2.08% Right: 26.86%
+----------------------------------------------------------------------
+EPOCH 86 (47.525 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.05% Rel: 2.08% Right: 26.9%
+----------------------------------------------------------------------
+EPOCH 87 (50.61 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.12% Rel: 2.05% Right: 26.87%
+----------------------------------------------------------------------
+EPOCH 88 (51.254 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.03% Rel: 2.05% Right: 26.84%
+----------------------------------------------------------------------
+EPOCH 89 (50.948 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.09% Rel: 2.04% Right: 26.79%
+----------------------------------------------------------------------
+EPOCH 90 (52.004 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.05% Rel: 2.04% Right: 26.85%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1231.4, train: 920.3
+		MEAN RANK TRAIN: Left: 1416.0 Rel: 121.8 Right: 424.6
+		MEAN RANK VALID: Left: 1599.8 Rel: 114.3 Right: 863.0
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST: 1270.6
+		Left: 1715.8 Rel: 122.0 Right: 825.5
+	(ranking took 241.46 seconds)
+----------------------------------------------------------------------
+EPOCH 91 (51.755 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 29.09% Rel: 2.03% Right: 26.74%
+----------------------------------------------------------------------
+EPOCH 92 (49.692 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.97% Rel: 2.03% Right: 26.75%
+----------------------------------------------------------------------
+EPOCH 93 (48.794 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.98% Rel: 2.03% Right: 26.76%
+----------------------------------------------------------------------
+EPOCH 94 (48.383 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.88% Rel: 2.03% Right: 26.66%
+----------------------------------------------------------------------
+EPOCH 95 (49.342 seconds):
+	COST >> 0.18 +/- 0.005, % updates Left: 28.99% Rel: 2.03% Right: 26.76%
+----------------------------------------------------------------------
+EPOCH 96 (50.52 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.93% Rel: 1.99% Right: 26.63%
+----------------------------------------------------------------------
+EPOCH 97 (49.255 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.88% Rel: 2.0% Right: 26.58%
+----------------------------------------------------------------------
+EPOCH 98 (51.598 seconds):
+	COST >> 0.179 +/- 0.004, % updates Left: 28.9% Rel: 2.03% Right: 26.63%
+----------------------------------------------------------------------
+EPOCH 99 (48.545 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.83% Rel: 2.06% Right: 26.62%
+----------------------------------------------------------------------
+EPOCH 100 (47.745 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.79% Rel: 2.02% Right: 26.59%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1241.0, train: 920.1
+		MEAN RANK TRAIN: Left: 1422.0 Rel: 122.2 Right: 418.2
+		MEAN RANK VALID: Left: 1607.7 Rel: 113.5 Right: 874.3
+	(ranking took 167.837 seconds)
+----------------------------------------------------------------------
+EPOCH 101 (51.141 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.77% Rel: 1.97% Right: 26.5%
+----------------------------------------------------------------------
+EPOCH 102 (46.161 seconds):
+	COST >> 0.179 +/- 0.005, % updates Left: 28.86% Rel: 2.03% Right: 26.56%
+----------------------------------------------------------------------
+EPOCH 103 (46.731 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.73% Rel: 2.01% Right: 26.58%
+----------------------------------------------------------------------
+EPOCH 104 (52.361 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.78% Rel: 1.99% Right: 26.51%
+----------------------------------------------------------------------
+EPOCH 105 (53.565 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.71% Rel: 2.01% Right: 26.63%
+----------------------------------------------------------------------
+EPOCH 106 (54.614 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.71% Rel: 1.97% Right: 26.42%
+----------------------------------------------------------------------
+EPOCH 107 (53.422 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.68% Rel: 2.01% Right: 26.49%
+----------------------------------------------------------------------
+EPOCH 108 (48.0 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.73% Rel: 1.99% Right: 26.42%
+----------------------------------------------------------------------
+EPOCH 109 (50.801 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.71% Rel: 2.02% Right: 26.44%
+----------------------------------------------------------------------
+EPOCH 110 (49.524 seconds):
+	COST >> 0.178 +/- 0.005, % updates Left: 28.57% Rel: 1.99% Right: 26.36%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1239.3, train: 922.5
+		MEAN RANK TRAIN: Left: 1424.2 Rel: 125.4 Right: 420.9
+		MEAN RANK VALID: Left: 1600.4 Rel: 116.8 Right: 878.3
+	(ranking took 157.268 seconds)
+----------------------------------------------------------------------
+EPOCH 111 (45.768 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.51% Rel: 1.97% Right: 26.37%
+----------------------------------------------------------------------
+EPOCH 112 (46.629 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.57% Rel: 1.97% Right: 26.38%
+----------------------------------------------------------------------
+EPOCH 113 (49.908 seconds):
+	COST >> 0.177 +/- 0.006, % updates Left: 28.64% Rel: 2.01% Right: 26.33%
+----------------------------------------------------------------------
+EPOCH 114 (52.055 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.55% Rel: 1.97% Right: 26.33%
+----------------------------------------------------------------------
+EPOCH 115 (51.311 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.6% Rel: 1.99% Right: 26.44%
+----------------------------------------------------------------------
+EPOCH 116 (54.483 seconds):
+	COST >> 0.178 +/- 0.006, % updates Left: 28.55% Rel: 1.95% Right: 26.33%
+----------------------------------------------------------------------
+EPOCH 117 (55.228 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.59% Rel: 1.99% Right: 26.33%
+----------------------------------------------------------------------
+EPOCH 118 (55.868 seconds):
+	COST >> 0.177 +/- 0.004, % updates Left: 28.46% Rel: 1.99% Right: 26.23%
+----------------------------------------------------------------------
+EPOCH 119 (56.769 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.4% Rel: 1.94% Right: 26.25%
+----------------------------------------------------------------------
+EPOCH 120 (56.193 seconds):
+	COST >> 0.177 +/- 0.004, % updates Left: 28.55% Rel: 1.97% Right: 26.34%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1233.9, train: 920.4
+		MEAN RANK TRAIN: Left: 1422.9 Rel: 123.8 Right: 418.0
+		MEAN RANK VALID: Left: 1607.2 Rel: 116.4 Right: 860.7
+	(ranking took 168.538 seconds)
+----------------------------------------------------------------------
+EPOCH 121 (56.12 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.44% Rel: 1.96% Right: 26.32%
+----------------------------------------------------------------------
+EPOCH 122 (50.829 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.45% Rel: 1.96% Right: 26.22%
+----------------------------------------------------------------------
+EPOCH 123 (47.467 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.51% Rel: 1.97% Right: 26.2%
+----------------------------------------------------------------------
+EPOCH 124 (45.103 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.41% Rel: 1.96% Right: 26.23%
+----------------------------------------------------------------------
+EPOCH 125 (48.834 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.4% Rel: 1.95% Right: 26.2%
+----------------------------------------------------------------------
+EPOCH 126 (47.982 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.41% Rel: 1.97% Right: 26.27%
+----------------------------------------------------------------------
+EPOCH 127 (48.437 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.3% Rel: 1.97% Right: 26.12%
+----------------------------------------------------------------------
+EPOCH 128 (52.288 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.36% Rel: 1.96% Right: 26.18%
+----------------------------------------------------------------------
+EPOCH 129 (49.546 seconds):
+	COST >> 0.177 +/- 0.005, % updates Left: 28.39% Rel: 1.96% Right: 26.2%
+----------------------------------------------------------------------
+EPOCH 130 (47.183 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.3% Rel: 1.91% Right: 26.14%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1238.1, train: 919.0
+		MEAN RANK TRAIN: Left: 1410.9 Rel: 124.4 Right: 427.2
+		MEAN RANK VALID: Left: 1610.4 Rel: 115.2 Right: 865.8
+	(ranking took 168.747 seconds)
+----------------------------------------------------------------------
+EPOCH 131 (54.634 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.29% Rel: 1.93% Right: 26.2%
+----------------------------------------------------------------------
+EPOCH 132 (48.594 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.36% Rel: 1.95% Right: 26.1%
+----------------------------------------------------------------------
+EPOCH 133 (48.778 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.3% Rel: 1.93% Right: 26.06%
+----------------------------------------------------------------------
+EPOCH 134 (52.934 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.26% Rel: 1.91% Right: 26.12%
+----------------------------------------------------------------------
+EPOCH 135 (52.647 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.29% Rel: 1.93% Right: 26.09%
+----------------------------------------------------------------------
+EPOCH 136 (52.43 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.24% Rel: 1.95% Right: 25.97%
+----------------------------------------------------------------------
+EPOCH 137 (51.965 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.26% Rel: 1.93% Right: 26.08%
+----------------------------------------------------------------------
+EPOCH 138 (48.63 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.23% Rel: 1.9% Right: 26.08%
+----------------------------------------------------------------------
+EPOCH 139 (57.145 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.22% Rel: 1.91% Right: 26.08%
+----------------------------------------------------------------------
+EPOCH 140 (59.861 seconds):
+	COST >> 0.175 +/- 0.004, % updates Left: 28.23% Rel: 1.91% Right: 26.07%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1245.0, train: 922.7
+		MEAN RANK TRAIN: Left: 1421.9 Rel: 124.0 Right: 423.5
+		MEAN RANK VALID: Left: 1610.9 Rel: 114.8 Right: 879.2
+	(ranking took 177.05 seconds)
+----------------------------------------------------------------------
+EPOCH 141 (56.763 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.14% Rel: 1.92% Right: 26.03%
+----------------------------------------------------------------------
+EPOCH 142 (54.509 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.14% Rel: 1.94% Right: 25.89%
+----------------------------------------------------------------------
+EPOCH 143 (51.359 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.15% Rel: 1.89% Right: 25.92%
+----------------------------------------------------------------------
+EPOCH 144 (50.403 seconds):
+	COST >> 0.176 +/- 0.004, % updates Left: 28.16% Rel: 1.89% Right: 26.01%
+----------------------------------------------------------------------
+EPOCH 145 (49.563 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.16% Rel: 1.91% Right: 25.96%
+----------------------------------------------------------------------
+EPOCH 146 (44.568 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.07% Rel: 1.92% Right: 25.99%
+----------------------------------------------------------------------
+EPOCH 147 (45.638 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.13% Rel: 1.9% Right: 25.95%
+----------------------------------------------------------------------
+EPOCH 148 (47.082 seconds):
+	COST >> 0.176 +/- 0.005, % updates Left: 28.16% Rel: 1.91% Right: 25.94%
+----------------------------------------------------------------------
+EPOCH 149 (47.218 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.03% Rel: 1.89% Right: 25.94%
+----------------------------------------------------------------------
+EPOCH 150 (51.027 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.08% Rel: 1.9% Right: 25.85%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1234.0, train: 926.1
+		MEAN RANK TRAIN: Left: 1427.2 Rel: 125.7 Right: 425.0
+		MEAN RANK VALID: Left: 1607.9 Rel: 116.1 Right: 860.2
+	(ranking took 172.268 seconds)
+----------------------------------------------------------------------
+EPOCH 151 (57.518 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.04% Rel: 1.92% Right: 25.93%
+----------------------------------------------------------------------
+EPOCH 152 (58.796 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.06% Rel: 1.89% Right: 25.89%
+----------------------------------------------------------------------
+EPOCH 153 (55.94 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.03% Rel: 1.88% Right: 25.83%
+----------------------------------------------------------------------
+EPOCH 154 (52.085 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 27.96% Rel: 1.91% Right: 25.98%
+----------------------------------------------------------------------
+EPOCH 155 (53.348 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.08% Rel: 1.88% Right: 25.85%
+----------------------------------------------------------------------
+EPOCH 156 (56.153 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.01% Rel: 1.88% Right: 25.86%
+----------------------------------------------------------------------
+EPOCH 157 (56.801 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.07% Rel: 1.89% Right: 25.89%
+----------------------------------------------------------------------
+EPOCH 158 (52.664 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.86% Rel: 1.87% Right: 25.83%
+----------------------------------------------------------------------
+EPOCH 159 (51.432 seconds):
+	COST >> 0.174 +/- 0.006, % updates Left: 27.9% Rel: 1.88% Right: 25.78%
+----------------------------------------------------------------------
+EPOCH 160 (49.211 seconds):
+	COST >> 0.175 +/- 0.004, % updates Left: 27.89% Rel: 1.91% Right: 25.84%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1237.6, train: 927.6
+		MEAN RANK TRAIN: Left: 1423.8 Rel: 126.8 Right: 431.5
+		MEAN RANK VALID: Left: 1597.3 Rel: 116.9 Right: 877.9
+	(ranking took 177.461 seconds)
+----------------------------------------------------------------------
+EPOCH 161 (58.035 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 27.99% Rel: 1.89% Right: 25.79%
+----------------------------------------------------------------------
+EPOCH 162 (53.788 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 28.05% Rel: 1.89% Right: 25.85%
+----------------------------------------------------------------------
+EPOCH 163 (53.213 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.93% Rel: 1.85% Right: 25.79%
+----------------------------------------------------------------------
+EPOCH 164 (56.143 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.86% Rel: 1.84% Right: 25.72%
+----------------------------------------------------------------------
+EPOCH 165 (55.922 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.74% Rel: 1.89% Right: 25.72%
+----------------------------------------------------------------------
+EPOCH 166 (56.065 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.79% Rel: 1.88% Right: 25.71%
+----------------------------------------------------------------------
+EPOCH 167 (54.185 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.87% Rel: 1.85% Right: 25.7%
+----------------------------------------------------------------------
+EPOCH 168 (49.359 seconds):
+	COST >> 0.175 +/- 0.005, % updates Left: 27.92% Rel: 1.89% Right: 25.74%
+----------------------------------------------------------------------
+EPOCH 169 (52.087 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.88% Rel: 1.87% Right: 25.73%
+----------------------------------------------------------------------
+EPOCH 170 (52.452 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.83% Rel: 1.87% Right: 25.79%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1256.2, train: 927.6
+		MEAN RANK TRAIN: Left: 1424.0 Rel: 126.3 Right: 431.2
+		MEAN RANK VALID: Left: 1611.1 Rel: 117.1 Right: 901.4
+	(ranking took 175.02 seconds)
+----------------------------------------------------------------------
+EPOCH 171 (57.265 seconds):
+	COST >> 0.174 +/- 0.006, % updates Left: 27.78% Rel: 1.87% Right: 25.75%
+----------------------------------------------------------------------
+EPOCH 172 (57.536 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.83% Rel: 1.87% Right: 25.68%
+----------------------------------------------------------------------
+EPOCH 173 (55.571 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.78% Rel: 1.86% Right: 25.68%
+----------------------------------------------------------------------
+EPOCH 174 (56.386 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.84% Rel: 1.87% Right: 25.65%
+----------------------------------------------------------------------
+EPOCH 175 (53.778 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.67% Rel: 1.89% Right: 25.67%
+----------------------------------------------------------------------
+EPOCH 176 (52.13 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.71% Rel: 1.87% Right: 25.69%
+----------------------------------------------------------------------
+EPOCH 177 (55.928 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.78% Rel: 1.85% Right: 25.55%
+----------------------------------------------------------------------
+EPOCH 178 (55.542 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.75% Rel: 1.85% Right: 25.61%
+----------------------------------------------------------------------
+EPOCH 179 (55.048 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.72% Rel: 1.84% Right: 25.61%
+----------------------------------------------------------------------
+EPOCH 180 (52.813 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.69% Rel: 1.86% Right: 25.64%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1255.9, train: 927.6
+		MEAN RANK TRAIN: Left: 1428.0 Rel: 125.8 Right: 427.2
+		MEAN RANK VALID: Left: 1615.5 Rel: 116.8 Right: 896.4
+	(ranking took 163.997 seconds)
+----------------------------------------------------------------------
+EPOCH 181 (57.071 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.61% Rel: 1.82% Right: 25.6%
+----------------------------------------------------------------------
+EPOCH 182 (57.911 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.68% Rel: 1.87% Right: 25.59%
+----------------------------------------------------------------------
+EPOCH 183 (53.932 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.76% Rel: 1.84% Right: 25.6%
+----------------------------------------------------------------------
+EPOCH 184 (52.605 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.74% Rel: 1.84% Right: 25.53%
+----------------------------------------------------------------------
+EPOCH 185 (56.653 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.64% Rel: 1.81% Right: 25.57%
+----------------------------------------------------------------------
+EPOCH 186 (55.914 seconds):
+	COST >> 0.173 +/- 0.004, % updates Left: 27.63% Rel: 1.84% Right: 25.6%
+----------------------------------------------------------------------
+EPOCH 187 (55.755 seconds):
+	COST >> 0.174 +/- 0.006, % updates Left: 27.67% Rel: 1.85% Right: 25.55%
+----------------------------------------------------------------------
+EPOCH 188 (56.149 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.66% Rel: 1.85% Right: 25.64%
+----------------------------------------------------------------------
+EPOCH 189 (52.755 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.68% Rel: 1.83% Right: 25.52%
+----------------------------------------------------------------------
+EPOCH 190 (52.86 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.64% Rel: 1.83% Right: 25.58%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1256.6, train: 920.0
+		MEAN RANK TRAIN: Left: 1415.3 Rel: 125.8 Right: 424.8
+		MEAN RANK VALID: Left: 1625.8 Rel: 115.9 Right: 887.4
+	(ranking took 168.218 seconds)
+----------------------------------------------------------------------
+EPOCH 191 (52.208 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.56% Rel: 1.82% Right: 25.49%
+----------------------------------------------------------------------
+EPOCH 192 (49.931 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.59% Rel: 1.85% Right: 25.54%
+----------------------------------------------------------------------
+EPOCH 193 (55.401 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.59% Rel: 1.85% Right: 25.51%
+----------------------------------------------------------------------
+EPOCH 194 (57.259 seconds):
+	COST >> 0.173 +/- 0.006, % updates Left: 27.55% Rel: 1.84% Right: 25.47%
+----------------------------------------------------------------------
+EPOCH 195 (55.182 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.65% Rel: 1.84% Right: 25.55%
+----------------------------------------------------------------------
+EPOCH 196 (55.71 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.57% Rel: 1.84% Right: 25.51%
+----------------------------------------------------------------------
+EPOCH 197 (52.356 seconds):
+	COST >> 0.174 +/- 0.005, % updates Left: 27.7% Rel: 1.85% Right: 25.56%
+----------------------------------------------------------------------
+EPOCH 198 (52.701 seconds):
+	COST >> 0.173 +/- 0.004, % updates Left: 27.67% Rel: 1.82% Right: 25.48%
+----------------------------------------------------------------------
+EPOCH 199 (57.425 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.57% Rel: 1.81% Right: 25.5%
+----------------------------------------------------------------------
+EPOCH 200 (56.4 seconds):
+	COST >> 0.173 +/- 0.006, % updates Left: 27.53% Rel: 1.83% Right: 25.44%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1266.0, train: 918.0
+		MEAN RANK TRAIN: Left: 1414.3 Rel: 127.1 Right: 421.7
+		MEAN RANK VALID: Left: 1631.9 Rel: 116.3 Right: 900.1
+	(ranking took 171.028 seconds)
+----------------------------------------------------------------------
+EPOCH 201 (53.508 seconds):
+	COST >> 0.173 +/- 0.006, % updates Left: 27.58% Rel: 1.82% Right: 25.52%
+----------------------------------------------------------------------
+EPOCH 202 (55.968 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.57% Rel: 1.82% Right: 25.45%
+----------------------------------------------------------------------
+EPOCH 203 (53.993 seconds):
+	COST >> 0.172 +/- 0.006, % updates Left: 27.53% Rel: 1.84% Right: 25.42%
+----------------------------------------------------------------------
+EPOCH 204 (57.66 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.54% Rel: 1.82% Right: 25.42%
+----------------------------------------------------------------------
+EPOCH 205 (52.165 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.36% Rel: 1.79% Right: 25.41%
+----------------------------------------------------------------------
+EPOCH 206 (53.021 seconds):
+	COST >> 0.173 +/- 0.006, % updates Left: 27.5% Rel: 1.83% Right: 25.41%
+----------------------------------------------------------------------
+EPOCH 207 (55.738 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.48% Rel: 1.8% Right: 25.44%
+----------------------------------------------------------------------
+EPOCH 208 (56.091 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.47% Rel: 1.82% Right: 25.37%
+----------------------------------------------------------------------
+EPOCH 209 (55.472 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.54% Rel: 1.81% Right: 25.35%
+----------------------------------------------------------------------
+EPOCH 210 (55.544 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.48% Rel: 1.82% Right: 25.32%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1250.8, train: 926.2
+		MEAN RANK TRAIN: Left: 1421.3 Rel: 126.2 Right: 431.1
+		MEAN RANK VALID: Left: 1614.0 Rel: 117.6 Right: 887.7
+	(ranking took 175.26 seconds)
+----------------------------------------------------------------------
+EPOCH 211 (54.052 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.49% Rel: 1.82% Right: 25.39%
+----------------------------------------------------------------------
+EPOCH 212 (53.776 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.43% Rel: 1.81% Right: 25.43%
+----------------------------------------------------------------------
+EPOCH 213 (49.2 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.44% Rel: 1.84% Right: 25.34%
+----------------------------------------------------------------------
+EPOCH 214 (50.564 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.47% Rel: 1.8% Right: 25.45%
+----------------------------------------------------------------------
+EPOCH 215 (52.305 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.47% Rel: 1.81% Right: 25.37%
+----------------------------------------------------------------------
+EPOCH 216 (57.351 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.32% Rel: 1.8% Right: 25.43%
+----------------------------------------------------------------------
+EPOCH 217 (55.791 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.44% Rel: 1.77% Right: 25.23%
+----------------------------------------------------------------------
+EPOCH 218 (55.628 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.34% Rel: 1.8% Right: 25.45%
+----------------------------------------------------------------------
+EPOCH 219 (52.764 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.38% Rel: 1.76% Right: 25.26%
+----------------------------------------------------------------------
+EPOCH 220 (54.917 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.4% Rel: 1.84% Right: 25.25%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1266.2, train: 927.8
+		MEAN RANK TRAIN: Left: 1423.9 Rel: 126.2 Right: 431.6
+		MEAN RANK VALID: Left: 1625.1 Rel: 118.0 Right: 907.3
+	(ranking took 177.276 seconds)
+----------------------------------------------------------------------
+EPOCH 221 (53.535 seconds):
+	COST >> 0.173 +/- 0.005, % updates Left: 27.35% Rel: 1.84% Right: 25.35%
+----------------------------------------------------------------------
+EPOCH 222 (53.99 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.33% Rel: 1.8% Right: 25.3%
+----------------------------------------------------------------------
+EPOCH 223 (52.853 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.47% Rel: 1.79% Right: 25.31%
+----------------------------------------------------------------------
+EPOCH 224 (53.251 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.41% Rel: 1.79% Right: 25.29%
+----------------------------------------------------------------------
+EPOCH 225 (52.394 seconds):
+	COST >> 0.172 +/- 0.004, % updates Left: 27.3% Rel: 1.78% Right: 25.35%
+----------------------------------------------------------------------
+EPOCH 226 (51.509 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.27% Rel: 1.8% Right: 25.22%
+----------------------------------------------------------------------
+EPOCH 227 (50.064 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.4% Rel: 1.81% Right: 25.29%
+----------------------------------------------------------------------
+EPOCH 228 (54.91 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.29% Rel: 1.8% Right: 25.28%
+----------------------------------------------------------------------
+EPOCH 229 (55.504 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.36% Rel: 1.82% Right: 25.26%
+----------------------------------------------------------------------
+EPOCH 230 (56.351 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.29% Rel: 1.82% Right: 25.29%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1255.5, train: 932.1
+		MEAN RANK TRAIN: Left: 1426.6 Rel: 126.6 Right: 437.7
+		MEAN RANK VALID: Left: 1615.2 Rel: 118.4 Right: 895.8
+	(ranking took 172.602 seconds)
+----------------------------------------------------------------------
+EPOCH 231 (58.097 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.24% Rel: 1.78% Right: 25.29%
+----------------------------------------------------------------------
+EPOCH 232 (57.869 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.23% Rel: 1.83% Right: 25.27%
+----------------------------------------------------------------------
+EPOCH 233 (56.283 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.35% Rel: 1.78% Right: 25.26%
+----------------------------------------------------------------------
+EPOCH 234 (51.587 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.23% Rel: 1.8% Right: 25.23%
+----------------------------------------------------------------------
+EPOCH 235 (49.339 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.29% Rel: 1.8% Right: 25.14%
+----------------------------------------------------------------------
+EPOCH 236 (53.291 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.31% Rel: 1.78% Right: 25.18%
+----------------------------------------------------------------------
+EPOCH 237 (55.399 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.27% Rel: 1.78% Right: 25.24%
+----------------------------------------------------------------------
+EPOCH 238 (54.01 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.29% Rel: 1.82% Right: 25.19%
+----------------------------------------------------------------------
+EPOCH 239 (55.024 seconds):
+	COST >> 0.171 +/- 0.004, % updates Left: 27.21% Rel: 1.76% Right: 25.2%
+----------------------------------------------------------------------
+EPOCH 240 (53.955 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.28% Rel: 1.81% Right: 25.2%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1265.6, train: 939.1
+		MEAN RANK TRAIN: Left: 1432.5 Rel: 127.3 Right: 445.7
+		MEAN RANK VALID: Left: 1625.5 Rel: 118.5 Right: 905.7
+	(ranking took 175.749 seconds)
+----------------------------------------------------------------------
+EPOCH 241 (58.344 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.1% Rel: 1.77% Right: 25.13%
+----------------------------------------------------------------------
+EPOCH 242 (56.455 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.23% Rel: 1.77% Right: 25.22%
+----------------------------------------------------------------------
+EPOCH 243 (52.846 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.28% Rel: 1.73% Right: 25.17%
+----------------------------------------------------------------------
+EPOCH 244 (55.586 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.34% Rel: 1.81% Right: 25.21%
+----------------------------------------------------------------------
+EPOCH 245 (56.731 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.15% Rel: 1.79% Right: 25.13%
+----------------------------------------------------------------------
+EPOCH 246 (53.118 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.14% Rel: 1.77% Right: 25.15%
+----------------------------------------------------------------------
+EPOCH 247 (52.501 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.21% Rel: 1.81% Right: 25.14%
+----------------------------------------------------------------------
+EPOCH 248 (50.729 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.17% Rel: 1.77% Right: 25.07%
+----------------------------------------------------------------------
+EPOCH 249 (49.334 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.12% Rel: 1.8% Right: 25.11%
+----------------------------------------------------------------------
+EPOCH 250 (53.187 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.12% Rel: 1.78% Right: 25.15%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1268.4, train: 930.7
+		MEAN RANK TRAIN: Left: 1421.4 Rel: 129.5 Right: 439.9
+		MEAN RANK VALID: Left: 1622.7 Rel: 119.1 Right: 914.1
+	(ranking took 178.108 seconds)
+----------------------------------------------------------------------
+EPOCH 251 (53.723 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.16% Rel: 1.76% Right: 25.12%
+----------------------------------------------------------------------
+EPOCH 252 (56.817 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.13% Rel: 1.79% Right: 25.19%
+----------------------------------------------------------------------
+EPOCH 253 (57.785 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.12% Rel: 1.79% Right: 25.13%
+----------------------------------------------------------------------
+EPOCH 254 (55.973 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.13% Rel: 1.78% Right: 25.16%
+----------------------------------------------------------------------
+EPOCH 255 (55.357 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.06% Rel: 1.79% Right: 25.11%
+----------------------------------------------------------------------
+EPOCH 256 (53.784 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.06% Rel: 1.78% Right: 25.09%
+----------------------------------------------------------------------
+EPOCH 257 (51.346 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.11% Rel: 1.8% Right: 25.01%
+----------------------------------------------------------------------
+EPOCH 258 (52.973 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.11% Rel: 1.75% Right: 25.03%
+----------------------------------------------------------------------
+EPOCH 259 (52.901 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.08% Rel: 1.75% Right: 25.14%
+----------------------------------------------------------------------
+EPOCH 260 (52.689 seconds):
+	COST >> 0.172 +/- 0.004, % updates Left: 27.21% Rel: 1.8% Right: 25.16%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1266.9, train: 931.4
+		MEAN RANK TRAIN: Left: 1425.5 Rel: 127.4 Right: 437.3
+		MEAN RANK VALID: Left: 1620.6 Rel: 117.7 Right: 913.2
+	(ranking took 168.887 seconds)
+----------------------------------------------------------------------
+EPOCH 261 (58.189 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.09% Rel: 1.78% Right: 25.06%
+----------------------------------------------------------------------
+EPOCH 262 (58.151 seconds):
+	COST >> 0.172 +/- 0.005, % updates Left: 27.15% Rel: 1.77% Right: 25.09%
+----------------------------------------------------------------------
+EPOCH 263 (55.346 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.03% Rel: 1.75% Right: 25.01%
+----------------------------------------------------------------------
+EPOCH 264 (53.204 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.03% Rel: 1.79% Right: 25.08%
+----------------------------------------------------------------------
+EPOCH 265 (51.951 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.1% Rel: 1.77% Right: 25.1%
+----------------------------------------------------------------------
+EPOCH 266 (57.261 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.1% Rel: 1.77% Right: 25.09%
+----------------------------------------------------------------------
+EPOCH 267 (55.171 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.98% Rel: 1.77% Right: 25.07%
+----------------------------------------------------------------------
+EPOCH 268 (55.486 seconds):
+	COST >> 0.171 +/- 0.006, % updates Left: 27.01% Rel: 1.73% Right: 25.07%
+----------------------------------------------------------------------
+EPOCH 269 (55.796 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.03% Rel: 1.77% Right: 25.07%
+----------------------------------------------------------------------
+EPOCH 270 (51.685 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.98% Rel: 1.75% Right: 25.08%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1271.7, train: 935.2
+		MEAN RANK TRAIN: Left: 1415.2 Rel: 129.2 Right: 455.1
+		MEAN RANK VALID: Left: 1620.2 Rel: 118.5 Right: 923.2
+	(ranking took 167.598 seconds)
+----------------------------------------------------------------------
+EPOCH 271 (55.79 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.04% Rel: 1.76% Right: 25.03%
+----------------------------------------------------------------------
+EPOCH 272 (55.921 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.01% Rel: 1.77% Right: 25.0%
+----------------------------------------------------------------------
+EPOCH 273 (54.054 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.08% Rel: 1.77% Right: 24.99%
+----------------------------------------------------------------------
+EPOCH 274 (55.341 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.98% Rel: 1.77% Right: 24.99%
+----------------------------------------------------------------------
+EPOCH 275 (54.517 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 27.02% Rel: 1.76% Right: 25.0%
+----------------------------------------------------------------------
+EPOCH 276 (54.932 seconds):
+	COST >> 0.171 +/- 0.004, % updates Left: 26.93% Rel: 1.75% Right: 25.05%
+----------------------------------------------------------------------
+EPOCH 277 (54.969 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.94% Rel: 1.76% Right: 25.01%
+----------------------------------------------------------------------
+EPOCH 278 (54.773 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.97% Rel: 1.77% Right: 25.01%
+----------------------------------------------------------------------
+EPOCH 279 (54.901 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.93% Rel: 1.76% Right: 24.92%
+----------------------------------------------------------------------
+EPOCH 280 (54.65 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.95% Rel: 1.77% Right: 24.94%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1268.9, train: 937.0
+		MEAN RANK TRAIN: Left: 1420.7 Rel: 127.8 Right: 453.2
+		MEAN RANK VALID: Left: 1617.2 Rel: 118.3 Right: 920.7
+	(ranking took 166.155 seconds)
+----------------------------------------------------------------------
+EPOCH 281 (53.044 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.86% Rel: 1.77% Right: 24.9%
+----------------------------------------------------------------------
+EPOCH 282 (54.123 seconds):
+	COST >> 0.171 +/- 0.004, % updates Left: 26.9% Rel: 1.77% Right: 24.92%
+----------------------------------------------------------------------
+EPOCH 283 (54.872 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.83% Rel: 1.71% Right: 25.02%
+----------------------------------------------------------------------
+EPOCH 284 (54.437 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.92% Rel: 1.74% Right: 24.96%
+----------------------------------------------------------------------
+EPOCH 285 (54.299 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.88% Rel: 1.74% Right: 24.91%
+----------------------------------------------------------------------
+EPOCH 286 (54.454 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.93% Rel: 1.76% Right: 25.0%
+----------------------------------------------------------------------
+EPOCH 287 (53.645 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.9% Rel: 1.75% Right: 24.95%
+----------------------------------------------------------------------
+EPOCH 288 (52.354 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.88% Rel: 1.74% Right: 24.99%
+----------------------------------------------------------------------
+EPOCH 289 (52.367 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.88% Rel: 1.77% Right: 24.84%
+----------------------------------------------------------------------
+EPOCH 290 (52.58 seconds):
+	COST >> 0.171 +/- 0.006, % updates Left: 26.83% Rel: 1.75% Right: 24.88%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1274.2, train: 945.6
+		MEAN RANK TRAIN: Left: 1432.7 Rel: 129.9 Right: 458.6
+		MEAN RANK VALID: Left: 1612.9 Rel: 120.0 Right: 935.5
+	(ranking took 166.978 seconds)
+----------------------------------------------------------------------
+EPOCH 291 (50.697 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.84% Rel: 1.73% Right: 24.87%
+----------------------------------------------------------------------
+EPOCH 292 (51.511 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.85% Rel: 1.71% Right: 25.02%
+----------------------------------------------------------------------
+EPOCH 293 (52.17 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.84% Rel: 1.76% Right: 24.89%
+----------------------------------------------------------------------
+EPOCH 294 (52.586 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.89% Rel: 1.75% Right: 24.95%
+----------------------------------------------------------------------
+EPOCH 295 (52.293 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.82% Rel: 1.75% Right: 24.91%
+----------------------------------------------------------------------
+EPOCH 296 (52.878 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.9% Rel: 1.73% Right: 24.88%
+----------------------------------------------------------------------
+EPOCH 297 (52.202 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.78% Rel: 1.76% Right: 24.85%
+----------------------------------------------------------------------
+EPOCH 298 (51.95 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.84% Rel: 1.74% Right: 24.92%
+----------------------------------------------------------------------
+EPOCH 299 (51.992 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.85% Rel: 1.72% Right: 24.89%
+----------------------------------------------------------------------
+EPOCH 300 (52.144 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.77% Rel: 1.74% Right: 24.91%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1272.7, train: 939.2
+		MEAN RANK TRAIN: Left: 1424.8 Rel: 129.2 Right: 453.7
+		MEAN RANK VALID: Left: 1620.0 Rel: 120.2 Right: 925.5
+	(ranking took 167.362 seconds)
+----------------------------------------------------------------------
+EPOCH 301 (51.321 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.8% Rel: 1.73% Right: 24.81%
+----------------------------------------------------------------------
+EPOCH 302 (50.343 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.73% Rel: 1.75% Right: 24.87%
+----------------------------------------------------------------------
+EPOCH 303 (49.158 seconds):
+	COST >> 0.17 +/- 0.004, % updates Left: 26.77% Rel: 1.73% Right: 24.88%
+----------------------------------------------------------------------
+EPOCH 304 (53.546 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.85% Rel: 1.74% Right: 24.8%
+----------------------------------------------------------------------
+EPOCH 305 (52.151 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.81% Rel: 1.74% Right: 24.81%
+----------------------------------------------------------------------
+EPOCH 306 (52.266 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.81% Rel: 1.75% Right: 24.83%
+----------------------------------------------------------------------
+EPOCH 307 (52.287 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.84% Rel: 1.75% Right: 24.75%
+----------------------------------------------------------------------
+EPOCH 308 (52.683 seconds):
+	COST >> 0.17 +/- 0.004, % updates Left: 26.77% Rel: 1.71% Right: 24.86%
+----------------------------------------------------------------------
+EPOCH 309 (52.145 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.8% Rel: 1.73% Right: 24.75%
+----------------------------------------------------------------------
+EPOCH 310 (52.729 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.73% Rel: 1.72% Right: 24.89%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1277.1, train: 942.3
+		MEAN RANK TRAIN: Left: 1423.3 Rel: 128.7 Right: 461.2
+		MEAN RANK VALID: Left: 1624.1 Rel: 121.2 Right: 930.1
+	(ranking took 167.732 seconds)
+----------------------------------------------------------------------
+EPOCH 311 (49.972 seconds):
+	COST >> 0.171 +/- 0.004, % updates Left: 26.84% Rel: 1.73% Right: 24.85%
+----------------------------------------------------------------------
+EPOCH 312 (50.424 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.78% Rel: 1.75% Right: 24.91%
+----------------------------------------------------------------------
+EPOCH 313 (49.261 seconds):
+	COST >> 0.171 +/- 0.005, % updates Left: 26.81% Rel: 1.74% Right: 24.88%
+----------------------------------------------------------------------
+EPOCH 314 (52.795 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.69% Rel: 1.73% Right: 24.79%
+----------------------------------------------------------------------
+EPOCH 315 (52.843 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.88% Rel: 1.71% Right: 24.77%
+----------------------------------------------------------------------
+EPOCH 316 (52.717 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.8% Rel: 1.72% Right: 24.86%
+----------------------------------------------------------------------
+EPOCH 317 (52.371 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.71% Rel: 1.74% Right: 24.78%
+----------------------------------------------------------------------
+EPOCH 318 (52.678 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.79% Rel: 1.72% Right: 24.75%
+----------------------------------------------------------------------
+EPOCH 319 (52.895 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.74% Rel: 1.72% Right: 24.69%
+----------------------------------------------------------------------
+EPOCH 320 (52.523 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.72% Rel: 1.74% Right: 24.75%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1269.9, train: 942.5
+		MEAN RANK TRAIN: Left: 1433.6 Rel: 129.7 Right: 451.4
+		MEAN RANK VALID: Left: 1619.2 Rel: 121.2 Right: 920.6
+	(ranking took 167.311 seconds)
+----------------------------------------------------------------------
+EPOCH 321 (50.748 seconds):
+	COST >> 0.17 +/- 0.006, % updates Left: 26.78% Rel: 1.71% Right: 24.74%
+----------------------------------------------------------------------
+EPOCH 322 (50.456 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.68% Rel: 1.72% Right: 24.7%
+----------------------------------------------------------------------
+EPOCH 323 (49.193 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.71% Rel: 1.75% Right: 24.75%
+----------------------------------------------------------------------
+EPOCH 324 (50.541 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.72% Rel: 1.75% Right: 24.77%
+----------------------------------------------------------------------
+EPOCH 325 (48.265 seconds):
+	COST >> 0.17 +/- 0.004, % updates Left: 26.66% Rel: 1.73% Right: 24.77%
+----------------------------------------------------------------------
+EPOCH 326 (48.016 seconds):
+	COST >> 0.17 +/- 0.004, % updates Left: 26.71% Rel: 1.74% Right: 24.8%
+----------------------------------------------------------------------
+EPOCH 327 (48.243 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.66% Rel: 1.74% Right: 24.71%
+----------------------------------------------------------------------
+EPOCH 328 (48.208 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.72% Rel: 1.7% Right: 24.81%
+----------------------------------------------------------------------
+EPOCH 329 (47.897 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.74% Rel: 1.71% Right: 24.71%
+----------------------------------------------------------------------
+EPOCH 330 (48.275 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.61% Rel: 1.75% Right: 24.77%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1272.5, train: 938.8
+		MEAN RANK TRAIN: Left: 1424.6 Rel: 128.9 Right: 453.0
+		MEAN RANK VALID: Left: 1615.0 Rel: 120.5 Right: 930.1
+	(ranking took 156.812 seconds)
+----------------------------------------------------------------------
+EPOCH 331 (45.515 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.72% Rel: 1.72% Right: 24.77%
+----------------------------------------------------------------------
+EPOCH 332 (45.396 seconds):
+	COST >> 0.17 +/- 0.006, % updates Left: 26.74% Rel: 1.7% Right: 24.65%
+----------------------------------------------------------------------
+EPOCH 333 (44.653 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.7% Rel: 1.71% Right: 24.75%
+----------------------------------------------------------------------
+EPOCH 334 (49.592 seconds):
+	COST >> 0.17 +/- 0.004, % updates Left: 26.69% Rel: 1.71% Right: 24.71%
+----------------------------------------------------------------------
+EPOCH 335 (49.869 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.7% Rel: 1.71% Right: 24.71%
+----------------------------------------------------------------------
+EPOCH 336 (48.592 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.68% Rel: 1.72% Right: 24.71%
+----------------------------------------------------------------------
+EPOCH 337 (47.209 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.64% Rel: 1.72% Right: 24.68%
+----------------------------------------------------------------------
+EPOCH 338 (47.422 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.65% Rel: 1.73% Right: 24.69%
+----------------------------------------------------------------------
+EPOCH 339 (48.114 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.53% Rel: 1.7% Right: 24.69%
+----------------------------------------------------------------------
+EPOCH 340 (47.954 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.7% Rel: 1.75% Right: 24.7%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1275.9, train: 944.1
+		MEAN RANK TRAIN: Left: 1425.4 Rel: 130.9 Right: 462.7
+		MEAN RANK VALID: Left: 1623.8 Rel: 121.5 Right: 928.0
+	(ranking took 154.866 seconds)
+----------------------------------------------------------------------
+EPOCH 341 (45.851 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.64% Rel: 1.73% Right: 24.66%
+----------------------------------------------------------------------
+EPOCH 342 (45.181 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.56% Rel: 1.73% Right: 24.69%
+----------------------------------------------------------------------
+EPOCH 343 (44.5 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.67% Rel: 1.71% Right: 24.77%
+----------------------------------------------------------------------
+EPOCH 344 (44.844 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.7% Rel: 1.69% Right: 24.72%
+----------------------------------------------------------------------
+EPOCH 345 (45.1 seconds):
+	COST >> 0.17 +/- 0.006, % updates Left: 26.63% Rel: 1.68% Right: 24.68%
+----------------------------------------------------------------------
+EPOCH 346 (47.521 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.62% Rel: 1.7% Right: 24.76%
+----------------------------------------------------------------------
+EPOCH 347 (47.511 seconds):
+	COST >> 0.17 +/- 0.004, % updates Left: 26.6% Rel: 1.7% Right: 24.75%
+----------------------------------------------------------------------
+EPOCH 348 (47.187 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.64% Rel: 1.68% Right: 24.67%
+----------------------------------------------------------------------
+EPOCH 349 (47.558 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.68% Rel: 1.73% Right: 24.66%
+----------------------------------------------------------------------
+EPOCH 350 (47.677 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.56% Rel: 1.73% Right: 24.7%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1276.7, train: 940.6
+		MEAN RANK TRAIN: Left: 1413.0 Rel: 131.4 Right: 468.2
+		MEAN RANK VALID: Left: 1615.9 Rel: 121.1 Right: 937.6
+	(ranking took 157.323 seconds)
+----------------------------------------------------------------------
+EPOCH 351 (49.22 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.68% Rel: 1.74% Right: 24.76%
+----------------------------------------------------------------------
+EPOCH 352 (45.474 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.56% Rel: 1.71% Right: 24.66%
+----------------------------------------------------------------------
+EPOCH 353 (44.109 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.59% Rel: 1.71% Right: 24.62%
+----------------------------------------------------------------------
+EPOCH 354 (44.014 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.6% Rel: 1.67% Right: 24.66%
+----------------------------------------------------------------------
+EPOCH 355 (45.619 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.59% Rel: 1.71% Right: 24.63%
+----------------------------------------------------------------------
+EPOCH 356 (47.715 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.59% Rel: 1.67% Right: 24.64%
+----------------------------------------------------------------------
+EPOCH 357 (47.694 seconds):
+	COST >> 0.17 +/- 0.006, % updates Left: 26.66% Rel: 1.7% Right: 24.6%
+----------------------------------------------------------------------
+EPOCH 358 (47.659 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.56% Rel: 1.75% Right: 24.5%
+----------------------------------------------------------------------
+EPOCH 359 (47.9 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.57% Rel: 1.71% Right: 24.74%
+----------------------------------------------------------------------
+EPOCH 360 (47.567 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.65% Rel: 1.71% Right: 24.64%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1278.3, train: 943.8
+		MEAN RANK TRAIN: Left: 1413.3 Rel: 130.1 Right: 474.3
+		MEAN RANK VALID: Left: 1617.1 Rel: 120.4 Right: 939.6
+	(ranking took 157.347 seconds)
+----------------------------------------------------------------------
+EPOCH 361 (48.684 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.63% Rel: 1.73% Right: 24.6%
+----------------------------------------------------------------------
+EPOCH 362 (45.268 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.57% Rel: 1.72% Right: 24.68%
+----------------------------------------------------------------------
+EPOCH 363 (43.88 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.56% Rel: 1.71% Right: 24.62%
+----------------------------------------------------------------------
+EPOCH 364 (43.986 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.57% Rel: 1.71% Right: 24.55%
+----------------------------------------------------------------------
+EPOCH 365 (46.069 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.55% Rel: 1.71% Right: 24.6%
+----------------------------------------------------------------------
+EPOCH 366 (47.185 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.44% Rel: 1.72% Right: 24.63%
+----------------------------------------------------------------------
+EPOCH 367 (47.323 seconds):
+	COST >> 0.17 +/- 0.005, % updates Left: 26.53% Rel: 1.71% Right: 24.67%
+----------------------------------------------------------------------
+EPOCH 368 (47.569 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.51% Rel: 1.68% Right: 24.58%
+----------------------------------------------------------------------
+EPOCH 369 (49.316 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.57% Rel: 1.69% Right: 24.54%
+----------------------------------------------------------------------
+EPOCH 370 (49.891 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.51% Rel: 1.69% Right: 24.56%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1282.3, train: 940.3
+		MEAN RANK TRAIN: Left: 1404.9 Rel: 131.0 Right: 475.7
+		MEAN RANK VALID: Left: 1620.4 Rel: 122.6 Right: 944.2
+	(ranking took 158.224 seconds)
+----------------------------------------------------------------------
+EPOCH 371 (48.683 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.54% Rel: 1.71% Right: 24.55%
+----------------------------------------------------------------------
+EPOCH 372 (45.623 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.46% Rel: 1.67% Right: 24.57%
+----------------------------------------------------------------------
+EPOCH 373 (44.757 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.51% Rel: 1.72% Right: 24.61%
+----------------------------------------------------------------------
+EPOCH 374 (45.081 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.46% Rel: 1.68% Right: 24.59%
+----------------------------------------------------------------------
+EPOCH 375 (46.239 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.58% Rel: 1.72% Right: 24.53%
+----------------------------------------------------------------------
+EPOCH 376 (47.366 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.49% Rel: 1.73% Right: 24.59%
+----------------------------------------------------------------------
+EPOCH 377 (47.819 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.42% Rel: 1.71% Right: 24.66%
+----------------------------------------------------------------------
+EPOCH 378 (47.604 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.41% Rel: 1.7% Right: 24.58%
+----------------------------------------------------------------------
+EPOCH 379 (47.845 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.49% Rel: 1.7% Right: 24.57%
+----------------------------------------------------------------------
+EPOCH 380 (47.404 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.49% Rel: 1.67% Right: 24.55%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1281.9, train: 937.9
+		MEAN RANK TRAIN: Left: 1396.9 Rel: 129.2 Right: 478.8
+		MEAN RANK VALID: Left: 1615.4 Rel: 120.2 Right: 948.5
+	(ranking took 155.497 seconds)
+----------------------------------------------------------------------
+EPOCH 381 (48.667 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.45% Rel: 1.7% Right: 24.59%
+----------------------------------------------------------------------
+EPOCH 382 (45.623 seconds):
+	COST >> 0.169 +/- 0.006, % updates Left: 26.51% Rel: 1.73% Right: 24.54%
+----------------------------------------------------------------------
+EPOCH 383 (44.515 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.41% Rel: 1.68% Right: 24.48%
+----------------------------------------------------------------------
+EPOCH 384 (44.357 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.42% Rel: 1.68% Right: 24.63%
+----------------------------------------------------------------------
+EPOCH 385 (47.601 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.43% Rel: 1.67% Right: 24.5%
+----------------------------------------------------------------------
+EPOCH 386 (47.45 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.49% Rel: 1.69% Right: 24.58%
+----------------------------------------------------------------------
+EPOCH 387 (47.951 seconds):
+	COST >> 0.169 +/- 0.006, % updates Left: 26.51% Rel: 1.72% Right: 24.51%
+----------------------------------------------------------------------
+EPOCH 388 (47.628 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.52% Rel: 1.72% Right: 24.54%
+----------------------------------------------------------------------
+EPOCH 389 (47.449 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.45% Rel: 1.69% Right: 24.54%
+----------------------------------------------------------------------
+EPOCH 390 (47.823 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.46% Rel: 1.67% Right: 24.55%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1291.0, train: 938.9
+		MEAN RANK TRAIN: Left: 1395.2 Rel: 133.8 Right: 482.5
+		MEAN RANK VALID: Left: 1616.2 Rel: 123.8 Right: 965.8
+	(ranking took 156.401 seconds)
+----------------------------------------------------------------------
+EPOCH 391 (48.279 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.4% Rel: 1.68% Right: 24.5%
+----------------------------------------------------------------------
+EPOCH 392 (45.024 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.46% Rel: 1.72% Right: 24.49%
+----------------------------------------------------------------------
+EPOCH 393 (44.275 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.37% Rel: 1.69% Right: 24.48%
+----------------------------------------------------------------------
+EPOCH 394 (44.115 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.41% Rel: 1.71% Right: 24.47%
+----------------------------------------------------------------------
+EPOCH 395 (47.79 seconds):
+	COST >> 0.169 +/- 0.006, % updates Left: 26.44% Rel: 1.69% Right: 24.48%
+----------------------------------------------------------------------
+EPOCH 396 (47.809 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.43% Rel: 1.7% Right: 24.51%
+----------------------------------------------------------------------
+EPOCH 397 (47.983 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.33% Rel: 1.71% Right: 24.58%
+----------------------------------------------------------------------
+EPOCH 398 (47.36 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.35% Rel: 1.7% Right: 24.42%
+----------------------------------------------------------------------
+EPOCH 399 (47.718 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.3% Rel: 1.67% Right: 24.46%
+----------------------------------------------------------------------
+EPOCH 400 (47.739 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.31% Rel: 1.68% Right: 24.42%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1284.7, train: 944.0
+		MEAN RANK TRAIN: Left: 1400.8 Rel: 130.6 Right: 487.3
+		MEAN RANK VALID: Left: 1601.4 Rel: 121.9 Right: 967.9
+	(ranking took 153.691 seconds)
+----------------------------------------------------------------------
+EPOCH 401 (48.917 seconds):
+	COST >> 0.169 +/- 0.006, % updates Left: 26.44% Rel: 1.68% Right: 24.54%
+----------------------------------------------------------------------
+EPOCH 402 (47.484 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.39% Rel: 1.68% Right: 24.54%
+----------------------------------------------------------------------
+EPOCH 403 (45.904 seconds):
+	COST >> 0.169 +/- 0.006, % updates Left: 26.36% Rel: 1.68% Right: 24.49%
+----------------------------------------------------------------------
+EPOCH 404 (47.93 seconds):
+	COST >> 0.169 +/- 0.004, % updates Left: 26.39% Rel: 1.67% Right: 24.51%
+----------------------------------------------------------------------
+EPOCH 405 (48.006 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.42% Rel: 1.7% Right: 24.5%
+----------------------------------------------------------------------
+EPOCH 406 (48.753 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.37% Rel: 1.71% Right: 24.46%
+----------------------------------------------------------------------
+EPOCH 407 (52.111 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.41% Rel: 1.68% Right: 24.43%
+----------------------------------------------------------------------
+EPOCH 408 (51.602 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.42% Rel: 1.7% Right: 24.48%
+----------------------------------------------------------------------
+EPOCH 409 (52.42 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.39% Rel: 1.72% Right: 24.55%
+----------------------------------------------------------------------
+EPOCH 410 (52.07 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.35% Rel: 1.73% Right: 24.44%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1286.7, train: 947.3
+		MEAN RANK TRAIN: Left: 1397.6 Rel: 132.2 Right: 497.0
+		MEAN RANK VALID: Left: 1604.6 Rel: 121.8 Right: 968.9
+	(ranking took 162.728 seconds)
+----------------------------------------------------------------------
+EPOCH 411 (53.422 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.36% Rel: 1.7% Right: 24.49%
+----------------------------------------------------------------------
+EPOCH 412 (52.874 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.31% Rel: 1.72% Right: 24.5%
+----------------------------------------------------------------------
+EPOCH 413 (48.801 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.37% Rel: 1.69% Right: 24.46%
+----------------------------------------------------------------------
+EPOCH 414 (47.702 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.24% Rel: 1.69% Right: 24.51%
+----------------------------------------------------------------------
+EPOCH 415 (47.881 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.33% Rel: 1.68% Right: 24.42%
+----------------------------------------------------------------------
+EPOCH 416 (48.414 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.38% Rel: 1.7% Right: 24.43%
+----------------------------------------------------------------------
+EPOCH 417 (48.268 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.4% Rel: 1.7% Right: 24.44%
+----------------------------------------------------------------------
+EPOCH 418 (50.401 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.33% Rel: 1.69% Right: 24.36%
+----------------------------------------------------------------------
+EPOCH 419 (51.831 seconds):
+	COST >> 0.169 +/- 0.006, % updates Left: 26.35% Rel: 1.7% Right: 24.46%
+----------------------------------------------------------------------
+EPOCH 420 (51.746 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.25% Rel: 1.69% Right: 24.35%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1291.4, train: 953.8
+		MEAN RANK TRAIN: Left: 1418.8 Rel: 130.7 Right: 488.7
+		MEAN RANK VALID: Left: 1609.6 Rel: 123.6 Right: 973.1
+	(ranking took 162.519 seconds)
+----------------------------------------------------------------------
+EPOCH 421 (50.802 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.3% Rel: 1.64% Right: 24.45%
+----------------------------------------------------------------------
+EPOCH 422 (50.67 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.24% Rel: 1.69% Right: 24.41%
+----------------------------------------------------------------------
+EPOCH 423 (49.54 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.35% Rel: 1.66% Right: 24.43%
+----------------------------------------------------------------------
+EPOCH 424 (49.819 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.26% Rel: 1.71% Right: 24.39%
+----------------------------------------------------------------------
+EPOCH 425 (45.763 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.21% Rel: 1.69% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 426 (46.244 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.32% Rel: 1.66% Right: 24.39%
+----------------------------------------------------------------------
+EPOCH 427 (46.02 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.23% Rel: 1.64% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 428 (47.628 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.3% Rel: 1.69% Right: 24.41%
+----------------------------------------------------------------------
+EPOCH 429 (49.127 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.32% Rel: 1.66% Right: 24.39%
+----------------------------------------------------------------------
+EPOCH 430 (49.366 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.26% Rel: 1.68% Right: 24.44%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1289.7, train: 953.0
+		MEAN RANK TRAIN: Left: 1405.9 Rel: 131.0 Right: 500.0
+		MEAN RANK VALID: Left: 1600.5 Rel: 121.4 Right: 978.9
+	(ranking took 157.18 seconds)
+----------------------------------------------------------------------
+EPOCH 431 (50.57 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.31% Rel: 1.73% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 432 (50.405 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.29% Rel: 1.67% Right: 24.47%
+----------------------------------------------------------------------
+EPOCH 433 (49.135 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.24% Rel: 1.65% Right: 24.41%
+----------------------------------------------------------------------
+EPOCH 434 (48.947 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.26% Rel: 1.68% Right: 24.41%
+----------------------------------------------------------------------
+EPOCH 435 (46.252 seconds):
+	COST >> 0.168 +/- 0.004, % updates Left: 26.3% Rel: 1.68% Right: 24.41%
+----------------------------------------------------------------------
+EPOCH 436 (45.825 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.29% Rel: 1.67% Right: 24.32%
+----------------------------------------------------------------------
+EPOCH 437 (46.454 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.28% Rel: 1.71% Right: 24.46%
+----------------------------------------------------------------------
+EPOCH 438 (46.203 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.26% Rel: 1.68% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 439 (46.102 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.25% Rel: 1.66% Right: 24.42%
+----------------------------------------------------------------------
+EPOCH 440 (49.86 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.26% Rel: 1.7% Right: 24.4%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1296.1, train: 954.1
+		MEAN RANK TRAIN: Left: 1408.4 Rel: 131.9 Right: 499.9
+		MEAN RANK VALID: Left: 1604.7 Rel: 122.3 Right: 987.5
+	(ranking took 156.047 seconds)
+----------------------------------------------------------------------
+EPOCH 441 (50.688 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.2% Rel: 1.69% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 442 (49.971 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.3% Rel: 1.69% Right: 24.34%
+----------------------------------------------------------------------
+EPOCH 443 (49.547 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.2% Rel: 1.69% Right: 24.47%
+----------------------------------------------------------------------
+EPOCH 444 (49.428 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.24% Rel: 1.69% Right: 24.38%
+----------------------------------------------------------------------
+EPOCH 445 (49.273 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.19% Rel: 1.66% Right: 24.28%
+----------------------------------------------------------------------
+EPOCH 446 (48.365 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.17% Rel: 1.68% Right: 24.38%
+----------------------------------------------------------------------
+EPOCH 447 (45.642 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.23% Rel: 1.67% Right: 24.31%
+----------------------------------------------------------------------
+EPOCH 448 (46.218 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.19% Rel: 1.66% Right: 24.34%
+----------------------------------------------------------------------
+EPOCH 449 (45.804 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.22% Rel: 1.68% Right: 24.33%
+----------------------------------------------------------------------
+EPOCH 450 (50.102 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.18% Rel: 1.68% Right: 24.33%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1297.7, train: 947.9
+		MEAN RANK TRAIN: Left: 1399.5 Rel: 131.9 Right: 496.3
+		MEAN RANK VALID: Left: 1605.6 Rel: 122.8 Right: 989.8
+	(ranking took 159.348 seconds)
+----------------------------------------------------------------------
+EPOCH 451 (50.58 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.17% Rel: 1.67% Right: 24.3%
+----------------------------------------------------------------------
+EPOCH 452 (49.92 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.16% Rel: 1.65% Right: 24.35%
+----------------------------------------------------------------------
+EPOCH 453 (49.174 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.19% Rel: 1.69% Right: 24.35%
+----------------------------------------------------------------------
+EPOCH 454 (49.246 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.15% Rel: 1.68% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 455 (49.17 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.21% Rel: 1.68% Right: 24.4%
+----------------------------------------------------------------------
+EPOCH 456 (47.521 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.24% Rel: 1.65% Right: 24.35%
+----------------------------------------------------------------------
+EPOCH 457 (46.179 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.23% Rel: 1.69% Right: 24.37%
+----------------------------------------------------------------------
+EPOCH 458 (46.051 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.21% Rel: 1.66% Right: 24.27%
+----------------------------------------------------------------------
+EPOCH 459 (46.195 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.16% Rel: 1.63% Right: 24.33%
+----------------------------------------------------------------------
+EPOCH 460 (50.389 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.14% Rel: 1.68% Right: 24.32%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1300.3, train: 943.4
+		MEAN RANK TRAIN: Left: 1397.6 Rel: 132.7 Right: 489.1
+		MEAN RANK VALID: Left: 1603.6 Rel: 124.1 Right: 997.1
+	(ranking took 151.066 seconds)
+----------------------------------------------------------------------
+EPOCH 461 (47.166 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.16% Rel: 1.69% Right: 24.28%
+----------------------------------------------------------------------
+EPOCH 462 (47.006 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.2% Rel: 1.66% Right: 24.33%
+----------------------------------------------------------------------
+EPOCH 463 (46.015 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.16% Rel: 1.65% Right: 24.34%
+----------------------------------------------------------------------
+EPOCH 464 (45.731 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.13% Rel: 1.7% Right: 24.37%
+----------------------------------------------------------------------
+EPOCH 465 (45.663 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.2% Rel: 1.63% Right: 24.39%
+----------------------------------------------------------------------
+EPOCH 466 (43.168 seconds):
+	COST >> 0.169 +/- 0.005, % updates Left: 26.21% Rel: 1.65% Right: 24.37%
+----------------------------------------------------------------------
+EPOCH 467 (42.394 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.27% Rel: 1.67% Right: 24.34%
+----------------------------------------------------------------------
+EPOCH 468 (42.201 seconds):
+	COST >> 0.168 +/- 0.004, % updates Left: 26.1% Rel: 1.66% Right: 24.36%
+----------------------------------------------------------------------
+EPOCH 469 (41.614 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.01% Rel: 1.69% Right: 24.27%
+----------------------------------------------------------------------
+EPOCH 470 (45.756 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.15% Rel: 1.68% Right: 24.26%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1310.9, train: 940.2
+		MEAN RANK TRAIN: Left: 1391.3 Rel: 131.2 Right: 489.1
+		MEAN RANK VALID: Left: 1607.9 Rel: 122.2 Right: 1013.8
+	(ranking took 150.709 seconds)
+----------------------------------------------------------------------
+EPOCH 471 (47.11 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.19% Rel: 1.65% Right: 24.32%
+----------------------------------------------------------------------
+EPOCH 472 (47.222 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.18% Rel: 1.66% Right: 24.26%
+----------------------------------------------------------------------
+EPOCH 473 (46.046 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.18% Rel: 1.68% Right: 24.27%
+----------------------------------------------------------------------
+EPOCH 474 (45.615 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.15% Rel: 1.64% Right: 24.24%
+----------------------------------------------------------------------
+EPOCH 475 (45.702 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.07% Rel: 1.67% Right: 24.3%
+----------------------------------------------------------------------
+EPOCH 476 (42.515 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.16% Rel: 1.7% Right: 24.32%
+----------------------------------------------------------------------
+EPOCH 477 (42.106 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.14% Rel: 1.66% Right: 24.25%
+----------------------------------------------------------------------
+EPOCH 478 (42.599 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.04% Rel: 1.7% Right: 24.34%
+----------------------------------------------------------------------
+EPOCH 479 (42.568 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.14% Rel: 1.67% Right: 24.32%
+----------------------------------------------------------------------
+EPOCH 480 (46.025 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.14% Rel: 1.65% Right: 24.25%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1303.7, train: 943.9
+		MEAN RANK TRAIN: Left: 1391.2 Rel: 130.8 Right: 496.7
+		MEAN RANK VALID: Left: 1607.8 Rel: 121.1 Right: 999.7
+	(ranking took 150.568 seconds)
+----------------------------------------------------------------------
+EPOCH 481 (46.645 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.1% Rel: 1.67% Right: 24.3%
+----------------------------------------------------------------------
+EPOCH 482 (46.429 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.1% Rel: 1.64% Right: 24.29%
+----------------------------------------------------------------------
+EPOCH 483 (46.017 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.1% Rel: 1.66% Right: 24.23%
+----------------------------------------------------------------------
+EPOCH 484 (45.898 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.06% Rel: 1.65% Right: 24.21%
+----------------------------------------------------------------------
+EPOCH 485 (46.37 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.12% Rel: 1.67% Right: 24.21%
+----------------------------------------------------------------------
+EPOCH 486 (42.666 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.1% Rel: 1.66% Right: 24.19%
+----------------------------------------------------------------------
+EPOCH 487 (42.032 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.02% Rel: 1.67% Right: 24.25%
+----------------------------------------------------------------------
+EPOCH 488 (42.092 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.09% Rel: 1.65% Right: 24.24%
+----------------------------------------------------------------------
+EPOCH 489 (42.712 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.12% Rel: 1.68% Right: 24.31%
+----------------------------------------------------------------------
+EPOCH 490 (45.898 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.01% Rel: 1.64% Right: 24.28%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1304.0, train: 940.4
+		MEAN RANK TRAIN: Left: 1391.0 Rel: 132.0 Right: 489.8
+		MEAN RANK VALID: Left: 1598.9 Rel: 123.0 Right: 1009.1
+	(ranking took 149.925 seconds)
+----------------------------------------------------------------------
+EPOCH 491 (47.208 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.09% Rel: 1.67% Right: 24.22%
+----------------------------------------------------------------------
+EPOCH 492 (46.737 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.09% Rel: 1.63% Right: 24.27%
+----------------------------------------------------------------------
+EPOCH 493 (46.237 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.14% Rel: 1.67% Right: 24.2%
+----------------------------------------------------------------------
+EPOCH 494 (46.285 seconds):
+	COST >> 0.167 +/- 0.005, % updates Left: 25.97% Rel: 1.65% Right: 24.27%
+----------------------------------------------------------------------
+EPOCH 495 (46.527 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.08% Rel: 1.68% Right: 24.24%
+----------------------------------------------------------------------
+EPOCH 496 (42.218 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 25.99% Rel: 1.65% Right: 24.2%
+----------------------------------------------------------------------
+EPOCH 497 (42.216 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.11% Rel: 1.67% Right: 24.21%
+----------------------------------------------------------------------
+EPOCH 498 (42.172 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.06% Rel: 1.66% Right: 24.26%
+----------------------------------------------------------------------
+EPOCH 499 (43.295 seconds):
+	COST >> 0.167 +/- 0.005, % updates Left: 25.97% Rel: 1.64% Right: 24.17%
+----------------------------------------------------------------------
+EPOCH 500 (45.339 seconds):
+	COST >> 0.168 +/- 0.005, % updates Left: 26.05% Rel: 1.66% Right: 24.21%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1310.0, train: 948.7
+		MEAN RANK TRAIN: Left: 1400.7 Rel: 131.2 Right: 496.6
+		MEAN RANK VALID: Left: 1606.4 Rel: 121.3 Right: 1013.6
+	(ranking took 150.153 seconds)
+----------------------------------------------------------------------
+----------------------------------------------------------------------

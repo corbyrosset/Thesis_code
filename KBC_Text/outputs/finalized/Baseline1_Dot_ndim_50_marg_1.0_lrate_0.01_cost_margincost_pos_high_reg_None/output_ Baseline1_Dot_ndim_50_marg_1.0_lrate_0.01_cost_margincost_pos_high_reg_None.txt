@@ -1,0 +1,233 @@
+Corbins-MacBook-Pro:TransE_Text corbinrosset$ python run/FB15k_Baseline1.py 
+Couldn't import dot_parser, loading of dot files will not be possible.
+identifier: Baseline1_Dot_ndim_50_marg_1.0_lrate_0.01_cost_margincost_pos_high_reg_None
+models saved to path: /Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_Baseline1/
+DD{'ndim': 50, 'test_all': 10, 'Nsyn_rel': 1345, 'totepochs': 500, 'bestvalidMRR': -1, 'loadmodel': False, 'lremb': 0.01, 'nvalid': 1000, 'seed': 123, 'marge': 1.0, 'margincostfunction': 'margincost_pos_high', 'simfn': 'Dot', 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_Baseline1/Baseline1_Dot_ndim_50_marg_1.0_lrate_0.01_cost_margincost_pos_high_reg_None', 'dataset': 'FB15k', 'nbatches': 100, 'lrparam': 0.01, 'loademb': False, 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/', 'ntrain': 1000, 'Nrel': 1345, 'experiment_type': 'FB15kexp', 'rel': False, 'Nent': 16296, 'ntest': 1000, 'Nsyn': 14951, 'reg': None, 'op': 'Baseline1'}
+loaded FB15k data in: 2.108872 seconds
+(16296, 483142) (16296, 483142) (1345, 483142) (1000,)
+loaded data and constructed model...
+num epochs: 500
+num batches per epoch: 100
+batchsize: 4831
+left and right entity ranking functions will rank a slot against 14951 competitors
+BEGIN TRAINING
+----------------------------------------------------------------------
+EPOCH 1 (17.286 seconds):
+	COST >> 1.867 +/- 0.101, % updates Left: 99.74%  Right: 99.74%
+----------------------------------------------------------------------
+EPOCH 2 (17.668 seconds):
+	COST >> 1.335 +/- 0.145, % updates Left: 96.88%  Right: 96.85%
+----------------------------------------------------------------------
+EPOCH 3 (17.223 seconds):
+	COST >> 0.944 +/- 0.063, % updates Left: 86.65%  Right: 86.85%
+----------------------------------------------------------------------
+EPOCH 4 (17.31 seconds):
+	COST >> 0.778 +/- 0.027, % updates Left: 76.93%  Right: 77.01%
+----------------------------------------------------------------------
+EPOCH 5 (16.654 seconds):
+	COST >> 0.702 +/- 0.014, % updates Left: 70.53%  Right: 70.64%
+----------------------------------------------------------------------
+EPOCH 6 (15.976 seconds):
+	COST >> 0.663 +/- 0.01, % updates Left: 66.89%  Right: 66.98%
+----------------------------------------------------------------------
+EPOCH 7 (14.656 seconds):
+	COST >> 0.638 +/- 0.01, % updates Left: 64.73%  Right: 64.77%
+----------------------------------------------------------------------
+EPOCH 8 (15.523 seconds):
+	COST >> 0.622 +/- 0.009, % updates Left: 63.43%  Right: 63.44%
+----------------------------------------------------------------------
+EPOCH 9 (17.212 seconds):
+	COST >> 0.608 +/- 0.008, % updates Left: 62.52%  Right: 62.54%
+----------------------------------------------------------------------
+EPOCH 10 (18.272 seconds):
+	COST >> 0.602 +/- 0.01, % updates Left: 62.01%  Right: 62.16%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1291.1, train: 1057.3
+		MEAN RANK TRAIN: Left: 1079.1 Rel: 0.0 Right: 1035.5
+		MEAN RANK VALID: Left: 1336.4 Rel: 0.0 Right: 1245.7
+		MEAN RECIPROCAL RANK VALID (L & R): 0.003
+	FilteredRanking: evaluating rank on 1000 triples
+	NEW BEST TEST MR: 1272.6
+		Left MR: 1282.1 Rel MR: 0.0 Right MR: 1263.1
+	(ranking took 112.159 seconds)
+----------------------------------------------------------------------
+EPOCH 11 (18.888 seconds):
+	COST >> 0.594 +/- 0.009, % updates Left: 61.59%  Right: 61.81%
+----------------------------------------------------------------------
+EPOCH 12 (17.742 seconds):
+	COST >> 0.588 +/- 0.009, % updates Left: 61.35%  Right: 61.6%
+----------------------------------------------------------------------
+EPOCH 13 (17.036 seconds):
+	COST >> 0.585 +/- 0.01, % updates Left: 61.13%  Right: 61.27%
+----------------------------------------------------------------------
+EPOCH 14 (17.605 seconds):
+	COST >> 0.58 +/- 0.01, % updates Left: 60.83%  Right: 61.11%
+----------------------------------------------------------------------
+EPOCH 15 (17.52 seconds):
+	COST >> 0.578 +/- 0.008, % updates Left: 60.87%  Right: 61.1%
+----------------------------------------------------------------------
+EPOCH 16 (15.422 seconds):
+	COST >> 0.575 +/- 0.009, % updates Left: 60.7%  Right: 60.98%
+----------------------------------------------------------------------
+EPOCH 17 (16.168 seconds):
+	COST >> 0.574 +/- 0.01, % updates Left: 60.68%  Right: 60.99%
+----------------------------------------------------------------------
+EPOCH 18 (14.566 seconds):
+	COST >> 0.571 +/- 0.009, % updates Left: 60.58%  Right: 60.93%
+----------------------------------------------------------------------
+EPOCH 19 (15.48 seconds):
+	COST >> 0.569 +/- 0.009, % updates Left: 60.49%  Right: 60.82%
+----------------------------------------------------------------------
+EPOCH 20 (15.056 seconds):
+	COST >> 0.569 +/- 0.009, % updates Left: 60.54%  Right: 60.76%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1224.2, train: 1006.2
+		MEAN RANK TRAIN: Left: 1028.3 Rel: 0.0 Right: 984.0
+		MEAN RANK VALID: Left: 1275.7 Rel: 0.0 Right: 1172.7
+		MEAN RECIPROCAL RANK VALID (L & R): 0.003
+WARNING, failed to improve MRR on valid, 2 chances left
+
+	(ranking took 68.676 seconds)
+----------------------------------------------------------------------
+EPOCH 21 (17.712 seconds):
+	COST >> 0.568 +/- 0.009, % updates Left: 60.54%  Right: 60.81%
+----------------------------------------------------------------------
+EPOCH 22 (15.257 seconds):
+	COST >> 0.567 +/- 0.009, % updates Left: 60.51%  Right: 60.68%
+----------------------------------------------------------------------
+EPOCH 23 (15.74 seconds):
+	COST >> 0.567 +/- 0.009, % updates Left: 60.5%  Right: 60.72%
+----------------------------------------------------------------------
+EPOCH 24 (16.708 seconds):
+	COST >> 0.564 +/- 0.009, % updates Left: 60.41%  Right: 60.84%
+----------------------------------------------------------------------
+EPOCH 25 (18.246 seconds):
+	COST >> 0.565 +/- 0.009, % updates Left: 60.36%  Right: 60.83%
+----------------------------------------------------------------------
+EPOCH 26 (19.256 seconds):
+	COST >> 0.565 +/- 0.01, % updates Left: 60.47%  Right: 60.77%
+----------------------------------------------------------------------
+EPOCH 27 (16.377 seconds):
+	COST >> 0.563 +/- 0.01, % updates Left: 60.26%  Right: 60.78%
+----------------------------------------------------------------------
+EPOCH 28 (16.722 seconds):
+	COST >> 0.563 +/- 0.008, % updates Left: 60.46%  Right: 60.68%
+----------------------------------------------------------------------
+EPOCH 29 (15.512 seconds):
+	COST >> 0.562 +/- 0.008, % updates Left: 60.28%  Right: 60.73%
+----------------------------------------------------------------------
+EPOCH 30 (15.12 seconds):
+	COST >> 0.562 +/- 0.01, % updates Left: 60.31%  Right: 60.72%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1178.9, train: 998.4
+		MEAN RANK TRAIN: Left: 1017.4 Rel: 0.0 Right: 979.4
+		MEAN RANK VALID: Left: 1224.3 Rel: 0.0 Right: 1133.4
+		MEAN RECIPROCAL RANK VALID (L & R): 0.003
+WARNING, failed to improve MRR on valid, 1 chances left
+
+	(ranking took 67.523 seconds)
+----------------------------------------------------------------------
+EPOCH 31 (17.14 seconds):
+	COST >> 0.562 +/- 0.009, % updates Left: 60.37%  Right: 60.76%
+----------------------------------------------------------------------
+EPOCH 32 (16.625 seconds):
+	COST >> 0.562 +/- 0.01, % updates Left: 60.37%  Right: 60.76%
+----------------------------------------------------------------------
+EPOCH 33 (17.055 seconds):
+	COST >> 0.562 +/- 0.009, % updates Left: 60.33%  Right: 60.77%
+----------------------------------------------------------------------
+EPOCH 34 (17.275 seconds):
+	COST >> 0.561 +/- 0.01, % updates Left: 60.42%  Right: 60.84%
+----------------------------------------------------------------------
+EPOCH 35 (20.244 seconds):
+	COST >> 0.56 +/- 0.009, % updates Left: 60.31%  Right: 60.81%
+----------------------------------------------------------------------
+EPOCH 36 (19.612 seconds):
+	COST >> 0.56 +/- 0.009, % updates Left: 60.3%  Right: 60.77%
+----------------------------------------------------------------------
+EPOCH 37 (17.086 seconds):
+	COST >> 0.56 +/- 0.01, % updates Left: 60.35%  Right: 60.77%
+----------------------------------------------------------------------
+EPOCH 38 (17.149 seconds):
+	COST >> 0.559 +/- 0.01, % updates Left: 60.38%  Right: 60.82%
+----------------------------------------------------------------------
+EPOCH 39 (16.423 seconds):
+	COST >> 0.559 +/- 0.009, % updates Left: 60.29%  Right: 60.71%
+----------------------------------------------------------------------
+EPOCH 40 (16.275 seconds):
+	COST >> 0.559 +/- 0.01, % updates Left: 60.31%  Right: 60.81%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1195.6, train: 982.6
+		MEAN RANK TRAIN: Left: 1001.1 Rel: 0.0 Right: 964.2
+		MEAN RANK VALID: Left: 1236.6 Rel: 0.0 Right: 1154.5
+		MEAN RECIPROCAL RANK VALID (L & R): 0.003
+WARNING, failed to improve MRR on valid, 0 chances left
+
+	(ranking took 71.612 seconds)
+----------------------------------------------------------------------
+EPOCH 41 (16.221 seconds):
+	COST >> 0.559 +/- 0.009, % updates Left: 60.2%  Right: 60.8%
+----------------------------------------------------------------------
+EPOCH 42 (16.122 seconds):
+	COST >> 0.559 +/- 0.009, % updates Left: 60.34%  Right: 60.76%
+----------------------------------------------------------------------
+EPOCH 43 (15.525 seconds):
+	COST >> 0.56 +/- 0.009, % updates Left: 60.35%  Right: 60.71%
+----------------------------------------------------------------------
+EPOCH 44 (14.511 seconds):
+	COST >> 0.56 +/- 0.009, % updates Left: 60.49%  Right: 60.88%
+----------------------------------------------------------------------
+EPOCH 45 (15.066 seconds):
+	COST >> 0.559 +/- 0.01, % updates Left: 60.43%  Right: 60.77%
+----------------------------------------------------------------------
+EPOCH 46 (15.075 seconds):
+	COST >> 0.56 +/- 0.009, % updates Left: 60.41%  Right: 60.77%
+----------------------------------------------------------------------
+EPOCH 47 (16.694 seconds):
+	COST >> 0.559 +/- 0.009, % updates Left: 60.5%  Right: 60.91%
+----------------------------------------------------------------------
+EPOCH 48 (16.298 seconds):
+	COST >> 0.558 +/- 0.01, % updates Left: 60.29%  Right: 60.85%
+----------------------------------------------------------------------
+EPOCH 49 (15.658 seconds):
+	COST >> 0.558 +/- 0.009, % updates Left: 60.35%  Right: 60.83%
+----------------------------------------------------------------------
+EPOCH 50 (15.731 seconds):
+	COST >> 0.559 +/- 0.009, % updates Left: 60.45%  Right: 60.74%
+	FilteredRanking: evaluating rank on 1000 triples
+	FilteredRanking: evaluating rank on 1000 triples
+	MEAN RANK >> valid: 1198.5, train: 994.6
+		MEAN RANK TRAIN: Left: 1017.5 Rel: 0.0 Right: 971.6
+		MEAN RANK VALID: Left: 1245.0 Rel: 0.0 Right: 1152.0
+		MEAN RECIPROCAL RANK VALID (L & R): 0.003
+EARLY STOPPING, failed to improve MRR on valid after 30 epochs
+
+	Ranking model on all examples from test
+Each example ranked against 14951 other entities
+	Ranking: evaluating rank on 59071 triples
+left_ranks: (59071,), right_ranks: (59071,), rel_ranks: (59071,)
+max left_ranks: 14940, max right_ranks: 14950, max rel_ranks: 0
+MICRO RAW:
+	Left mean rank: 1179.564, MRR: 0.028, median rank: 384.0, hits@10: 6.856%
+	Right mean rank: 1165.462, MRR: 0.029, median rank: 370.0, hits@10: 7.185%
+	Global mean rank: 1172.513, MRR: 0.029, median rank: 377.0, hits@10: 7.02%
+MACRO RAW
+	Left mean rank: 1321.9, MRR: 0.056, median rank: 278.0, hits@10: 14.356%
+	Right mean rank: 1301.498, MRR: 0.055, median rank: 247.5, hits@10: 13.576%
+	Global mean rank: 1311.699, MRR: 0.056, median rank: 282.5, hits@10: 13.966%
+
+Ranking model on all examples from test
+Each example ranked against 14951 other entities which are FILTERED
+	FilteredRanking: evaluating rank on 59071 triples
+MICRO FILTERED:
+	Left mean rank: 1063.24545, MRR: 0.03838, median rank: 303.0, hits@10: 9.072%
+	Right mean rank: 1092.46045, MRR: 0.03813, median rank: 321.0, hits@10: 9.206%
+	Global mean rank: 1077.85295, MRR: 0.03825, median rank: 312.0, hits@10: 9.139%
+MACRO FILTERED
+	Left mean rank: 1295.63568, MRR: 0.06629, median rank: 238.5, hits@10: 16.666%
+	Right mean rank: 1289.34335, MRR: 0.06307, median rank: 228.0, hits@10: 15.461%
+	Global mean rank: 1292.48951, MRR: 0.06468, median rank: 256.5, hits@10: 16.063%

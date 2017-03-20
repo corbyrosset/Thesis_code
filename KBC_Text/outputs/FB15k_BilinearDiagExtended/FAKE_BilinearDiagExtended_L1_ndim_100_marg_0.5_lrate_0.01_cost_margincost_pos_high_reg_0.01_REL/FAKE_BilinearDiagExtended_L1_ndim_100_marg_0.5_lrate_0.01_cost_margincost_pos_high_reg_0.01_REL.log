@@ -1,0 +1,109 @@
+2017-03-19 22:58:46,985 INFO: logger initialized for experiment identifier: FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL
+2017-03-19 22:59:46,348 INFO: logger initialized for experiment identifier: FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL
+2017-03-19 22:59:46,348 INFO: DD{'ndim': 100, 'test_all': 1, 'Nsyn_rel': 1345, 'totepochs': 1, 'bestvalidMRR': -1, 'loadmodel': False, 'lremb': 0.01, 'nvalid': 100, 'seed': 123, 'marge': 0.5, 'margincostfunction': 'margincost_pos_high', 'simfn': 'L1', 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_BilinearDiagExtended/FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL', 'dataset': 'FB15k', 'nbatches': 100, 'identifier': 'FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL', 'lrparam': 0.01, 'loademb': False, 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/', 'ntrain': 100, 'Nrel': 1345, 'experiment_type': 'FB15kexp', 'rel': True, 'Nent': 16296, 'logger': <logging.RootLogger object at 0x1071b5c50>, 'ntest': 100, 'Nsyn': 14951, 'reg': 0.01, 'op': 'BilinearDiagExtended'}
+2017-03-19 22:59:47,919 DEBUG: FB15kexp: load_FB15k_data(): trainl(16296, 483142), trainr(16296, 483142), traino(1345, 483142), trainlidx(100,)
+2017-03-19 22:59:50,027 DEBUG: Training to rank RELATIONS as well!
+2017-03-19 22:59:50,027 DEBUG: loaded data and constructed model...
+2017-03-19 22:59:50,027 DEBUG: num epochs: 1
+2017-03-19 22:59:50,028 DEBUG: num batches per epoch: 100
+2017-03-19 22:59:50,028 DEBUG: batchsize: 4831
+2017-03-19 22:59:50,028 DEBUG: left and right entity ranking functions will rank a slot against 14951 competitors
+2017-03-19 22:59:50,028 INFO: BEGIN TRAINING
+2017-03-19 23:00:21,825 INFO: ----------------------------------------------------------------------------
+2017-03-19 23:00:21,825 INFO: EPOCH 1 (31.797 seconds):
+2017-03-19 23:00:21,840 INFO: 	Average L2 norm of relation vector: 0.03596
+2017-03-19 23:00:21,840 INFO: 	COST >> 0.756 +/- 0.193, % updates Left: 81.69% Rel: 29.21% Right: 75.21%
+2017-03-19 23:00:21,840 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:00:28,261 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:00:34,634 INFO: 	MEAN RANK >> valid: 1474.9, train: 1234.9
+2017-03-19 23:00:34,634 INFO: 		MEAN RANK TRAIN: Left: 1465.2 Rel: 723.1 Right: 1004.7
+2017-03-19 23:00:34,635 INFO: 		MEAN RANK VALID: Left: 1868.3 Rel: 752.3 Right: 1081.5
+2017-03-19 23:00:34,635 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.115
+2017-03-19 23:00:34,635 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:00:40,532 INFO: 	NEW BEST TEST MR: 1449.0
+2017-03-19 23:00:40,532 INFO: 		Left MR: 1708.0 Rel MR: 749.9 Right MR: 1190.0
+2017-03-19 23:00:40,584 INFO: 	(ranking took 18.744 seconds)
+2017-03-19 23:00:40,584 INFO: ----------------------------------------------------------------------------
+2017-03-19 23:00:40,584 INFO: ----------------------------------------------------------------------------
+2017-03-19 23:00:40,584 INFO: 	Ranking model on 100 examples from test. Each example ranked against 14951 other entities
+2017-03-19 23:00:40,585 INFO: 	RELATION ranking: each rel ranked against 1345 other rels
+2017-03-19 23:00:40,938 INFO: 	Ranking: evaluating rank on 100 triples
+2017-03-19 23:00:45,228 INFO: left_ranks: (100,), right_ranks: (100,), rel_ranks: (100,)
+2017-03-19 23:00:45,228 INFO: max left_ranks: 13103, max right_ranks: 11851, max rel_ranks: 1297
+2017-03-19 23:00:45,268 INFO: MICRO RAW:
+2017-03-19 23:00:45,268 INFO: 	Left mean rank: 1804.8, MRR: 0.092, median rank: 278.0, hits@10: 17.0%
+2017-03-19 23:00:45,268 INFO: 	Right mean rank: 1212.98, MRR: 0.129, median rank: 88.0, hits@10: 25.0%
+2017-03-19 23:00:45,268 INFO: 	relation mean rank: 749.34, MRR: 0.003, median rank: 867.0, hits@10: 1.0%
+2017-03-19 23:00:45,268 INFO: 	Global mean rank: 1508.89, MRR: 0.111, median rank: 145.5, hits@10: 21.0%
+2017-03-19 23:00:45,268 INFO: MACRO RAW
+2017-03-19 23:00:45,268 INFO: 	Left mean rank: 2019.575, MRR: 0.097, median rank: 355.0, hits@10: 14.524%
+2017-03-19 23:00:45,268 INFO: 	Right mean rank: 1256.782, MRR: 0.174, median rank: 63.5, hits@10: 32.857%
+2017-03-19 23:00:45,268 INFO: 	relation mean rank: 686.943, MRR: 0.004, median rank: 686.943, hits@10: 1.429%
+2017-03-19 23:00:45,268 INFO: 	Global mean rank: 1321.1, MRR: 0.092, median rank: 437.0, hits@10: 16.27%
+2017-03-19 23:00:45,268 INFO: Ranking model on 100 examples from test. Each example ranked against 14951 other entities which are FILTERED
+2017-03-19 23:00:45,269 INFO: RELATION ranking: each rel ranked against 1345 other rels
+2017-03-19 23:00:45,982 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:00:51,820 INFO: MICRO FILTERED:
+2017-03-19 23:00:51,820 INFO: 	Left mean rank: 1717.22, MRR: 0.10283, median rank: 276.5, hits@10: 20.0%
+2017-03-19 23:00:51,820 INFO: 	Right mean rank: 1191.91, MRR: 0.17395, median rank: 78.5, hits@10: 29.0%
+2017-03-19 23:00:51,820 INFO: 	relation mean rank: 749.89, MRR: 0.003, median rank: 867.0, hits@10: 1.0%
+2017-03-19 23:00:51,820 INFO: 	Global mean rank: 1454.565, MRR: 0.13839, median rank: 131.5, hits@10: 24.5%
+2017-03-19 23:00:51,820 INFO: MACRO FILTERED
+2017-03-19 23:00:51,820 INFO: 	Left mean rank: 1925.54762, MRR: 0.10998, median rank: 327.25, hits@10: 18.095%
+2017-03-19 23:00:51,820 INFO: 	Right mean rank: 1244.15119, MRR: 0.22727, median rank: 61.5, hits@10: 36.071%
+2017-03-19 23:00:51,820 INFO: 	relation mean rank: 687.71, MRR: 0.004, median rank: 687.714, hits@10: 1.429%
+2017-03-19 23:00:51,821 INFO: 	Global mean rank: 1285.80278, MRR: 0.11368, median rank: 425.5, hits@10: 18.532%
+2017-03-19 23:03:11,328 INFO: logger initialized for experiment identifier: FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL
+2017-03-19 23:03:11,328 INFO: DD{'ndim': 100, 'test_all': 1, 'Nsyn_rel': 1345, 'totepochs': 1, 'bestvalidMRR': -1, 'loadmodel': False, 'lremb': 0.01, 'nvalid': 100, 'seed': 123, 'marge': 0.5, 'margincostfunction': 'margincost_pos_high', 'simfn': 'L1', 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_BilinearDiagExtended/FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL', 'dataset': 'FB15k', 'nbatches': 100, 'identifier': 'FAKE_BilinearDiagExtended_L1_ndim_100_marg_0.5_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL', 'lrparam': 0.01, 'loademb': False, 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/', 'ntrain': 100, 'Nrel': 1345, 'experiment_type': 'FB15kexp', 'rel': True, 'Nent': 16296, 'logger': <logging.RootLogger object at 0x102691c50>, 'ntest': 100, 'Nsyn': 14951, 'reg': 0.01, 'op': 'BilinearDiagExtended'}
+2017-03-19 23:03:12,987 DEBUG: FB15kexp: load_FB15k_data(): trainl(16296, 483142), trainr(16296, 483142), traino(1345, 483142), trainlidx(100,)
+2017-03-19 23:03:15,088 DEBUG: Training to rank RELATIONS as well!
+2017-03-19 23:03:15,088 DEBUG: loaded data and constructed model...
+2017-03-19 23:03:15,088 DEBUG: num epochs: 1
+2017-03-19 23:03:15,088 DEBUG: num batches per epoch: 100
+2017-03-19 23:03:15,088 DEBUG: batchsize: 4831
+2017-03-19 23:03:15,088 DEBUG: left and right entity ranking functions will rank a slot against 14951 competitors
+2017-03-19 23:03:15,088 INFO: BEGIN TRAINING
+2017-03-19 23:03:44,750 INFO: ----------------------------------------------------------------------------
+2017-03-19 23:03:44,750 INFO: EPOCH 1 (29.661 seconds):
+2017-03-19 23:03:44,762 INFO: 	Average L2 norm of relation vector: 0.03596
+2017-03-19 23:03:44,763 INFO: 	COST >> 0.756 +/- 0.193, % updates Left: 81.69% Rel: 29.21% Right: 75.21%
+2017-03-19 23:03:44,763 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:03:50,846 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:03:57,074 INFO: 	MEAN RANK >> valid: 1474.9, train: 1234.9
+2017-03-19 23:03:57,074 INFO: 		MEAN RANK TRAIN: Left: 1465.2 Rel: 723.1 Right: 1004.7
+2017-03-19 23:03:57,074 INFO: 		MEAN RANK VALID: Left: 1868.3 Rel: 752.3 Right: 1081.5
+2017-03-19 23:03:57,075 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.115
+2017-03-19 23:03:57,075 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:04:02,949 INFO: 	NEW BEST TEST MR: 1449.0
+2017-03-19 23:04:02,949 INFO: 		Left MR: 1708.0 Rel MR: 749.9 Right MR: 1190.0
+2017-03-19 23:04:03,010 INFO: 	(ranking took 18.247 seconds)
+2017-03-19 23:04:03,011 INFO: ----------------------------------------------------------------------------
+2017-03-19 23:04:03,011 INFO: ----------------------------------------------------------------------------
+2017-03-19 23:04:03,011 INFO: 	Ranking model on 100 examples from test. Each example ranked against 14951 other entities
+2017-03-19 23:04:03,011 INFO: 	RELATION ranking: each rel ranked against 1345 other rels
+2017-03-19 23:04:03,340 INFO: 	Ranking: evaluating rank on 100 triples
+2017-03-19 23:04:07,320 INFO: left_ranks: (100,), right_ranks: (100,), rel_ranks: (100,)
+2017-03-19 23:04:07,320 INFO: max left_ranks: 13103, max right_ranks: 11851, max rel_ranks: 1297
+2017-03-19 23:04:07,357 INFO: MICRO RAW:
+2017-03-19 23:04:07,357 INFO: 	Left mean rank: 1804.8, MRR: 0.092, median rank: 278.0, hits@10: 17.0%
+2017-03-19 23:04:07,357 INFO: 	Right mean rank: 1212.98, MRR: 0.129, median rank: 88.0, hits@10: 25.0%
+2017-03-19 23:04:07,357 INFO: 	relation mean rank: 749.34, MRR: 0.003, median rank: 867.0, hits@10: 1.0%
+2017-03-19 23:04:07,358 INFO: 	Global mean rank: 1508.89, MRR: 0.111, median rank: 145.5, hits@10: 21.0%
+2017-03-19 23:04:07,358 INFO: MACRO RAW
+2017-03-19 23:04:07,358 INFO: 	Left mean rank: 2019.575, MRR: 0.097, median rank: 355.0, hits@10: 14.524%
+2017-03-19 23:04:07,358 INFO: 	Right mean rank: 1256.782, MRR: 0.174, median rank: 63.5, hits@10: 32.857%
+2017-03-19 23:04:07,358 INFO: 	relation mean rank: 686.943, MRR: 0.004, median rank: 686.943, hits@10: 1.429%
+2017-03-19 23:04:07,358 INFO: 	Global mean rank: 1321.1, MRR: 0.092, median rank: 437.0, hits@10: 16.27%
+2017-03-19 23:04:07,358 INFO: Ranking model on 100 examples from test. Each example ranked against 14951 other entities which are FILTERED
+2017-03-19 23:04:07,358 INFO: RELATION ranking: each rel ranked against 1345 other rels
+2017-03-19 23:04:08,037 INFO: 	FilteredRanking: evaluating rank on 100 triples
+2017-03-19 23:04:13,542 INFO: MICRO FILTERED:
+2017-03-19 23:04:13,542 INFO: 	Left mean rank: 1717.22, MRR: 0.10283, median rank: 276.5, hits@10: 20.0%
+2017-03-19 23:04:13,543 INFO: 	Right mean rank: 1191.91, MRR: 0.17395, median rank: 78.5, hits@10: 29.0%
+2017-03-19 23:04:13,543 INFO: 	relation mean rank: 749.89, MRR: 0.003, median rank: 867.0, hits@10: 1.0%
+2017-03-19 23:04:13,543 INFO: 	Global mean rank: 1454.565, MRR: 0.13839, median rank: 131.5, hits@10: 24.5%
+2017-03-19 23:04:13,543 INFO: MACRO FILTERED
+2017-03-19 23:04:13,543 INFO: 	Left mean rank: 1925.54762, MRR: 0.10998, median rank: 327.25, hits@10: 18.095%
+2017-03-19 23:04:13,543 INFO: 	Right mean rank: 1244.15119, MRR: 0.22727, median rank: 61.5, hits@10: 36.071%
+2017-03-19 23:04:13,543 INFO: 	relation mean rank: 687.71, MRR: 0.004, median rank: 687.714, hits@10: 1.429%
+2017-03-19 23:04:13,543 INFO: 	Global mean rank: 1285.80278, MRR: 0.11368, median rank: 425.5, hits@10: 18.532%
