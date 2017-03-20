@@ -3,6 +3,7 @@ import sys
 import os
 from KBC_Text.utils.FB15k_exp import launch
 from KBC_Text.utils.Utils import initialize_logging
+from KBC_Text.utils.send_email import send_notification
 from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 
 ###############################################################################
@@ -66,7 +67,7 @@ if rel == True:
 # I hate to do this here, but it is needed for .log to be in right place
 if not os.path.isdir(savepath + identifier + '/'):
 	os.mkdir(savepath + identifier + '/')
-logger = initialize_logging(savepath + identifier + '/', identifier)
+logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 
 ###############################################################################
 ###############################################################################
@@ -93,6 +94,7 @@ RankingEval(datapath=datapath, logger, reverseRanking=False, neval=neval, \
 RankingEvalFil(datapath=datapath, logger, reverseRanking=False, neval=neval, \
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+send_notification(identifier, logFile)
 
 ###############################################################################
 ###############################################################################

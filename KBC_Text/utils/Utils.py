@@ -43,7 +43,7 @@ def initialize_logging(savepath, identifier):
     logger.addHandler(ch)
 
     logger.info('logger initialized for experiment identifier: %s'%identifier)
-    return logger
+    return logger, fh.baseFilename
 
 class DD(dict):
     """This class is only used to replace a state variable of Jobman"""
