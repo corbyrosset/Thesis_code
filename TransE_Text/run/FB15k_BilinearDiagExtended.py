@@ -30,17 +30,17 @@ reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
 ### previous runs...
-ntrain = 100 # 'all' # number of examples to actually compute ranks for
+ntrain = 1000 # 'all' # number of examples to actually compute ranks for
 		      # after every test_all'th epoch in training
-nvalid = 100 # 'all'
-ntest = 100  # 'all'
-neval = 100 #'all' # 'all'### only for final testing, not training
+nvalid = 1000 # 'all'
+ntest = 1000  # 'all'
+neval = 'all' # 'all'### only for final testing, not training
 
 experiment_type = 'FB15kexp'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_BilinearDiagExtended/'
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 
-identifier = 'FAKE_BilinearDiagExtended_' + str(simfn) + '_ndim_' + str(ndim) \
+identifier = 'BilinearDiagExtended_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_reg_' + str(reg)
 if rel == True:
 	identifier += '_REL'
