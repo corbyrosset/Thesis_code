@@ -6,22 +6,8 @@ sys.path.append("/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/evalu
 from evaluate_KBC import *
 from Utils import * 
 
-# Jobman channel remplacement
-class Channel(object):
-    def __init__(self, state):
-        self.state = state
-        f = open(self.state.savepath + '/orig_state.pkl', 'w')
-        cPickle.dump(self.state, f, -1)
-        f.close()
-        self.COMPLETE = 1
-
-    def save(self):
-        f = open(self.state.savepath + '/current_state.pkl', 'w')
-        cPickle.dump(self.state, f, -1)
-        f.close()
-
 # Experiment function --------------------------------------------------------
-def FB15kexp_text(state, channel):
+def FB15kexp_text(state):
     '''
         Main training loop for text-augmented KG-completion experiment
 
@@ -33,25 +19,21 @@ def FB15kexp_text(state, channel):
     batchsize = -1
     timeref = -1
     reverseRanking = False
+    log = state.logger # shorthand
 
     # Show experiment parameters
-    print >> sys.stderr, state
+    log.info(state)
     np.random.seed(state.seed)
 
     # Experiment folder
-    if hasattr(channel, 'remote_path'):
-        state.savepath = channel.remote_path + '/'
-    elif hasattr(channel, 'path'):
-        state.savepath = channel.path + '/'
-    else:
-        if not os.path.isdir(state.savepath):
-            os.mkdir(state.savepath)
+    if not os.path.isdir(state.savepath):
+        os.mkdir(state.savepath)
 
     ### load KB data
     trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, \
     validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
     = load_FB15k_data(state)
-    print np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx)
+    log.debug(np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx))
 
     KB_batchsize = trainl.shape[1] / state.nbatches
 
@@ -61,7 +43,7 @@ def FB15kexp_text(state, channel):
     text_testlidx, text_testridx, text_testoidx, text_testsent, \
     text_per_triple_cntr, unique_text_per_triple, triple_per_text, \
     sent2idx, idx2sent = load_FB15k_Clueweb_data(state)
-    print np.shape(text_trainlidx), np.shape(text_trainridx), np.shape(text_trainoidx), np.shape(text_trainsent)
+    log.debug(np.shape(text_trainlidx), np.shape(text_trainridx), np.shape(text_trainoidx), np.shape(text_trainsent))
     text_batchsz = text_trainlidx.shape[1] / state.nbatches
 
     ### get properties of text encoder
@@ -79,17 +61,17 @@ def FB15kexp_text(state, channel):
     vocabSize = model.word_embeddings.vocabSize
 
     if state.rel == True:
-        print 'Training to rank RELATIONS as well!'
+        log.debug('Training to rank RELATIONS as well!')
         assert model.rankrelfunc is not None
 
-    print 'loaded data and constructed model...'
-    print 'num epochs: ' + str(state.totepochs)
-    print 'num batches per epoch: ' + str(state.nbatches)
-    print 'KB batchsize: ' + str(KB_batchsize)
-    print 'Textual Triples batchsize: ' + str(text_batchsz)
-    print 'left and right entity ranking functions will rank a triple against ' + str(state.Nsyn) + ' competitors'
+    log.debug('loaded data and constructed model...')
+    log.debug('num epochs: ' + str(state.totepochs))
+    log.debug('num batches per epoch: ' + str(state.nbatches))
+    log.debug('KB batchsize: ' + str(KB_batchsize))
+    log.debug('Textual Triples batchsize: ' + str(text_batchsz))
+    log.debug('left and right entity ranking functions will rank a triple against ' + str(state.Nsyn) + ' competitors')
 
-    print >> sys.stderr, "BEGIN TRAINING"
+    log.info("BEGIN TRAINING")
     timeref = time.time()
     for epoch_count in xrange(1, state.totepochs + 1):
         # Shuffling
@@ -165,7 +147,7 @@ def FB15kexp_text(state, channel):
             ### too many unique triples
             # keep_indices = filter(lambda x, y: unique_text_per_triple[x] < 6 and y > 2, zip(sent_idx.tolist(), text_sentlen))
             # skip_counter = len(sent_idx) - len(keep_indices)
-            # print '\tskipped %s of %s triples bc bad text' % (skip_counter, len(sent_idx))
+            # log.debug('\tskipped %s of %s triples bc bad text' % (skip_counter, len(sent_idx)))
             
 
             ## if using TrainFn1MemberTextONLY!!!
@@ -193,8 +175,7 @@ def FB15kexp_text(state, channel):
                 percent_rel_txt += [per_o]
                 percent_right_txt += [per_r]
             else:
-                print 'must have valid textual_role'
-                exit(1)
+                raise ValueError('Must specify valid textual_role')
 
             # if state.rel == True:
             #     batch_cost, per_l, per_o, per_r, per_text = model.trainFuncText(state.lremb, state.lrparam, text_tmpl, text_tmpr, text_tmpo, \
@@ -217,37 +198,37 @@ def FB15kexp_text(state, channel):
             else:
                 model.embeddings.normalize()
 
-        print >> sys.stderr, "----------------------------------------------------------------------"
-        print >> sys.stderr, "EPOCH %s (%s seconds):" % (
-                epoch_count, round(time.time() - timeref, 3))
+        log.info("----------------------------------------------------------------------------")
+        log.info("EPOCH %s (%s seconds):" % (
+                epoch_count, round(time.time() - timeref, 3)))
         if state.reg != None:
-            print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % \
+            log.info("\tAverage L2 norm of relation vector: %s" % \
             (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
-            float(state.Nrel), 5))
+            float(state.Nrel), 5)))
 
         if state.rel:
-            print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (\
+            log.info("\tCOST KB >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (\
                 round(np.mean(cost_kb), 3), \
                 round(np.std(cost_kb), 3), \
                 round(np.mean(percent_left_kb) * 100, 2), \
                 round(np.mean(percent_rel_kb) * 100, 2), \
-                round(np.mean(percent_right_kb) * 100, 2))
-            print >> sys.stderr, "\tCOST TEXT >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%% Text: %s%%" % (round(np.mean(cost_txt), 3), \
+                round(np.mean(percent_right_kb) * 100, 2)))
+            log.info("\tCOST TEXT >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%% Text: %s%%" % (round(np.mean(cost_txt), 3), \
                 round(np.std(cost_txt), 3), \
                 round(np.mean(percent_left_txt) * 100, 2), \
                 round(np.mean(percent_rel_txt) * 100, 2), \
                 round(np.mean(percent_right_txt) * 100, 2), \
-                round(np.mean(percent_txt) * 100, 2))
+                round(np.mean(percent_txt) * 100, 2)))
         else:
-            print >> sys.stderr, "\tCOST KB >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(cost_kb), 3), \
+            log.info("\tCOST KB >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(cost_kb), 3), \
                 round(np.std(cost_kb), 3), \
                 round(np.mean(percent_left_kb) * 100, 2),\
-                round(np.mean(percent_right_kb) * 100, 2))
-            print >> sys.stderr, "\tCOST TEXT >> %s +/- %s, %% updates Left: %s%% Right: %s%% Text: %s%%" % (round(np.mean(cost_txt), 3), \
+                round(np.mean(percent_right_kb) * 100, 2)))
+            log.info("\tCOST TEXT >> %s +/- %s, %% updates Left: %s%% Right: %s%% Text: %s%%" % (round(np.mean(cost_txt), 3), \
                 round(np.std(cost_txt), 3), \
                 round(np.mean(percent_left_txt) * 100, 2), \
                 round(np.mean(percent_right_txt) * 100, 2), \
-                round(np.mean(percent_txt) * 100, 2))
+                round(np.mean(percent_txt) * 100, 2)))
 
         ### reset outputs
         cost_kb, percent_left_kb, percent_rel_kb, percent_right_kb = [], [], [], []
@@ -258,7 +239,7 @@ def FB15kexp_text(state, channel):
         if (epoch_count % state.test_all) == 0:
             ### evaluate by actually computing ranking metrics on some data
             if state.nvalid > 0:
-                verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
+                verl, verr, ver_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.validMR = np.mean(verl + verr)# only tune on entity ranking
@@ -267,22 +248,22 @@ def FB15kexp_text(state, channel):
                 state.valid = 'not applicable'
             
             if state.ntrain > 0:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
+                terl, terr, ter_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
                     model.rankrfunc, trainlidx, trainridx, trainoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.train = np.mean(terl + terr)# only tune on entity ranking
             else:
                 state.train = 'not applicable'
             
-            print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
-                    round(state.validMR, 1), round(state.train, 1))
-            print >> sys.stderr, "\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
-            print >> sys.stderr, "\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1))
-            print >> sys.stderr, "\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4))
+            log.info("\tMEAN RANK >> valid: %s, train: %s" % (
+                    round(state.validMR, 1), round(state.train, 1)))
+            log.info("\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+            log.info("\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1)))
+            log.info("\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4)))
 
             ### save model that performs best on dev data
             if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
                 model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
 
                 state.bestvalidMRR = state.validMRR
@@ -298,13 +279,14 @@ def FB15kexp_text(state, channel):
                 cPickle.dump(model.textsim, f, -1)
                 cPickle.dump(model.word_embeddings, f, -1)
                 f.close()
-                print >> sys.stderr, "\tNEW BEST TEST MR: %s\n\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
+                log.info("\tNEW BEST TEST MR: %s" % round(state.besttest, 1))
+                log.info("\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
             else:
                 if failedImprovements == 0:
-                    print >> sys.stderr, "EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all)
+                    log.warning("EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all))
                     break
                     
-                print >> sys.stderr, "\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1)
+                log.warning("\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1))
                 failedImprovements -= 1
             
             # Save current model regardless
@@ -317,13 +299,12 @@ def FB15kexp_text(state, channel):
             cPickle.dump(model.word_embeddings, f, -1)
             f.close()
             state.nbepochs = epoch_count
-            print >> sys.stderr, "\t(ranking took %s seconds)" % (
-                round(time.time() - timeref, 3))
+            log.info("\t(ranking took %s seconds)" % (
+                round(time.time() - timeref, 3)))
             timeref = time.time()
-            channel.save()
-    print >> sys.stderr, "----------------------------------------------------------------------"
-    print >> sys.stderr, "----------------------------------------------------------------------"
-    return channel.COMPLETE
+    log.info("----------------------------------------------------------------------------")
+    log.info("----------------------------------------------------------------------------")
+    return True
 
 
 ###############################################################################
@@ -331,7 +312,7 @@ def FB15kexp_text(state, channel):
 ###############################################################################
 ###############################################################################
 
-def FB15kexp(state, channel):
+def FB15kexp(state):
     '''
         Main training loop
 
@@ -354,25 +335,22 @@ def FB15kexp(state, channel):
                            # in BilinearDiag, it's the opposite
     failedImprovements = 3 # number of chance it gets to improve on Valid MRR
                            # before early stopping
+    log = state.logger # shorthand
+
 
     # Show experiment parameters
-    print >> sys.stderr, state
+    log.info(state)
     np.random.seed(state.seed)
 
     # Experiment folder
-    if hasattr(channel, 'remote_path'):
-        state.savepath = channel.remote_path + '/'
-    elif hasattr(channel, 'path'):
-        state.savepath = channel.path + '/'
-    else:
-        if not os.path.isdir(state.savepath):
-            os.mkdir(state.savepath)
+    if not os.path.isdir(state.savepath):
+        os.mkdir(state.savepath)
 
     ### load data
     trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, \
     validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
     = load_FB15k_data(state)
-    print np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx)
+    log.debug('FB15kexp: load_FB15k_data(): trainl%s, trainr%s, traino%s, trainlidx%s' % (np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx)))
 
     ### model has properties: trainfunc, ranklfunc, rankrfunc, 
     ### embeddings, leftop, rightop, and simfn
@@ -395,17 +373,17 @@ def FB15kexp(state, channel):
     assert hasattr(model, 'trainfunc')
 
     if state.rel == True:
-        print 'Training to rank RELATIONS as well!'
+        log.debug('Training to rank RELATIONS as well!')
         assert model.rankrelfunc is not None
 
-    print 'loaded data and constructed model...'
+    log.debug('loaded data and constructed model...')
     batchsize = trainl.shape[1] / state.nbatches
-    print 'num epochs: ' + str(state.totepochs)
-    print 'num batches per epoch: ' + str(state.nbatches)
-    print 'batchsize: ' + str(batchsize)
-    print 'left and right entity ranking functions will rank a slot against ' + str(state.Nsyn) + ' competitors'
+    log.debug('num epochs: ' + str(state.totepochs))
+    log.debug('num batches per epoch: ' + str(state.nbatches))
+    log.debug('batchsize: ' + str(batchsize))
+    log.debug('left and right entity ranking functions will rank a slot against ' + str(state.Nsyn) + ' competitors')
 
-    print >> sys.stderr, "BEGIN TRAINING"
+    log.info("BEGIN TRAINING")
     timeref = time.time()
     for epoch_count in xrange(1, state.totepochs + 1):
         # Shuffling
@@ -452,23 +430,23 @@ def FB15kexp(state, channel):
             else:
                 model.embeddings.normalize()
 
-        print >> sys.stderr, "----------------------------------------------------------------------"
-        print >> sys.stderr, "EPOCH %s (%s seconds):" % (
-                epoch_count, round(time.time() - timeref, 3))
+        log.info("----------------------------------------------------------------------------")
+        log.info("EPOCH %s (%s seconds):" % (
+                epoch_count, round(time.time() - timeref, 3)))
         if state.reg != None:
-            print >> sys.stderr, "\tAverage L2 norm of relation vector: %s" % \
+            log.info("\tAverage L2 norm of relation vector: %s" % \
             (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
-            float(state.Nrel), 5))
+            float(state.Nrel), 5)))
         if state.rel:
-            print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
+            log.info("\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
                 round(np.std(out), 3), \
                 round(np.mean(percent_left) * 100, 2), \
                 round(np.mean(percent_rel) * 100, 2), \
-                round(np.mean(percent_right) * 100, 2))
+                round(np.mean(percent_right) * 100, 2)))
         else:
-            print >> sys.stderr, "\tCOST >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(out), 3),round(np.std(out), 3),\
+            log.info("\tCOST >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(out), 3),round(np.std(out), 3),\
                 round(np.mean(percent_left) * 100, 2), \
-                round(np.mean(percent_right) * 100, 2))
+                round(np.mean(percent_right) * 100, 2)))
 
         out, percent_left, percent_rel, percent_right = [], [], [], []
         timeref = time.time()
@@ -476,7 +454,7 @@ def FB15kexp(state, channel):
         if (epoch_count % state.test_all) == 0:
             ### evaluate by actually computing ranking metrics on some data
             if state.nvalid > 0:
-                verl, verr, ver_rel = FilteredRankingScoreIdx(model.ranklfunc,\
+                verl, verr, ver_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.validMR = np.mean(verl + verr)# only tune on entity ranking
@@ -485,22 +463,22 @@ def FB15kexp(state, channel):
                 state.valid = 'not applicable'
             
             if state.ntrain > 0:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(model.ranklfunc,\
+                terl, terr, ter_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
                     model.rankrfunc, trainlidx, trainridx, trainoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.train = np.mean(terl + terr)# only tune on entity ranking
             else:
                 state.train = 'not applicable'
             
-            print >> sys.stderr, "\tMEAN RANK >> valid: %s, train: %s" % (
-                    round(state.validMR, 1), round(state.train, 1))
-            print >> sys.stderr, "\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
-            print >> sys.stderr, "\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1))
-            print >> sys.stderr, "\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4))
+            log.info("\tMEAN RANK >> valid: %s, train: %s" % (
+                    round(state.validMR, 1), round(state.train, 1)))
+            log.info("\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+            log.info("\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1)))
+            log.info("\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4)))
 
             ### save model that performs best on dev data
             if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(\
+                terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
                 model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 
                 failedImprovements = 3
@@ -515,12 +493,13 @@ def FB15kexp(state, channel):
                 cPickle.dump(model.rightop, f, -1)
                 cPickle.dump(model.simfn, f, -1)
                 f.close()
-                print >> sys.stderr, "\tNEW BEST TEST MR: %s\n\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(state.besttest, 1), round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1))
+                log.info("\tNEW BEST TEST MR: %s" % round(state.besttest, 1)) 
+                log.info("\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
             else:
                 if failedImprovements == 0:
-                    print >> sys.stderr, "EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all)
+                    log.warning("EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all))
                     break
-                print >> sys.stderr, "\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1)
+                log.warning("\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1))
                 failedImprovements -= 1
             # Save current model regardless
             f = open(state.savepath + '/current_model.pkl', 'w')
@@ -530,22 +509,22 @@ def FB15kexp(state, channel):
             cPickle.dump(model.simfn, f, -1)
             f.close()
             state.nbepochs = epoch_count
-            print >> sys.stderr, "\t(ranking took %s seconds)" % (
-                round(time.time() - timeref, 3))
+            log.info("\t(ranking took %s seconds)" % (
+                round(time.time() - timeref, 3)))
             timeref = time.time()
-            channel.save()
 
 
-    print >> sys.stderr, "----------------------------------------------------------------------"
-    print >> sys.stderr, "----------------------------------------------------------------------"
-    return channel.COMPLETE
+    log.info("----------------------------------------------------------------------------")
+    log.info("----------------------------------------------------------------------------")
+    return True
 
 ###############################################################################
 ###############################################################################
 ###############################################################################
 ###############################################################################
 
-def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
+def launch(identifier, experiment_type, logger, datapath='data/', \
+    dataset='FB15k', \
     Nent=16296, rhoE=1, margincostfunction='margincost', reg=0.01, \
     rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
@@ -556,6 +535,7 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
 
     # Argument of the experiment script
     state = DD()
+    state.identifier = identifier
     state.datapath = datapath
     state.dataset = dataset
     state.savepath = savepath
@@ -599,10 +579,10 @@ def launch(experiment_type='FB15kexp', datapath='data/', dataset='FB15k', \
     if not os.path.isdir(state.savepath):
         os.mkdir(state.savepath)
 
-    channel = Channel(state)
-    FB15kexp(state, channel)
+    state.logger = logger
+    FB15kexp(state)
 
-def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
+def launch_text(identifier, experiment_type, logger, datapath='data/', \
     dataset='FB15k', Nent=16296, rhoE=1, rhoL=5, Nsyn_rel = 1345, \
     Nsyn=14951, Nrel=1345, loadmodel=False, margincostfunction='margincost', \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
@@ -615,6 +595,7 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
 
     # Argument of the experiment script
     state = DD()
+    state.identifier = identifier
     state.datapath = datapath
     state.dataset = dataset
     state.savepath = savepath
@@ -670,8 +651,8 @@ def launch_text(experiment_type='FB15kexp_text', datapath='data/', \
     if not os.path.isdir(state.savepath):
         os.mkdir(state.savepath)
 
-    channel = Channel(state)
-    FB15kexp_text(state, channel)
+    state.logger = logger
+    FB15kexp_text(state)
 
 
 if __name__ == '__main__':

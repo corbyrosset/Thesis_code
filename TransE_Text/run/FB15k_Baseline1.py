@@ -34,7 +34,7 @@ ntrain = 1000 # 'all' # number of examples to actually compute ranks for
 nvalid = 1000 # 'all'
 ntest = 1000 # 'all'
 neval = 'all' # 'all'### only for final testing, not training
-
+experiment_type = 'FB15kexp'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_Baseline1/'
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 
@@ -42,30 +42,35 @@ identifier = 'Baseline1_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_reg_' + str(reg)
 if rel == True:
 	identifier += '_REL'
-	
+
+# I hate to do this here, but it is needed for .log to be in right place
+if not os.path.isdir(savepath + identifier + '/'):
+	os.mkdir(savepath + identifier + '/')
+logger = initialize_logging(savepath + identifier + '/', identifier)	
 
 ###############################################################################
 ###############################################################################
 
 print 'identifier: ' + str(identifier)
 print 'models saved to path: ' + str(savepath)
-launch(experiment_type = 'FB15kexp', op='Baseline1', simfn= simfn, ndim=ndim, \
-	marge= marge, margincostfunction=margincostfunction, \
-	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
-	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
-	savepath= savepath + str(identifier), reg=reg, \
-	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath=datapath)
+# launch(identifier, experiment_type, logger, op='Baseline1', \
+#	simfn= simfn, ndim=ndim, \
+# 	marge= marge, margincostfunction=margincostfunction, \
+# 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
+# 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
+# 	savepath= savepath + str(identifier), reg=reg, \
+# 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
+# 	datapath=datapath)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
-RankingEval(datapath, reverseRanking=True, neval=neval, loadmodel= savepath + \
-	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
-	Nsyn_rel=Nsyn_rel)
-RankingEvalFil(datapath, reverseRanking=True, neval=neval, loadmodel=savepath+\
-	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
-	Nsyn_rel=Nsyn_rel)
+RankingEval(datapath, logger, reverseRanking=True, neval=neval, \
+	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
+	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+RankingEvalFil(datapath, logger, reverseRanking=True, neval=neval, \
+	loadmodel=savepath+str(identifier) + '/best_valid_model.pkl', \
+	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
 ###############################################################################
 ###############################################################################
 

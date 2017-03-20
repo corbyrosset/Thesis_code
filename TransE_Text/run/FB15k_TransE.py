@@ -35,7 +35,7 @@ ntrain = 1000 # 'all' # number of examples to actually compute ranks for
 nvalid = 1000 # 'all'
 ntest = 1000 # 'all'
 neval = 'all' # 'all'### only for final testing, not training
-
+experiment_type = 'FB15kexp'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/outputs/FB15k_TransE/'
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/TransE_Text/data/'
 
@@ -43,14 +43,19 @@ identifier = 'TransE_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_reg_' + str(reg)
 if rel == True:
 	identifier += '_REL'
-	
+
+# I hate to do this here, but it is needed for .log to be in right place
+if not os.path.isdir(savepath + identifier + '/'):
+	os.mkdir(savepath + identifier + '/')
+logger = initialize_logging(savepath + identifier + '/', identifier)
 
 ###############################################################################
 ###############################################################################
 
 print 'identifier: ' + str(identifier)
 print 'models saved to path: ' + str(savepath)
-launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
+launch(identifier, experiment_type, logger, op='TransE', simfn= simfn, \
+	ndim= ndim, \
 	marge= marge, margincostfunction=margincostfunction, \
 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
@@ -61,12 +66,12 @@ launch(experiment_type = 'FB15kexp', op='TransE', simfn= simfn, ndim= ndim, \
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
-RankingEval(datapath=datapath, reverseRanking=False, neval=neval, loadmodel= savepath + \
-	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
-	Nsyn_rel=Nsyn_rel)
-RankingEvalFil(datapath=datapath, reverseRanking=False, neval=neval, loadmodel= savepath + \
-	str(identifier) + '/best_valid_model.pkl', Nsyn=Nsyn, rel=rel, \
-	Nsyn_rel=Nsyn_rel)
+RankingEval(datapath=datapath, logger, reverseRanking=False, neval=neval, \
+	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
+	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+RankingEvalFil(datapath=datapath, logger, reverseRanking=False, neval=neval,\
+	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
+	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
 ###############################################################################
 ###############################################################################
 

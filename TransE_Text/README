@@ -1,7 +1,9 @@
 Code for Corby's thesis on jointly embedding knowledge graphs and textual instances of their triples
 
+TODO: adagrad
 TODO: Nent = 16296 when it should be 14295 (1345 rels). Truncate the original FB15k data, and make this ubiquitous throughout. Fix data matrices to have Nent rows or Nrel rows only! In Utils, Operations, everywhere
 
+TODO: average of word embeddings was not taking into account the entities at all!!!
 TODO: create a "high quality" textual triples dataset that filters out
 	sentences that are 
 	1) labeled with too many different triples (bc theyre not indicative 
@@ -18,12 +20,23 @@ TODO: create a "high quality" textual triples dataset that filters out
 	pattern passed the cutoff or if one of its trigrams passed the cutoff, the 
 	pattern was included in the pruned set.
 
-TODO: create word embeddings matrix that indexes rows as individual words
 TODO: integrate the SIF word average embedding class into the 
 	FB15k_text_experiment file. (perhaps forget the RMPC part, since that can't
 	be part of backprop)
 TODO: use weightfile from paragrams code to actually do weighted average of 
 	words in sentence
+
+-----------------------------------------------------------------
+DONE:
+
+1. early stopping on validation MRR after 30 epochs
+2. specify ranking based on whether margin aims to minize score of a triple or 
+	maximize it
+3. regularize relations, not entities (split between left and right 
+	relalation, if they exist)
+4. different optimization algorithms 
+5. integrating textual mentions, using them as relation or regularization, or both
+
 
 1. Filtering Clueweb Annotations down to FB15k
 -----------------------------------------------------------------
@@ -67,6 +80,29 @@ RHS: (16296, 77439346)
 REL: (16296, 77439346)
 SENT: (77439346,)
 done writing triple components to their respective files
+
+There are also many textual mentions that are just lists of entities, like countries or states. We filtered out 609,043 such sentences 
+	"mongolia malawi turkey mountain pass california"
+	"california oregon texas arkansas"
+	"poland czech republic estonia latvia lithuania"
+
+Furthermore, we filter the clueweb triples based on how many distinct relationships and triples a sentence was labeled to express:
+
+for a triple to be included its sentence must:
+	1) be involved in at most 4 distinct relations
+	2) be involved in at most 8 distinct tripels 
+	3) have number of words at least 2 and at most 25
+
+These conditions leave only 4,416,201 out of 6,194,853 sentences, 
+leaving 17,355,291 out of 47,291,696 triples
+
+The data in this filtered dataset is labeled as 
+	clueweb_FB15k_all-lhs_filtered.pkl
+	clueweb_FB15k_all-rhs_filtered.pkl
+	clueweb_FB15k_all-rel_filtered.pkl
+	clueweb_FB15k_all-sent_filtered.pkl
+
+
 
 
 

@@ -143,7 +143,7 @@ def RankLeftFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None):
     relr = (relationr.E[:, idxo]).reshape((1, relationr.D))
     tmp = rightop(rhs, relr)
     simi = fnsim(leftop(lhs, rell), tmp.reshape((1, tmp.shape[1])))
-    # print 'RankLeftFnIdx: rhs=%s, rell=%s, relr=%s, tmp=%s, simi=%s' % (np.shape(rhs), np.shape(rell), np.shape(relr), np.shape(tmp), np.shape(simi))
+    # state.logger.debug('RankLeftFnIdx: rhs=%s, rell=%s, relr=%s, tmp=%s, simi=%s' % (np.shape(rhs), np.shape(rell), np.shape(relr), np.shape(tmp), np.shape(simi)))
 
     """
     Theano function inputs.
@@ -689,13 +689,12 @@ class Baseline1_model():
                 self.embeddings = embeddings
             else:
                 try:
-                    print 'loading embeddings from ' + str(state.loademb)
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
                     f.close()
                 except:
-                    print 'could not load embeddings'
-                    exit(1)
+                    raise ValueError('could not load embeddings')
 
             ### similarity function of output of left and right ops
             if state.simfn != 'Dot':
@@ -708,7 +707,7 @@ class Baseline1_model():
             self.margincost = eval(state.margincostfunction)
         else:
             try:
-                print 'loading model from file: ' + str(state.loadmodel)
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
                 f = open(state.loadmodel)
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
@@ -716,8 +715,7 @@ class Baseline1_model():
                 self.simfn = cPickle.load(f)
                 f.close()
             except:
-                print 'could not load model...'
-                exit(1)
+                raise ValueError('could not load model...')
 
         # function compilation
         self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
@@ -759,13 +757,12 @@ class TransE_model():
                 self.embeddings = [embeddings, relationVec, relationVec]
             else:
                 try:
-                    print 'loading embeddings from ' + str(state.loademb)
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
                     f.close()
                 except:
-                    print 'could not load embeddings'
-                    exit(1)
+                    raise ValueError('could not load embeddings')
         
             assert type(self.embeddings) is list
             assert len(self.embeddings) == 3
@@ -776,7 +773,7 @@ class TransE_model():
             self.margincost = eval(state.margincostfunction)
         else:
             try:
-                print 'loading model from file: ' + str(state.loadmodel)
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
                 f = open(state.loadmodel)
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
@@ -784,8 +781,7 @@ class TransE_model():
                 self.simfn = cPickle.load(f)
                 f.close()
             except:
-                print 'could not load model...'
-                exit(1)
+                raise ValueError('could not load model...')
 
         # function compilation
         self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
@@ -825,13 +821,12 @@ class BilinearDiag_model():
                 self.embeddings = [embeddings, relationVec, relationVec]
             else:
                 try:
-                    print 'loading embeddings from ' + str(state.loademb)
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
                     f.close()
                 except:
-                    print 'could not load embeddings'
-                    exit(1)
+                    raise ValueError('could not load embeddings')
         
             assert type(self.embeddings) is list
             assert len(self.embeddings) == 3
@@ -845,7 +840,7 @@ class BilinearDiag_model():
             self.margincost = eval(state.margincostfunction)
         else:
             try:
-                print 'loading model from file: ' + str(state.loadmodel)
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
                 f = open(state.loadmodel)
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
@@ -853,8 +848,8 @@ class BilinearDiag_model():
                 self.simfn = cPickle.load(f)
                 f.close()
             except:
-                print 'could not load model...'
-                exit(1)
+                raise ValueError('could not load model...')
+
 
         # function compilation
         self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
@@ -910,13 +905,13 @@ class ModelE_model():
                 self.embeddings = [embeddings, relationVecLeft, relationVecRight]
             else:
                 try:
-                    print 'loading embeddings from ' + str(state.loademb)
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
                     f.close()
                 except:
-                    print 'could not load embeddings'
-                    exit(1)
+                    raise ValueError('could not load model...')
+
         
             assert type(self.embeddings) is list
             assert len(self.embeddings) == 3
@@ -930,7 +925,7 @@ class ModelE_model():
             self.margincost = eval(state.margincostfunction)
         else:
             try:
-                print 'loading model from file: ' + str(state.loadmodel)
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
                 f = open(state.loadmodel)
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
@@ -938,8 +933,8 @@ class ModelE_model():
                 self.simfn = cPickle.load(f)
                 f.close()
             except:
-                print 'could not load model...'
-                exit(1)
+                raise ValueError('could not load model...')
+
 
         # function compilation
         self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
@@ -982,13 +977,13 @@ class BilinearDiagExtended_model():
                 self.embeddings = [embeddings, relationVecLeft, relationVecRight]
             else:
                 try:
-                    print 'loading embeddings from ' + str(state.loademb)
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
                     f.close()
                 except:
-                    print 'could not load embeddings'
-                    exit(1)
+                    raise ValueError('could not load model...')
+
         
             assert type(self.embeddings) is list
             assert len(self.embeddings) == 3
@@ -1001,7 +996,7 @@ class BilinearDiagExtended_model():
             self.margincost = eval(state.margincostfunction)
         else:
             try:
-                print 'loading model from file: ' + str(state.loadmodel)
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
                 f = open(state.loadmodel)
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
@@ -1009,8 +1004,8 @@ class BilinearDiagExtended_model():
                 self.simfn = cPickle.load(f)
                 f.close()
             except:
-                print 'could not load model...'
-                exit(1)
+                raise ValueError('could not load model...')
+
 
         # function compilation
         self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
@@ -1057,13 +1052,13 @@ class TransE_text_model():
                 self.embeddings = [embeddings, relationVec, relationVec]
             else:
                 try:
-                    print 'loading embeddings from ' + str(state.loademb)
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
                     f.close()
                 except:
-                    print 'could not load embeddings'
-                    exit(1)
+                    raise ValueError('could not load model...')
+
         
             assert type(self.embeddings) is list
             assert len(self.embeddings) == 3
@@ -1077,7 +1072,7 @@ class TransE_text_model():
             self.margincost = eval(state.margincostfunction)
         else:
             try:
-                print 'loading model from file: ' + str(state.loadmodel)
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
                 f = open(state.loadmodel)
                 self.embeddings = cPickle.load(f)
                 self.leftop = cPickle.load(f)
@@ -1088,8 +1083,7 @@ class TransE_text_model():
                 ### TODO: write the word embeddings to file as well
                 f.close()
             except:
-                print 'could not load model...'
-                exit(1)
+                raise ValueError('could not load model...')
 
         self.trainFuncKB = TrainFn1Member(self.margincost, self.KBsim, \
             self.embeddings, self.leftop, self.rightop, marge=state.marge, \

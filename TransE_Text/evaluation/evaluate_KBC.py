@@ -110,7 +110,7 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
         assert np.all(rec > 0)
         assert np.all(rec <= 1)
 
-        # print np.max(rec), np.min(rec), np.max(ranks_per_relation[i][0]), np.min(ranks_per_relation[i][0])
+        # logger.info(np.max(rec), np.min(rec), np.max(ranks_per_relation[i][0]), np.min(ranks_per_relation[i][0]))
         left_med_rank_per_rel[i] = np.median(ranks_per_relation[i][0])
         right_med_rank_per_rel[i]= np.median(ranks_per_relation[i][1])
         gen_med_rank_per_rel[i]  = np.median(res_combined)
@@ -176,7 +176,7 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
 
     return dres
 
-def RankingScoreIdx(sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=None):
+def RankingScoreIdx(logger, sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=None):
     """
     To be used only during testing? In RankingEval()
 
@@ -195,7 +195,7 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=None):
     errl = []
     errr = []
     err_rel = []
-    print '\tRanking: evaluating rank on ' + str(len(idxl)) +' triples'
+    logger.info('\tRanking: evaluating rank on ' + str(len(idxl)) +' triples')
     ### TODO: these will still be reversed, find a way to un-reverse them!
     for l, o, r in zip(idxl, idxo, idxr):
         ### ORIGINAL:
@@ -230,7 +230,7 @@ def RankingScoreIdx(sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=None):
 
 ### apparently not used either... but it should be, we should compute
 ### metrics over lists where multiple valid triples don't appear!
-def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanking, rank_rel=None):
+def FilteredRankingScoreIdx(logger, sl, sr, idxl, idxr, idxo, true_triples, reverseRanking, rank_rel=None):
     """
     This function computes the rank list of the lhs and rhs, over a list of
     lhs, rhs and rel indexes.
@@ -244,7 +244,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
     errl = []
     errr = []
     err_rel = []
-    print '\tFilteredRanking: evaluating rank on ' + str(len(idxl)) +' triples'
+    logger.info('\tFilteredRanking: evaluating rank on ' + str(len(idxl)) +' triples')
 
     for l, o, r in zip(idxl, idxo, idxr):
         il=np.argwhere(true_triples[:,0]==l).reshape(-1,)
@@ -264,7 +264,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
 
         # TODO: remove the assert
         ranks = np.argsort(np.argsort(scores_l)).flatten()
-        assert (not numpy.isinf(ranks[l])) and (not np.isinf(-1*ranks[l]))
+        assert (not np.isinf(ranks[l])) and (not np.isinf(-1*ranks[l]))
         errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
 
         ### right
@@ -280,7 +280,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
 
         # TODO: remove the assert
         ranks = np.argsort(np.argsort(scores_r)).flatten()
-        assert (not numpy.isinf(ranks[r])) and (not np.isinf(-1*ranks[r]))
+        assert (not np.isinf(ranks[r])) and (not np.isinf(-1*ranks[r]))
         errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
         ### relations
@@ -298,7 +298,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
 
             # TODO: remove the assert
             ranks = np.argsort(np.argsort(scores_rel)).flatten()
-            assert (not numpy.isinf(ranks[o])) and (not np.isinf(-1*ranks[o]))
+            assert (not np.isinf(ranks[o])) and (not np.isinf(-1*ranks[o]))
             err_rel += [np.argsort(np.argsort(scores_rel)).flatten()[o] + 1]
     
     if not rank_rel:
@@ -306,7 +306,7 @@ def FilteredRankingScoreIdx(sl, sr, idxl, idxr, idxo, true_triples, reverseRanki
 
     return errl, errr, err_rel
 
-def RankingEval(datapath, reverseRanking, rel = False, Nsyn_rel = 1345,
+def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
     dataset='FB15k-test', loadmodel='best_valid_model.pkl', neval='all', 
     Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl'):
 
@@ -315,9 +315,9 @@ def RankingEval(datapath, reverseRanking, rel = False, Nsyn_rel = 1345,
         to a file. Then call this file with the path to the best model as
         the first argument
     '''
-    print '\n\tRanking model on %s examples from test\nEach example ranked against %s other entities' % (neval, Nsyn)
+    logger.info('\tRanking model on %s examples from test. Each example ranked against %s other entities' % (neval, Nsyn))
     if rel == True:
-        print '\tRELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel)
+        logger.info('\tRELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel))
 
     # Load model
     f = open(loadmodel)
@@ -354,49 +354,49 @@ def RankingEval(datapath, reverseRanking, rel = False, Nsyn_rel = 1345,
     else:
         rankrelfunc = None
  
-    res = RankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, reverseRanking, rank_rel=rankrelfunc)
+    res = RankingScoreIdx(logger, ranklfunc, rankrfunc, idxl, idxr, idxo, reverseRanking, rank_rel=rankrelfunc)
     left_ranks, right_ranks, rel_ranks = res
-    print 'left_ranks: %s, right_ranks: %s, rel_ranks: %s' % (np.shape(left_ranks), np.shape(right_ranks), np.shape(rel_ranks))
-    print 'max left_ranks: %s, max right_ranks: %s, max rel_ranks: %s' % (np.max(left_ranks), np.max(right_ranks), np.max(rel_ranks))
+    logger.info('left_ranks: %s, right_ranks: %s, rel_ranks: %s' % (np.shape(left_ranks), np.shape(right_ranks), np.shape(rel_ranks)))
+    logger.info('max left_ranks: %s, max right_ranks: %s, max rel_ranks: %s' % (np.max(left_ranks), np.max(right_ranks), np.max(rel_ranks)))
     
     ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(res, n, rel)
     dres.update(macro_evaluation_statistics(res, idxo, n, rel))
 
-    print "MICRO RAW:"
-    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    logger.info("MICRO RAW:")
+    logger.info("\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microlmean'], 3), round(dres['microlmrr'], 3), \
-            round(dres['microlmedian'], 3), n, round(dres['microlhits@n'], 3))
-    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microlmedian'], 3), n, round(dres['microlhits@n'], 3)))
+    logger.info("\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['micrormean'], 3), round(dres['micrormrr'], 3), \
-            round(dres['micrormedian'], 3), n, round(dres['microrhits@n'], 3))
+            round(dres['micrormedian'], 3), n, round(dres['microrhits@n'], 3)))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
+        logger.info("\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
             3), round(dres['microrelmedian'], 3), n, \
-            round(dres['microrelhits@n'], 3))
-    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microrelhits@n'], 3)))
+    logger.info("\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microgmean'], 3), round(dres['microgmrr'], 3), \
-            round(dres['microgmedian'], 3), n, round(dres['microghits@n'], 3))
+            round(dres['microgmedian'], 3), n, round(dres['microghits@n'], 3)))
 
-    print "MACRO RAW"
-    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    logger.info("MACRO RAW")
+    logger.info("\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrolmean'], 3), round(dres['macrolmrr'], 3), \
-            round(dres['macrolmedian'], 3), n, round(dres['macrolhits@n'], 3))
-    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrolmedian'], 3), n, round(dres['macrolhits@n'], 3)))
+    logger.info("\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrormean'], 3), round(dres['macrormrr'], 3), \
-            round(dres['macrormedian'], 3), n, round(dres['macrorhits@n'], 3))
+            round(dres['macrormedian'], 3), n, round(dres['macrorhits@n'], 3)))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
+        logger.info("\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
             3), round(dres['macrorelmedian'], 3), n, \
-            round(dres['macrorelhits@n'], 3))    
-    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrorelhits@n'], 3)))
+    logger.info("\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrogmean'], 3), round(dres['macrogmrr'], 3), \
-            round(dres['macrogmedian'], 3), n, round(dres['macroghits@n'], 3))
+            round(dres['macrogmedian'], 3), n, round(dres['macroghits@n'], 3)))
 
     return dres
 
 ### apparently not used?
-def RankingEvalFil(datapath, reverseRanking, rel = False, dataset='FB15k', 
+def RankingEvalFil(datapath, logger, reverseRanking, rel = False, dataset='FB15k', 
     op='TransE', neval='all', loadmodel='best_valid_model.pkl', 
     fold=0, Nrel=1345, Nsyn=14951, Nsyn_rel = 1345, n=10):
 
@@ -406,9 +406,9 @@ def RankingEvalFil(datapath, reverseRanking, rel = False, dataset='FB15k',
         on a particular test triple.
 
     '''
-    print '\nRanking model on %s examples from test\nEach example ranked against %s other entities which are FILTERED' % (neval, Nsyn)
+    logger.info('Ranking model on %s examples from test. Each example ranked against %s other entities which are FILTERED' % (neval, Nsyn))
     if rel == True:
-        print 'RELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel)
+        logger.info('RELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel))
 
     f = open(loadmodel, 'r')
     embeddings = cPickle.load(f)
@@ -465,42 +465,42 @@ def RankingEvalFil(datapath, reverseRanking, rel = False, dataset='FB15k',
     true_triples=np.concatenate([idxtl,idxvl,idxl,idxto,idxvo,idxo,idxtr,idxvr,idxr]).reshape(3,idxtl.shape[0]+idxvl.shape[0]+idxl.shape[0]).T
 
     # restest = (error_left entities, error_right_entities)
-    restest = FilteredRankingScoreIdx(ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, reverseRanking, rank_rel=rankrelfunc)
+    restest = FilteredRankingScoreIdx(logger, ranklfunc, rankrfunc, idxl, idxr, idxo, true_triples, reverseRanking, rank_rel=rankrelfunc)
 
     ### compute micro and macro mean rank and hits @ 10
     dres = micro_evaluation_statistics(restest, n, rel)
     dres.update(macro_evaluation_statistics(restest, idxo, n, rel))
 
-    print "MICRO FILTERED:"
-    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    logger.info("MICRO FILTERED:")
+    logger.info("\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microlmean'], 5), round(dres['microlmrr'], 5), \
-            round(dres['microlmedian'], 5), n, round(dres['microlhits@n'], 3))
-    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microlmedian'], 5), n, round(dres['microlhits@n'], 3)))
+    logger.info("\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['micrormean'], 5), round(dres['micrormrr'], 5), \
             round(dres['micrormedian'], 5),
-            n, round(dres['microrhits@n'], 3))
+            n, round(dres['microrhits@n'], 3)))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
+        logger.info("\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['microrelmean'], 3), round(dres['microrelmrr'], \
             3), round(dres['microrelmedian'], 3), n, \
-            round(dres['microrelhits@n'], 3))
-    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['microrelhits@n'], 3)))
+    logger.info("\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['microgmean'], 5), round(dres['microgmrr'], 5), \
-            round(dres['microgmedian'], 5), n, round(dres['microghits@n'], 3))
+            round(dres['microgmedian'], 5), n, round(dres['microghits@n'], 3)))
 
-    print "MACRO FILTERED"
-    print "\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+    logger.info("MACRO FILTERED")
+    logger.info("\tLeft mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrolmean'], 5), round(dres['macrolmrr'], 5), \
-            round(dres['macrolmedian'], 5), n, round(dres['macrolhits@n'], 3))
-    print "\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrolmedian'], 5), n, round(dres['macrolhits@n'], 3)))
+    logger.info("\tRight mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrormean'], 5), round(dres['macrormrr'], 5), \
-            round(dres['macrormedian'], 5), n, round(dres['macrorhits@n'], 3))
+            round(dres['macrormedian'], 5), n, round(dres['macrorhits@n'], 3)))
     if rel == True:
-        print "\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
+        logger.info("\trelation mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (round(dres['macrorelmean'], 3), round(dres['macrorelmrr'], \
             3), round(dres['macrorelmedian'], 3), n, \
-            round(dres['macrorelhits@n'], 3))
-    print "\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
+            round(dres['macrorelhits@n'], 3)))
+    logger.info("\tGlobal mean rank: %s, MRR: %s, median rank: %s, hits@%s: %s%%" % (
             round(dres['macrogmean'], 5), round(dres['macrogmrr'], 5), \
-            round(dres['macrogmedian'], 5), n, round(dres['macroghits@n'], 3))
+            round(dres['macrogmedian'], 5), n, round(dres['macroghits@n'], 3)))
 
     return dres
 
@@ -510,4 +510,4 @@ if __name__ == '__main__':
     '''
     # RankingEval(loadmodel=sys.argv[1])
     # RankingEvalFil(loadmodel=sys.argv[1])
-    print 'TODO'
+    logger.info('TODO')
