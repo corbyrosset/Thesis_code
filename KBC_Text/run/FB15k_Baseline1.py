@@ -52,8 +52,8 @@ logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 ###############################################################################
 ###############################################################################
 
-print 'identifier: ' + str(identifier)
-print 'models saved to path: ' + str(savepath)
+logger.info('identifier: ' + str(identifier))
+logger.info('models saved to path: ' + str(savepath))
 # launch(identifier, experiment_type, logger, op='Baseline1', \
 #	simfn= simfn, ndim=ndim, \
 # 	marge= marge, margincostfunction=margincostfunction, \

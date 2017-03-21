@@ -11,9 +11,9 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 
 simfn = 'Dot' ### cannot change this for BilinearDiag
 margincostfunction = 'margincost_pos_high' ### from top of Operations
-ndim = 150 # dimension of both relationship and entity embeddings
+ndim = 50 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
-marge = 1.0     # {0.5, 1.0} 
+marge = 0.5     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -52,8 +52,8 @@ logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 ###############################################################################
 ###############################################################################
 
-print 'identifier: ' + str(identifier)
-print 'models saved to path: ' + str(savepath)
+logger.info('identifier: ' + str(identifier))
+logger.info('models saved to path: ' + str(savepath))
 launch(identifier, experiment_type, logger, op='BilinearDiag', \
 	simfn= simfn, ndim= ndim, \
 	marge= marge, margincostfunction=margincostfunction, \

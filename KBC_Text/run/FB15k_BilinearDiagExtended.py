@@ -13,9 +13,9 @@ simfn = 'L1'
 margincostfunction = 'margincost_pos_high' ### from top of Operations
 reverseRanking = True # rank from best -> worst <=> high to low score
 
-ndim = 100 # dimension of both relationship and entity embeddings
+ndim = 200 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
-marge = 0.5     # {0.5, 1.0} 
+marge = 1.0     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -41,7 +41,7 @@ experiment_type = 'FB15kexp'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_BilinearDiagExtended/'
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/'
 
-identifier = 'FAKE_BilinearDiagExtended_' + str(simfn) + '_ndim_' + str(ndim) \
+identifier = 'BilinearDiagExtended_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_reg_' + str(reg)
 if rel == True:
 	identifier += '_REL'
@@ -78,4 +78,5 @@ RankingEvalFil(datapath, logger, reverseRanking=True, neval=neval, \
 # send_notification(identifier, logFile)
 ###############################################################################
 ###############################################################################
+
 

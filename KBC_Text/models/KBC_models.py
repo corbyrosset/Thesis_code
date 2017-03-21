@@ -798,6 +798,82 @@ class TransE_model():
             self.rankrelfunc = None
 
 # ----------------------------------------------------------------------------
+class Bilinear_model():
+    '''
+        For Bilinear or RESCAL, the score of a triple is just 
+        e_h^T W_r e_t (all matrix multiplications) where W_r is a square 
+        matrix without any constraints. A separate matrix for each relation. 
+
+        This is implemented as score(e_h, r, e_t) = 
+        dot(e_hW_r, e_t)
+
+        where the leftop = e_h^T * W_r 
+        the rightop is just identity, but the fnsim between left and right ops
+        is constrained to be dot product. 
+
+    '''
+
+    def __init__(self, state):
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerBilinear()
+            self.rightop = Unstructured()
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
+                    'relvec')
+                ### dummy right relations...
+                self.embeddings = [embeddings, relationVec, relationVec]
+            else:
+                try:
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    f.close()
+                except:
+                    raise ValueError('could not load embeddings')
+        
+            assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
+
+            ### similarity function of output of left and right ops
+            if state.simfn != 'Dot':
+                raise ValueError('Bilinear must use dotproduct similarity')
+            self.simfn = Dotsim 
+            if 'pos_high' not in state.margincostfunction:
+                raise ValueError('Bilinear must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.simfn = cPickle.load(f)
+                f.close()
+            except:
+                raise ValueError('could not load model...')
+
+
+        # function compilation
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
+        else:
+            self.rankrelfunc = None
+
+# ----------------------------------------------------------------------------
 class BilinearDiag_model():
     '''
         For BilinearDiag, the score of a triple is just 
@@ -1021,6 +1097,25 @@ class BilinearDiagExtended_model():
         else:
             self.rankrelfunc = None
 
+# ----------------------------------------------------------------------------
+class DoubleLinear_model():
+    '''
+        A generalization of Bilinear/RESCAL models: instead of having one 
+        matrix betwee two entities, give each entity vector in a triple its 
+        own matrix. This is the same as BilinearDiag_extended, except the 
+        matrices are not constrained to be diagonal. 
+
+        The score of a triple score(e_h, r, e_t) = 
+
+            fnsim(W_rh * e_h, W_rt * e_t)
+
+        where fnsim is any similarity function defined between two vectors, and
+        W_rh and W_rt are square matrices. The leftop and rightops are both
+        bilinear, even though this is misleading - the bilinear op actually 
+        just takes a matrix and a vector and multiplies them. 
+    '''
+    def __init__(self):
+        raise NotImplementedError
 # ----------------------------------------------------------------------------
 class TransE_text_model():
     '''

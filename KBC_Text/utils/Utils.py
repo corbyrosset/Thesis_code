@@ -9,9 +9,38 @@ import scipy
 import scipy.sparse as sp
 import theano
 import logging
+import argparse
+
 
 
 # Utils ----------------------------------------------------------------------
+# def parser():
+
+#     parser = argparse.ArgumentParser(description="calculate X to the power of Y")
+#     parser.add_argument("square", help="display a square of a given number",
+#                     type=float)
+#     ### either -v or -q can be specified, not -vq
+#     group = parser.add_mutually_exclusive_group()
+#     group.add_argument("-v", "--verbose", action="store_true")
+#     group.add_argument("-q", "--quiet", action="store_true")
+#     parser.add_argument('--width', default=10.5, type=int)
+
+#     args = parser.parse_args()
+#     answer = args.square**2
+
+### type checking:
+#     def perfect_square(string):
+# ...     value = int(string)
+# ...     sqrt = math.sqrt(value)
+# ...     if sqrt != int(sqrt):
+# ...         msg = "%r is not a perfect square" % string
+# ...         raise argparse.ArgumentTypeError(msg)
+# ...     return value
+# ...
+# >>> parser = argparse.ArgumentParser(prog='PROG')
+# >>> parser.add_argument('foo', type=perfect_square)
+
+
 def initialize_logging(savepath, identifier):
     '''
         write both to the console and to .log file. Example code of how to 

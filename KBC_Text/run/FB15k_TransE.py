@@ -53,8 +53,8 @@ logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 ###############################################################################
 ###############################################################################
 
-print 'identifier: ' + str(identifier)
-print 'models saved to path: ' + str(savepath)
+logger.info('identifier: ' + str(identifier))
+logger.info('models saved to path: ' + str(savepath))
 launch(identifier, experiment_type, logger, op='TransE', simfn= simfn, \
 	ndim= ndim, \
 	marge= marge, margincostfunction=margincostfunction, \
@@ -67,10 +67,10 @@ launch(identifier, experiment_type, logger, op='TransE', simfn= simfn, \
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
-RankingEval(datapath=datapath, logger, reverseRanking=False, neval=neval, \
+RankingEval(datapath, logger, reverseRanking=False, neval=neval, \
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
-RankingEvalFil(datapath=datapath, logger, reverseRanking=False, neval=neval,\
+RankingEvalFil(datapath, logger, reverseRanking=False, neval=neval,\
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
 # send_notification(identifier, logFile)
