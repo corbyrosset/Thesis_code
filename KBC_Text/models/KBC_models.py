@@ -317,7 +317,7 @@ def TrainFn1Member(margincost, fnsim, embeddings, leftop, rightop, marge=1.0, re
     else:
         return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr)],
             updates=updates, on_unused_input='ignore')
-    
+
 def Train1MemberTextAsRel(margincost, KBsim, textsim, KBembeddings, wordembeddings, leftop, rightop, marge=1.0, gamma=0.01, rel=True):
     """
     Here we use the textual embedding *AS* the relation embedding; the
@@ -809,24 +809,26 @@ class Bilinear_model():
 
         where the leftop = e_h^T * W_r 
         the rightop is just identity, but the fnsim between left and right ops
-        is constrained to be dot product. 
+        is constrained to be dot product. We use a special embedding class that
+        creates matrices for each relation rather than vectors. 
 
     '''
 
     def __init__(self, state):
         if not state.loadmodel:
             # operators, left and right ops are for distance function
-            self.leftop  = LayerBilinear()
+            self.leftop  = LayerBilinear(state.ndim, state.ndim)
             self.rightop = Unstructured()
             
             # Entity embeddings
             if not state.loademb:
                 embeddings = Embeddings(np.random, state.Nent, state.ndim, \
                     'emb')
-                relationVec = Embeddings(np.random, state.Nrel, state.ndim, \
-                    'relvec')
+                relationsMat = Embeddings(np.random, state.Nrel, \
+                    state.ndim * state.ndim, 'relmat') ### must be square,
+                ### but unravel the matrix into a vector...
                 ### dummy right relations...
-                self.embeddings = [embeddings, relationVec, relationVec]
+                self.embeddings = [embeddings, relationsMat, relationsMat]
             else:
                 try:
                     state.logger.info('loading embeddings from ' + str(state.loademb))
@@ -1113,6 +1115,146 @@ class DoubleLinear_model():
         W_rh and W_rt are square matrices. The leftop and rightops are both
         bilinear, even though this is misleading - the bilinear op actually 
         just takes a matrix and a vector and multiplies them. 
+    '''
+    def __init__(self, state):
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerBilinear(state.ndim, state.ndim)
+            self.rightop = LayerBilinear(state.ndim, state.ndim)
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                relationsLeft = Embeddings(np.random, state.Nrel, \
+                    state.ndim * state.ndim, 'relmatl') ### must be square,
+                relationsRight = Embeddings(np.random, state.Nrel, \
+                    state.ndim * state.ndim, 'relmatr')
+                ### but unravel the matrix into a vector...
+                ### dummy right relations...
+                self.embeddings = [embeddings, relationsLeft, relationsRight]
+            else:
+                try:
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    f.close()
+                except:
+                    raise ValueError('could not load embeddings')
+        
+            assert type(self.embeddings) is list
+            assert len(self.embeddings) == 3
+
+            ### similarity function of output of left and right ops
+            self.simfn = eval(state.simfn + 'sim')  
+            if 'pos_high' not in state.margincostfunction:
+                raise ValueError('DoubleLinear must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.simfn = cPickle.load(f)
+                f.close()
+            except:
+                raise ValueError('could not load model...')
+
+
+        # function compilation
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
+        else:
+            self.rankrelfunc = None
+
+# ----------------------------------------------------------------------------
+class STransE_model():
+    '''
+        From "STransE: a novel embedding mode of entities and relationships in knowledge bases" by Nguyen, Sirts, Qu, and Johnson 2017. 
+
+        The score of a triple is analogous to TransE:
+        score(e_h, r, e_t) = ||W_1*h + r - W_2*t||
+
+        make sure to remember that this seeks to MINIMIZE the score for 
+        positive triples
+    '''
+    def __init__(self, state):
+        if not state.loadmodel:
+            # operators, left and right ops are for distance function
+            self.leftop  = LayerTrans()
+            self.rightop = Unstructured()
+            
+            # Entity embeddings
+            if not state.loademb:
+                embeddings = Embeddings(np.random, state.Nent, state.ndim, \
+                    'emb')
+                embeddingsModifiersLeft = Embeddings(np.random, state.Nent, \
+                    state.ndim * state.ndim, 'emb_mod_left')
+                embeddingsModifiersRight = Embeddings(np.random, state.Nent, \
+                    state.ndim * state.ndim, 'emb_mod_left')
+                relationEmbeddings = Embeddings(np.random, state.Nrel, \
+                    state.ndim, 'rels')
+                ### but unravel the matrix into a vector...
+                ### dummy right relations...
+                self.embeddings = [embeddings, embeddingsModifiersLeft, embeddingsModifiersRight, relationEmbeddings]
+            else:
+                try:
+                    state.logger.info('loading embeddings from ' + str(state.loademb))
+                    f = open(state.loademb)
+                    self.embeddings = cPickle.load(f)
+                    f.close()
+                except:
+                    raise ValueError('could not load embeddings')
+        
+            assert type(self.embeddings) is list
+            assert len(self.embeddings) == 4
+
+            ### similarity function of output of left and right ops
+            self.simfn = eval(state.simfn + 'sim')  
+            if 'pos_high' in state.margincostfunction:
+                raise ValueError('STransE_model must use the kind of margin that ranks positive triples lower than negative, e.g. margincost')
+            self.margincost = eval(state.margincostfunction)
+        else:
+            try:
+                state.logger.info('loading model from file: ' + str(state.loadmodel))
+                f = open(state.loadmodel)
+                self.embeddings = cPickle.load(f)
+                self.leftop = cPickle.load(f)
+                self.rightop = cPickle.load(f)
+                self.simfn = cPickle.load(f)
+                f.close()
+            except:
+                raise ValueError('could not load model...')
+
+
+        # function compilation
+        self.trainfunc = TrainFn1Member(self.margincost, self.simfn, \
+            self.embeddings, self.leftop, self.rightop, marge=state.marge, \
+            rel=state.rel, reg=state.reg)
+        self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        self.rankrfunc = RankRightFnIdx(self.simfn, self.embeddings, \
+            self.leftop, self.rightop, subtensorspec=state.Nsyn)
+        if state.rel == True: 
+            self.rankrelfunc = RankRelFnIdx(self.simfn, self.embeddings, \
+                self.leftop, self.rightop, subtensorspec=state.Nsyn_rel)
+        else:
+            self.rankrelfunc = None
+
+# ----------------------------------------------------------------------------
+class DNN_model():
+    '''
+        Use a multilayer perceptron - build up "Operations.Layer" classes. 
     '''
     def __init__(self):
         raise NotImplementedError

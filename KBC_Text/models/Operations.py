@@ -240,7 +240,8 @@ class LayerLinear(object):
         return self.act(self.layerl(x) + self.layerr(y) + self.b)
 
 
-class LayerBilinear(object):
+class LayerBilinearTATEC(object):
+    
     """
     Class for a layer with bilinear interaction (n-mode vector-tensor product)
     on two input vectors with a tensor of parameters.
@@ -287,14 +288,49 @@ class LayerBilinear(object):
         return self.act(xWy + self.b)
 
 
-class LayerMat(object):
+# class LayerMat(object):
+#     """
+#     This name is a misnomer, it does what bilinear does, which is multiply a vector by a "matrix", returning the output vector
+
+#     Class for a layer with two input vectors, the 'right' member being a flat
+#     representation of a matrix on which to perform the dot product with the
+#     'left' vector [Structured Embeddings model, Bordes et al. AAAI 2011].
+#     """
+
+#     def __init__(self, act, n_inp, n_out):
+#         """
+#         Constructor.
+
+#         :param act: name of the activation function ('lin', 'rect', 'tanh' or
+#                     'sigm').
+#         :param n_inp: input dimension.
+#         :param n_out: output dimension.
+
+#         :note: there is no parameter declared in this layer, the parameters
+#                are the embeddings of the 'right' member, therefore their
+#                dimension have to fit with those declared here: n_inp * n_out.
+#         """
+#         self.act = eval(act)
+#         self.actstr = act
+#         self.n_inp = n_inp
+#         self.n_out = n_out
+#         self.params = []
+
+#     def __call__(self, x, y):
+#         """Forward function."""
+#         # More details on the class and constructor comments.
+#         ry = y.reshape((y.shape[0], self.n_inp, self.n_out))
+#         rx = x.reshape((x.shape[0], x.shape[1], 1))
+#         return self.act((rx * ry).sum(1))
+
+class LayerBilinear(object):
     """
     Class for a layer with two input vectors, the 'right' member being a flat
     representation of a matrix on which to perform the dot product with the
     'left' vector [Structured Embeddings model, Bordes et al. AAAI 2011].
     """
 
-    def __init__(self, act, n_inp, n_out):
+    def __init__(self, n_inp, n_out):
         """
         Constructor.
 
@@ -307,18 +343,23 @@ class LayerMat(object):
                are the embeddings of the 'right' member, therefore their
                dimension have to fit with those declared here: n_inp * n_out.
         """
-        self.act = eval(act)
-        self.actstr = act
+        # self.act = eval(act)
+        # self.actstr = act
         self.n_inp = n_inp
         self.n_out = n_out
         self.params = []
 
-    def __call__(self, x, y):
+    def __call__(self, x, W):
         """Forward function."""
         # More details on the class and constructor comments.
-        ry = y.reshape((y.shape[0], self.n_inp, self.n_out))
+        rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
+        # print 'rW: %s' % rW.get_value().shape
         rx = x.reshape((x.shape[0], x.shape[1], 1))
-        return self.act((rx * ry).sum(1))
+        # print 'rx: %s' % rx.get_value().shape
+        # res = T.dot(rx.T, rW) ## TODO matrix multiply xW
+        res = (rx * rW).sum(1)
+        # print '(rx * rW).sum(1): %s' % (rx * rW).sum(1).get_value().shape
+        return res
 
 class LayerBilinearDiag(object):
     """
@@ -348,6 +389,65 @@ class LayerTrans(object):
         """Forward function."""
         return x+y
 
+# class LayerSTransE(object): 
+#     def __init__(self, n_inp, n_out):
+#         """
+#         Constructor.
+
+#         :param act: name of the activation function ('lin', 'rect', 'tanh' or
+#                     'sigm').
+#         :param n_inp: input dimension.
+#         :param n_out: output dimension.
+
+#         :note: there is no parameter declared in this layer, the parameters
+#                are the embeddings of the 'right' member, therefore their
+#                dimension have to fit with those declared here: n_inp * n_out.
+#         """
+#         # self.act = eval(act)
+#         # self.actstr = act
+#         self.n_inp = n_inp
+#         self.n_out = n_out
+#         self.params = []
+
+#     def __call__(self, x, W, r):
+#         """Forward function."""
+#         # More details on the class and constructor comments.
+#         rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
+#         rx = x.reshape((x.shape[0], x.shape[1], 1))
+#         res = (rx * rW).sum(1) + r
+#         return res
+
+# class LayerSTransE_singular(object): 
+#     def __init__(self, n_inp, n_out):
+#         """
+#         Constructor.
+
+#         :param act: name of the activation function ('lin', 'rect', 'tanh' or
+#                     'sigm').
+#         :param n_inp: input dimension.
+#         :param n_out: output dimension.
+
+#         :note: there is no parameter declared in this layer, the parameters
+#                are the embeddings of the 'right' member, therefore their
+#                dimension have to fit with those declared here: n_inp * n_out.
+#         """
+#         # self.act = eval(act)
+#         # self.actstr = act
+#         self.n_inp = n_inp
+#         self.n_out = n_out
+#         self.params = []
+
+#     def __call__(self, x, W):
+#         """Forward function."""
+#         # More details on the class and constructor comments.
+#         rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
+#         # print 'rW: %s' % rW.get_value().shape
+#         rx = x.reshape((x.shape[0], x.shape[1], 1))
+#         # print 'rx: %s' % rx.get_value().shape
+#         # res = T.dot(rx.T, rW) ## TODO matrix multiply xW
+#         res = (rx * rW).sum(1)
+#         # print '(rx * rW).sum(1): %s' % (rx * rW).sum(1).get_value().shape
+#         return res
 
 class LayerDot(object):
     '''
@@ -406,6 +506,32 @@ class Embeddings(object):
 
         self.L1_norm = T.sum(T.abs_(self.E))
         self.L2_sqr_norm = T.sum(T.sqr(self.E))
+
+# class EmbeddingMatrices(object):
+
+#     def __init__(self, rng, L, M, N, tag=''): 
+#         """
+#         Constructor for a 3D volume of parameters, N matrices
+
+#         :param rng: numpy.random module for number generation.
+#         :param L: number of rows per embedding matrix
+#         :param M: number of columns per embedding matrix
+#         :param N: number of embedding matrices == number of relations
+#         :param tag: name of the embeddings for parameter declaration.
+#         """
+#         self.L = L
+#         self.M = M
+#         self.N = N
+#         wbound = np.sqrt(6. / max(L, M))
+#         W_values = rng.uniform(low=-wbound, high=wbound, size=(L, M, N))
+#         W_values = W_values / np.sqrt(np.sum(W_values ** 2, axis=0))
+#         W_values = np.asarray(W_values, dtype=theano.config.floatX)
+#         self.E = theano.shared(value=W_values, name='E' + tag)
+
+#         # NOTE: normalization is not defined here, define it if you want
+#         self.L1_norm = T.sum(T.abs_(self.E))
+#         self.L2_sqr_norm = T.sum(T.sqr(self.E))
+
 
 class WordEmbeddings(object):
 

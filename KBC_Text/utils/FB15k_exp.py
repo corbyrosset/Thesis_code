@@ -367,6 +367,12 @@ def FB15kexp(state):
     elif state.op == 'Baseline1':
         model = Baseline1_model(state)
         reverseRanking = True
+    elif state.op == 'Bilinear':
+        model = Bilinear_model(state)
+        reverseRanking = True
+    elif state.op == 'DoubleLinear':
+        model = DoubleLinear_model(state)
+        reverseRanking = True
     else:
         raise ValueError('Must supply valid model type')
     assert hasattr(model, 'trainfunc')
