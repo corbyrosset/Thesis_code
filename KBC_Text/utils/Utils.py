@@ -342,7 +342,7 @@ def load_FB15k_data(state):
 
     elapsed = time.clock()
     elapsed = elapsed - start
-    print "loaded FB15k data in: %s seconds" % elapsed
+    state.logger.info("loaded FB15k data in: %s seconds" % elapsed)
     
     return trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB
 
@@ -395,7 +395,7 @@ def load_FB15k_Clueweb_data(state):
     text_train = np.array(cPickle.load(open(data_path + 'clueweb_FB15k_filtered_%s-sent.pkl' % datatyp)))[:state.numTextTrain]
     rel_train = rel_train[-state.Nrel:, :]
     ### TODO: reformat input data so you don't need to do '[0, :].tolist()'
-    print 'using %s out of %s available textual mentions' % (state.numTextTrain, np.size(lhs_train))
+    state.logger.info('using %s out of %s available textual mentions' % (state.numTextTrain, np.size(lhs_train)))
     idxl = expand_to_mat(convert2idx(lhs_train)[:state.numTextTrain], \
             state.Nent)
     idxr = expand_to_mat(convert2idx(rhs_train)[:state.numTextTrain], \
@@ -440,36 +440,40 @@ def load_FB15k_Clueweb_data(state):
     elapsed = time.clock()
     elapsed = elapsed - start
 
-    print "loaded clueweb data in: %s seconds" % elapsed
-    print "size of clueweb data: %s bytes" % (sys.getsizeof(idxl) \
+    state.logger.info("loaded clueweb data in: %s seconds" % elapsed)
+    state.logger.debug("size of clueweb data: %s bytes" % (sys.getsizeof(idxl) \
     + sys.getsizeof(idxr) + sys.getsizeof(idxo) + sys.getsizeof(idxvl) \
     + sys.getsizeof(idxvr) + sys.getsizeof(idxvo) + sys.getsizeof(idxtl) \
     + sys.getsizeof(idxtr) + sys.getsizeof(idxto) + sys.getsizeof(sent2idx) \
     + sys.getsizeof(idx2sent) + sys.getsizeof(text_per_triple_cntr) \
-    + sys.getsizeof(unique_text_per_triple) + sys.getsizeof(triple_per_text))
-    print '\tidxl: ' + str(sys.getsizeof(idxl)) + ' bytes'
-    print '\tidxr: ' + str(sys.getsizeof(idxr)) + ' bytes'
-    print '\tidxo: ' + str(sys.getsizeof(idxo)) + ' bytes'
-    print '\tidxvl: ' + str(sys.getsizeof(idxvl)) + ' bytes'
-    print '\tidxvr: ' + str(sys.getsizeof(idxvr)) + ' bytes'
-    print '\tidxvo: ' + str(sys.getsizeof(idxvo)) + ' bytes'
-    print '\tidxtl: ' + str(sys.getsizeof(idxtl)) + ' bytes'
-    print '\tidxtr: ' + str(sys.getsizeof(idxtr)) + ' bytes'
-    print '\tidxto: ' + str(sys.getsizeof(idxto)) + ' bytes'
-    print '\tsent2idx: ' + str(sys.getsizeof(sent2idx)) + ' bytes'
-    print '\tidx2sent: ' + str(sys.getsizeof(idx2sent)) + ' bytes'
-    print '\ttext_per_triple_cntr: ' + \
-        str(sys.getsizeof(text_per_triple_cntr)) + ' bytes'
-    print '\tunique_text_per_triple: ' + \
-        str(sys.getsizeof(unique_text_per_triple)) + ' bytes'
-    print '\ttriple_per_text: ' + str(sys.getsizeof(triple_per_text)) + \
-        ' bytes'
+    + sys.getsizeof(unique_text_per_triple) + sys.getsizeof(triple_per_text)))
+    state.logger.debug('\tidxl: ' + str(sys.getsizeof(idxl)) + ' bytes')
+    state.logger.debug('\tidxr: ' + str(sys.getsizeof(idxr)) + ' bytes')
+    state.logger.debug('\tidxo: ' + str(sys.getsizeof(idxo)) + ' bytes')
+    state.logger.debug('\tidxvl: ' + str(sys.getsizeof(idxvl)) + ' bytes')
+    state.logger.debug('\tidxvr: ' + str(sys.getsizeof(idxvr)) + ' bytes')
+    state.logger.debug('\tidxvo: ' + str(sys.getsizeof(idxvo)) + ' bytes')
+    state.logger.debug('\tidxtl: ' + str(sys.getsizeof(idxtl)) + ' bytes')
+    state.logger.debug('\tidxtr: ' + str(sys.getsizeof(idxtr)) +' bytes')
+    state.logger.debug('\tidxto: ' + str(sys.getsizeof(idxto)) +' bytes')
+    state.logger.debug('\tsent2idx: ' + str(sys.getsizeof(sent2idx)) +' bytes')
+    state.logger.debug('\tidx2sent: ' + str(sys.getsizeof(idx2sent)) +' bytes')
+    state.logger.debug('\ttext_per_triple_cntr: ' + \
+        str(sys.getsizeof(text_per_triple_cntr)) + ' bytes')
+    state.logger.debug('\tunique_text_per_triple: ' + \
+        str(sys.getsizeof(unique_text_per_triple)) + ' bytes')
+    state.logger.debug('\ttriple_per_text: ' + \
+        str(sys.getsizeof(triple_per_text))+ ' bytes')
 
     return idxl, idxr, idxo, text_train, idxvl, idxvr, idxvo, text_valid, \
         idxtl, idxtr, idxto, text_test, text_per_triple_cntr, \
         unique_text_per_triple, triple_per_text, sent2idx, idx2sent
 
-def load_path_data(state):
+def load_FB15k_path_data(state):
+
+    # trainl, trainr, trainp, trainlidx, trainridx, trainpidx, validlidx, \
+    # validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
+    # = load_FB15k_path_data(state)
     '''
         The data was provided by Kelvin Guu et al from "Traversing Knowledge 
         Graphs in Vector Space" (http://arxiv.org/pdf/1506.01094.pdf)

@@ -85,6 +85,60 @@ class Graph():
 		# TODO: store/calculate transition probabilities to facilitate this
 		pass
 
+	 # 		def random_path_query(self, length):
+	 #	 	'''
+     #			from Kelvin Gu
+	 #		'''
+	 #        while True:
+	 #            # choose initial entity uniformly at random
+	 #            source = self.random_entity()
+
+	 #            # sample a random walk
+	 #            path, target = self.random_walk(source, length)
+
+	 #            # Failed to find random walk. Try again.
+	 #            if path is None:
+	 #                continue
+
+	 #            pq = PathQuery(source, path, target)
+	 #            return pq
+
+
+  #		def random_walk(self, start, length, no_return=False):
+  # 	'''
+  #		 	from Kelvin Gu
+  #		'''
+  #       max_attempts = 1000
+  #       for i in range(max_attempts):
+
+  #           sampled_path = []
+  #           visited = set()
+  #           current = start
+  #           for k in range(length):
+  #               visited.add(current)
+
+  #               r = random.choice(self.neighbors[current].keys())
+  #               sampled_path.append(r)
+
+  #               candidates = self.neighbors[current][r]
+
+  #               if no_return:
+  #                   current = util.sample_excluding(candidates, visited)
+  #               else:
+  #                   current = random.choice(candidates)
+
+  #               # no viable next step
+  #               if current is None:
+  #                   break
+
+  #           # failed to find a viable walk. Try again.
+  #           if current is None:
+  #               continue
+
+  #           return tuple(sampled_path), current
+
+  #       return None, None
+
 	def size(self):
 		'''
 			how much memory is each of outgoing, incoming, relations consuming?
@@ -105,6 +159,52 @@ class Graph():
 
 		'''
 		pass
+
+	# def relation_stats(self):
+	# 	'''
+	# 		from Kelvin Gu
+	# 	'''
+ #        stats = defaultdict(dict)
+ #        rel_counts = Counter(r for s, r, t in self.triples)
+
+ #        for r, args in self.relation_args.iteritems():
+ #            out_degrees, in_degrees = [], []
+ #            for s in args['s']:
+ #                out_degrees.append(len(self.neighbors[s][r]))
+ #            for t in args['t']:
+ #                in_degrees.append(len(self.neighbors[t][invert(r)]))
+
+ #            domain = float(len(args['s']))
+ #            range = float(len(args['t']))
+ #            out_degree = np.mean(out_degrees)
+ #            in_degree = np.mean(in_degrees)
+ #            stat = {'avg_out_degree': out_degree,
+ #                    'avg_in_degree': in_degree,
+ #                    'min_degree': min(in_degree, out_degree),
+ #                    'in/out': in_degree / out_degree,
+ #                    'domain': domain,
+ #                    'range': range,
+ #                    'r/d': range / domain,
+ #                    'total': rel_counts[r],
+ #                    'log(total)': np.log(rel_counts[r])
+ #                    }
+
+ #            # include inverted relation
+ #            inv_stat = {'avg_out_degree': in_degree,
+ #                        'avg_in_degree': out_degree,
+ #                        'min_degree': stat['min_degree'],
+ #                        'in/out': out_degree / in_degree,
+ #                        'domain': range,
+ #                        'range': domain,
+ #                        'r/d': domain / range,
+ #                        'total': stat['total'],
+ #                        'log(total)': stat['log(total)']
+ #                        }
+
+ #            stats[r] = stat
+ #            stats[invert(r)] = inv_stat
+
+ #        return stats
 
 
 

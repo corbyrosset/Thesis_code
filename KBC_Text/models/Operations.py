@@ -389,66 +389,6 @@ class LayerTrans(object):
         """Forward function."""
         return x+y
 
-# class LayerSTransE(object): 
-#     def __init__(self, n_inp, n_out):
-#         """
-#         Constructor.
-
-#         :param act: name of the activation function ('lin', 'rect', 'tanh' or
-#                     'sigm').
-#         :param n_inp: input dimension.
-#         :param n_out: output dimension.
-
-#         :note: there is no parameter declared in this layer, the parameters
-#                are the embeddings of the 'right' member, therefore their
-#                dimension have to fit with those declared here: n_inp * n_out.
-#         """
-#         # self.act = eval(act)
-#         # self.actstr = act
-#         self.n_inp = n_inp
-#         self.n_out = n_out
-#         self.params = []
-
-#     def __call__(self, x, W, r):
-#         """Forward function."""
-#         # More details on the class and constructor comments.
-#         rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
-#         rx = x.reshape((x.shape[0], x.shape[1], 1))
-#         res = (rx * rW).sum(1) + r
-#         return res
-
-# class LayerSTransE_singular(object): 
-#     def __init__(self, n_inp, n_out):
-#         """
-#         Constructor.
-
-#         :param act: name of the activation function ('lin', 'rect', 'tanh' or
-#                     'sigm').
-#         :param n_inp: input dimension.
-#         :param n_out: output dimension.
-
-#         :note: there is no parameter declared in this layer, the parameters
-#                are the embeddings of the 'right' member, therefore their
-#                dimension have to fit with those declared here: n_inp * n_out.
-#         """
-#         # self.act = eval(act)
-#         # self.actstr = act
-#         self.n_inp = n_inp
-#         self.n_out = n_out
-#         self.params = []
-
-#     def __call__(self, x, W):
-#         """Forward function."""
-#         # More details on the class and constructor comments.
-#         rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
-#         # print 'rW: %s' % rW.get_value().shape
-#         rx = x.reshape((x.shape[0], x.shape[1], 1))
-#         # print 'rx: %s' % rx.get_value().shape
-#         # res = T.dot(rx.T, rW) ## TODO matrix multiply xW
-#         res = (rx * rW).sum(1)
-#         # print '(rx * rW).sum(1): %s' % (rx * rW).sum(1).get_value().shape
-#         return res
-
 class LayerDot(object):
     '''
     For Model E and any other models that use a dot product. 
@@ -476,6 +416,67 @@ class Unstructured(object):
     def __call__(self, x, y):
         """Forward function."""
         return x
+
+class LayerSTransE_left(object):
+
+    def __init__(self, n_inp, n_out):
+        self.n_inp = n_inp
+        self.n_out = n_out
+        self.params = []
+
+    def __call__(self, lhs, W, rel):
+        ### do essentially a linear operation on lhs via W
+        rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
+        rlhs = lhs.reshape((lhs.shape[0], lhs.shape[1], 1))
+        res = (rlhs * rW).sum(1)
+        ###  now do the TransE step:
+        return res + rel
+
+class LayerSTransE_right(object):
+
+    def __init__(self, n_inp, n_out):
+        self.n_inp = n_inp
+        self.n_out = n_out
+        self.params = []
+
+    def __call__(self, rhs, W):
+        rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
+        rrhs = rhs.reshape((rhs.shape[0], rhs.shape[1], 1))
+        res = (rrhs * rW).sum(1)
+        return res
+
+# Path composition methods ----------------------------------------------------
+
+def compose_TransE(idxs, initial, all_rels):
+    '''
+        method for composing relations along a path in KG using the TransE
+        model. This happens to be a quick and dirty trick for TransE 
+        because we can "compose" the columns in the matrix (representing 
+        relation embeddings along the path) into a vector using sum
+
+        length: length of each path, they are all equal length!
+
+    '''
+    return initial + all_rels[:, idxs].sum(axis = 1)
+
+def compose_BilinearDiag(idxs, initial, all_rels):
+    '''
+        method for composing relations along a path in KG using the 
+        BilinearDiag model
+    '''
+    # output = initial ### this is a T.vector variable
+    # for i in range(length):
+    #     output = output * all_rels[:, idxs[i]]
+    # return output
+
+    ### the output would be the same if you used "scan" instead of 
+    ### "reduce", and returned res[-1] instead of res!
+
+    res, updates = theano.reduce(
+                    fn = lambda x, y: x * y, #compose_TransE,
+                    sequences=all_rels[:, idxs].T,
+                    outputs_info=initial)
+    return res
 
 # ----------------------------------------------------------------------------
 
@@ -506,32 +507,6 @@ class Embeddings(object):
 
         self.L1_norm = T.sum(T.abs_(self.E))
         self.L2_sqr_norm = T.sum(T.sqr(self.E))
-
-# class EmbeddingMatrices(object):
-
-#     def __init__(self, rng, L, M, N, tag=''): 
-#         """
-#         Constructor for a 3D volume of parameters, N matrices
-
-#         :param rng: numpy.random module for number generation.
-#         :param L: number of rows per embedding matrix
-#         :param M: number of columns per embedding matrix
-#         :param N: number of embedding matrices == number of relations
-#         :param tag: name of the embeddings for parameter declaration.
-#         """
-#         self.L = L
-#         self.M = M
-#         self.N = N
-#         wbound = np.sqrt(6. / max(L, M))
-#         W_values = rng.uniform(low=-wbound, high=wbound, size=(L, M, N))
-#         W_values = W_values / np.sqrt(np.sum(W_values ** 2, axis=0))
-#         W_values = np.asarray(W_values, dtype=theano.config.floatX)
-#         self.E = theano.shared(value=W_values, name='E' + tag)
-
-#         # NOTE: normalization is not defined here, define it if you want
-#         self.L1_norm = T.sum(T.abs_(self.E))
-#         self.L2_sqr_norm = T.sum(T.sqr(self.E))
-
 
 class WordEmbeddings(object):
 

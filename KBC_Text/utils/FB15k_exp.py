@@ -20,6 +20,9 @@ def FB15kexp_text(state):
     reverseRanking = False
     log = state.logger # shorthand
 
+    failedImprovements = 3 # number of chance it gets to improve on Valid MRR
+                       # before early stopping
+
     # Show experiment parameters
     log.info(state)
     np.random.seed(state.seed)
@@ -32,7 +35,7 @@ def FB15kexp_text(state):
     trainl, trainr, traino, trainlidx, trainridx, trainoidx, validlidx, \
     validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
     = load_FB15k_data(state)
-    log.debug(np.shape(trainl), np.shape(trainr), np.shape(traino), np.shape(trainlidx))
+    log.debug(str(np.shape(trainl)) + ' ' + str(np.shape(trainr)) + ' ' + str(np.shape(traino)) + ' ' + str(np.shape(trainlidx)))
 
     KB_batchsize = trainl.shape[1] / state.nbatches
 
@@ -42,19 +45,20 @@ def FB15kexp_text(state):
     text_testlidx, text_testridx, text_testoidx, text_testsent, \
     text_per_triple_cntr, unique_text_per_triple, triple_per_text, \
     sent2idx, idx2sent = load_FB15k_Clueweb_data(state)
-    log.debug(np.shape(text_trainlidx), np.shape(text_trainridx), np.shape(text_trainoidx), np.shape(text_trainsent))
+    # log.debug(np.shape(text_trainlidx), np.shape(text_trainridx), np.shape(text_trainoidx), np.shape(text_trainsent))
     text_batchsz = text_trainlidx.shape[1] / state.nbatches
 
     ### get properties of text encoder
-    if state.op == 'TransE':
+    if state.op == 'TransE_text':
         model = TransE_text_model(state)
-    elif state.op == 'BilinearDiag':
+    elif state.op == 'BilinearDiag_text':
         model = BilinearDiag_model(state)
         reverseRanking = True # don't even give the user the option to set this
         raise NotImplementedError('BilinearDiag_model not yet implemented for textual relations')
     else:
         raise ValueError('Must supply valid model type')
-    assert hasattr(model, 'trainfunc')
+    assert hasattr(model, 'trainFuncKB')
+    assert hasattr(model, 'trainFuncText')
 
     vocab2Idx = model.word_embeddings.getVocab2Idx()
     vocabSize = model.word_embeddings.vocabSize
@@ -86,7 +90,7 @@ def FB15kexp_text(state):
         text_trainsent[order]
 
         ### generate negative samples for KB
-        if state.rel == True:
+        if state.rel == True: 
             trainln, trainon, trainrn = negative_samples_filtered(trainl, traino, trainr, KB, rels=state.Nsyn_rel)
         else:
             trainln, trainrn = negative_samples_filtered(trainl, traino, trainr, KB)
@@ -167,9 +171,25 @@ def FB15kexp_text(state):
                 if state.rel == True:
                     (batch_cost, per_l, per_o, per_r) = outputs
                 else:
-                    (batch_cost, per_l, per_o) = outputs 
+                    (batch_cost, per_l, per_r) = outputs 
+                    per_o = 0
                 cost_txt += [batch_cost / float(text_batchsz)]
                 percent_txt += [0]
+                percent_left_txt += [per_l]
+                percent_rel_txt += [per_o]
+                percent_right_txt += [per_r]
+            elif state.textual_role == 'TextAsRelAndReg':
+                outputs = model.trainFuncText(\
+                    state.lremb, state.lrparam, text_tmpl, text_tmpr, \
+                    text_tmpo, text_tmpnl, text_tmpnr, text_tmpno,\
+                    text_tmpsents, inv_lens, state.gamma)
+                if state.rel == True:
+                    (batch_cost, per_l, per_o, per_r, per_text) = outputs
+                else:
+                    (batch_cost, per_l, per_r, per_text) = outputs 
+                    per_o = 0
+                cost_txt += [batch_cost / float(text_batchsz)]
+                percent_txt += [per_text]
                 percent_left_txt += [per_l]
                 percent_rel_txt += [per_o]
                 percent_right_txt += [per_r]
@@ -242,7 +262,7 @@ def FB15kexp_text(state):
                     model.rankrfunc, validlidx, validridx, validoidx, \
                     true_triples, reverseRanking, rank_rel=model.rankrelfunc)
                 state.validMR = np.mean(verl + verr)# only tune on entity ranking
-                state.validMRR = np.mean(np.recipracol(verl + verr))
+                state.validMRR = np.mean(np.reciprocal(verl + verr))
             else:
                 state.valid = 'not applicable'
             
@@ -311,6 +331,199 @@ def FB15kexp_text(state):
 ###############################################################################
 ###############################################################################
 
+def FB15kexp_path(state):
+    '''
+        Main training loop
+
+        Early stopping after 3 rankings on validation data with no improvement 
+        in MRR. 
+
+        out = list of costs per minibatch for this epoch
+        outb = list of percentages of ??? that were updated per minibatch in this epoch??
+        restrain & state.train = ranks of all epoch train triples, and the mean thereof
+        resvalid & state.valid = ranks of all epoch dev triples, and the mean thereof
+
+    '''
+    out, percent_rel, percent_right = [], [], []
+    state.bestvalidMRR = -1
+    model = None
+    batchsize = -1
+    timeref = -1
+    reverseRanking = False # for TransE, score the best fit to be near
+                           # zero, so ranking is from low to high
+                           # in BilinearDiag, it's the opposite
+    failedImprovements = 3 # number of chance it gets to improve on Valid MRR
+                           # before early stopping
+    log = state.logger # shorthand
+
+
+    # Show experiment parameters
+    log.info(state)
+    np.random.seed(state.seed)
+
+    # Experiment folder
+    if not os.path.isdir(state.savepath):
+        os.mkdir(state.savepath)
+
+    ### load data, training data uses paths (trainp) instead of relations
+    trainl, trainr, trainp, trainlidx, trainridx, trainpidx, validlidx, \
+    validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
+    = load_FB15k_path_data(state)
+    log.debug('FB15kexp_path: load_FB15k_data(): trainl%s, trainr%s, trainp%s, trainlidx%s' % (np.shape(trainl), np.shape(trainr), np.shape(trainp), np.shape(trainlidx)))
+
+    model = Path_model(state)
+    assert hasattr(model, 'trainfunc')
+
+    log.debug('loaded data and constructed model...')
+    batchsize = trainl.shape[1] / state.nbatches
+    log.debug('num epochs: ' + str(state.totepochs))
+    log.debug('num batches per epoch: ' + str(state.nbatches))
+    log.debug('batchsize: ' + str(batchsize))
+    log.debug('left and right entity ranking functions will rank a slot against ' + str(state.Nsyn) + ' competitors')
+
+    log.info("BEGIN TRAINING")
+    timeref = time.time()
+    for epoch_count in xrange(1, state.totepochs + 1):
+        # Shuffling
+        order = np.random.permutation(trainl.shape[1])
+        trainl = trainl[:, order]
+        trainr = trainr[:, order]
+        trainp = trainp[:, order] ### FIX FIX FIX
+
+        if state.is_horn_path == True: ### needs only negative relations
+            trainon = negative_samples_filtered(traino, KB, rels=state.Nsyn_rel)
+        else: ### needs only negative right entities - THESE ARE TRICKY TO MAKE
+            trainrn = negative_samples_filtered(trainr, KB)
+
+        for i in range(state.nbatches):
+            
+            if state.is_horn_path: ### needs paths, relations and neg relations
+                tmpo = traino[:, i * batchsize:(i + 1) * batchsize]
+                tmpno = trainon[:, i * batchsize:(i + 1) * batchsize]
+            else: ### needs only paths and negative right entities
+                tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
+                tmpr = trainr[:, i * batchsize:(i + 1) * batchsize]
+                tmpnr = trainrn[:, i * batchsize:(i + 1) * batchsize]
+            
+            ### FIX FIX FIX
+            # training iteration
+            if state.rel == True: # (has tmpo as additional argument)
+                batch_cost, per_l, per_o, per_r = model.trainfunc(state.lremb,\
+                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
+                out += [batch_cost / float(batchsize)]
+                percent_left += [per_l]
+                percent_rel += [per_o]
+                percent_right += [per_r]
+
+            else:
+                batch_cost, per_l, per_r = model.trainfunc(state.lremb, \
+                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr)
+                out += [batch_cost / float(batchsize)]
+                percent_left += [per_l]
+                percent_right += [per_r]
+
+            # embeddings normalization
+            ### TODO: why only normalize embeddings[0]?? only normalize entity 
+            ### embs, not the relationships ones??
+            if type(model.embeddings) is list:
+                model.embeddings[0].normalize()
+            else:
+                model.embeddings.normalize()
+
+        log.info("----------------------------------------------------------------------------")
+        log.info("EPOCH %s (%s seconds):" % (
+                epoch_count, round(time.time() - timeref, 3)))
+        if state.reg != None:
+            log.info("\tAverage L2 norm of relation vector: %s" % \
+            (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
+            float(state.Nrel), 5)))
+        if state.rel:
+            log.info("\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
+                round(np.std(out), 3), \
+                round(np.mean(percent_left) * 100, 2), \
+                round(np.mean(percent_rel) * 100, 2), \
+                round(np.mean(percent_right) * 100, 2)))
+        else:
+            log.info("\tCOST >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(out), 3),round(np.std(out), 3),\
+                round(np.mean(percent_left) * 100, 2), \
+                round(np.mean(percent_right) * 100, 2)))
+
+        out, percent_left, percent_rel, percent_right = [], [], [], []
+        timeref = time.time()
+        
+        if (epoch_count % state.test_all) == 0:
+            ### evaluate by actually computing ranking metrics on some data
+            if state.nvalid > 0:
+                verl, verr, ver_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
+                    model.rankrfunc, validlidx, validridx, validoidx, \
+                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+                state.validMR = np.mean(verl + verr)# only tune on entity ranking
+                state.validMRR = np.mean(np.reciprocal(verl + verr))
+            else:
+                state.valid = 'not applicable'
+            
+            if state.ntrain > 0:
+                terl, terr, ter_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
+                    model.rankrfunc, trainlidx, trainridx, trainoidx, \
+                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+                state.train = np.mean(terl + terr)# only tune on entity ranking
+            else:
+                state.train = 'not applicable'
+            
+            log.info("\tMEAN RANK >> valid: %s, train: %s" % (
+                    round(state.validMR, 1), round(state.train, 1)))
+            log.info("\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+            log.info("\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1)))
+            log.info("\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4)))
+
+            ### save model that performs best on dev data
+            if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
+                terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
+                model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+                
+                failedImprovements = 3
+                state.bestvalidMRR = state.validMRR
+                state.besttrain = state.train
+                state.besttest = np.mean(terl + terr)
+                state.bestepoch = epoch_count
+                # Save model best valid model
+                f = open(state.savepath + '/best_valid_model.pkl', 'w')
+                cPickle.dump(model.embeddings, f, -1)
+                cPickle.dump(model.leftop, f, -1)
+                cPickle.dump(model.rightop, f, -1)
+                cPickle.dump(model.simfn, f, -1)
+                f.close()
+                log.info("\tNEW BEST TEST MR: %s" % round(state.besttest, 1)) 
+                log.info("\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+            else:
+                if failedImprovements == 0:
+                    log.warning("EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all))
+                    break
+                log.warning("\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1))
+                failedImprovements -= 1
+            # Save current model regardless
+            f = open(state.savepath + '/current_model.pkl', 'w')
+            cPickle.dump(model.embeddings, f, -1)
+            cPickle.dump(model.compop, f, -1)
+            cPickle.dump(model.leftop, f, -1)
+            cPickle.dump(model.rightop, f, -1)
+            cPickle.dump(model.simfn, f, -1)
+            f.close()
+            state.nbepochs = epoch_count
+            log.info("\t(ranking took %s seconds)" % (
+                round(time.time() - timeref, 3)))
+            timeref = time.time()
+
+
+    log.info("----------------------------------------------------------------------------")
+    log.info("----------------------------------------------------------------------------")
+    return True
+
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
 def FB15kexp(state):
     '''
         Main training loop
@@ -355,6 +568,8 @@ def FB15kexp(state):
     ### embeddings, leftop, rightop, and simfn
     if state.op == 'TransE':
         model = TransE_model(state)
+    elif state.op == 'STransE':
+        model = STransE_model(state)
     elif state.op == 'BilinearDiag':
         model = BilinearDiag_model(state)
         reverseRanking = True
@@ -535,8 +750,7 @@ def launch(identifier, experiment_type, logger, datapath='data/', \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
     ntrain = 'all', nvalid = 'all', ntest = 'all', seed=123, \
-    savepath='', loadmodelBi=False, \
-    loadmodelTri=False, rel=False):
+    savepath='', rel=False):
 
     # Argument of the experiment script
     state = DD()
@@ -587,16 +801,77 @@ def launch(identifier, experiment_type, logger, datapath='data/', \
     state.logger = logger
     FB15kexp(state)
 
+def launch_path(identifier, experiment_type, logger, datapath='data/', \
+    dataset='FB15k', use_horn_path=False, compop='compose_TransE', \
+    Nent=16296, rhoE=1, margincostfunction='margincost', reg=0.01, \
+    rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
+    loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
+    lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
+    ntrain = 'all', nvalid = 'all', ntest = 'all', seed=123, \
+    savepath='', rel=False):
+
+    # Argument of the experiment script
+    state = DD()
+    state.identifier = identifier
+    state.datapath = datapath
+    state.dataset = dataset
+    state.savepath = savepath
+    state.experiment_type = experiment_type
+    state.margincostfunction = margincostfunction
+    state.reg = reg
+
+    state.use_horn_path = use_horn_path
+    state.compop = compop
+
+
+    state.Nent = Nent # Total number of entities
+    state.Nsyn = Nsyn # number of entities against which to rank a given test
+                      # set entity. It could be all entities (14951) or less,
+                      # or it could be filtered in a special way.
+    state.Nrel = Nrel # number of relations
+    state.Nsyn_rel = Nsyn_rel # number of relatins against which to rank a 
+                              # given missing relation
+    state.loadmodel = loadmodel
+    # state.loadmodelBi = loadmodelBi
+    # state.loadmodelTri = loadmodelTri
+    state.loademb = loademb ### load previously trained embeddings?
+    
+    state.op = op
+    state.simfn = simfn
+    state.ndim = ndim # dimension of both relationship and entity embeddings
+    state.marge = marge # margin used in ranking loss
+    # state.rhoE = rhoE
+    # state.rhoL = rhoL
+    state.lremb = lremb     # learning rate for embeddings
+    state.lrparam = lrparam # learning rate for params of leftop, rightop, 
+                            # and fnsim, if they have parametesr
+    state.nbatches = nbatches
+    state.totepochs = totepochs
+    state.test_all = test_all # when training, how many epochs until use 
+                              # validation set again
+    state.rel = rel # whether to also train a relationship ranker in TrainFunc
+    state.ntrain = ntrain # num exs from train to compute a rank for, 
+                          # 'all' or some num
+    state.nvalid = nvalid # num exs from valid to compute a rank for
+    state.ntest = ntest   # num exs from test to compute a rank for
+    state.seed = seed
+
+    if not os.path.isdir(state.savepath):
+        os.mkdir(state.savepath)
+
+    state.logger = logger
+    FB15kexp_path(state)
+
+
 def launch_text(identifier, experiment_type, logger, datapath='data/', \
-    dataset='FB15k', Nent=16296, rhoE=1, rhoL=5, Nsyn_rel = 1345, \
+    dataset='FB15k', Nent=16296, Nsyn_rel = 1345, reg=None, \
     Nsyn=14951, Nrel=1345, loadmodel=False, margincostfunction='margincost', \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
     ntrain = 'all', nvalid = 'all', ntest = 'all', textsim = 'L2', \
     vocab_size = 100000, word_dim = 300, word_file = None, vocab = None, \
-    gamma = 0.01, seed=123, savepath='', loadmodelBi=False, \
-    loadmodelTri=False, rel=False, numTextTrain=10000, marg_text=1.0, \
-    textual_role='TextAsRegularizer'):
+    gamma = 0.01, seed=123, savepath='', rel=False, numTextTrain=10000, \
+    marg_text=1.0, textual_role='TextAsRegularizer'):
 
     # Argument of the experiment script
     state = DD()
@@ -647,6 +922,7 @@ def launch_text(identifier, experiment_type, logger, datapath='data/', \
     state.test_all = test_all # when training, how many epochs until use 
                               # validation set again
     state.rel = rel # whether to also train a relationship ranker in TrainFunc
+    state.reg = reg
     state.ntrain = ntrain # num exs from train to compute a rank for, 
                           # 'all' or some num
     state.nvalid = nvalid # num exs from valid to compute a rank for

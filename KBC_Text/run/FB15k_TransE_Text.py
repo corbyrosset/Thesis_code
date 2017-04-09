@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import sys
 import os
-from KBC_Text.utils.FB15k_exp import launch
+from KBC_Text.utils.FB15k_exp import launch_text
 from KBC_Text.utils.Utils import initialize_logging
 from KBC_Text.utils.send_email import send_notification
 from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
@@ -11,11 +11,11 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE_Text/'
 
-simfn = 'L1'
+simfn = 'L2'
 margincostfunction = 'margincost' ### from top of Operations
-ndim = 50 # dimension of both relationship and entity embeddings
+ndim = 100 # dimension of both relationship and entity embeddings
 	      # {10, 50, 100, 150}
-marge = 1.0     # {0.5, 1.0}
+marge = 0.5     # {0.5, 1.0}
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -26,6 +26,8 @@ Nsyn = 14951    # number of entities against which to rank a given test
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
 rel = False   # whether to also rank relations
+reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
+
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
@@ -39,13 +41,13 @@ experiment_type = 'FB15k_text'
 
 ###############################################################################
 ### parameters specific for textual triples.
-textual_role = 'TextAsRelation' # {TextAsRegularizer, TextAsRelation}
-marg_text = 1.0
+textual_role = 'TextAsRegularizer' # {TextAsRegularizer, TextAsRelation, TextAsRelAndReg}
+marg_text = 2.0
 textsim = 'L2' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
-word_dim = 50 # dimension of each word embedding
+word_dim = 100 # dimension of each word embedding
 # word_file = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
-word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.50d.txt'
+word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.100d.txt'
 	# path to file containing word embeddings
 vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
 gamma = 1.0 #{0.01, 0.1, 1} weight to use for cost of textual triple
@@ -75,7 +77,7 @@ logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 logger.info('identifier: ' + str(identifier))
 logger.info('models saved to path: ' + str(savepath))
 launch_text(identifier, experiment_type, logger, op='TransE_text', \
-	simfn= simfn, \
+	simfn= simfn, reg=reg, \
 	ndim= ndim, marge= marge, margincostfunction=margincostfunction, \
 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
