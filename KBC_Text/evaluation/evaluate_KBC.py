@@ -306,7 +306,7 @@ def FilteredRankingScoreIdx(logger, sl, sr, idxl, idxr, idxo, true_triples, reve
 
 def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
     dataset='FB15k-test', loadmodel='best_valid_model.pkl', neval='all', 
-    Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl'):
+    Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl', modelType=None):
 
     '''
         to be called after training is complete and the best model is saved
@@ -343,12 +343,12 @@ def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
         idxo = convert2idx(o)[:neval]
 
     ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
-            subtensorspec=Nsyn)
+            subtensorspec=Nsyn, modelType=modelType)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
-            subtensorspec=Nsyn)
+            subtensorspec=Nsyn, modelType=modelType)
     if rel == True:
         rankrelfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,
-            subtensorspec=Nsyn_rel)
+            subtensorspec=Nsyn_rel, modelType=modelType)
     else:
         rankrelfunc = None
  
@@ -396,7 +396,7 @@ def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
 ### apparently not used?
 def RankingEvalFil(datapath, logger, reverseRanking, rel = False, dataset='FB15k', 
     op='TransE', neval='all', loadmodel='best_valid_model.pkl', 
-    fold=0, Nrel=1345, Nsyn=14951, Nsyn_rel = 1345, n=10):
+    fold=0, Nrel=1345, Nsyn=14951, Nsyn_rel = 1345, n=10, modelType=None):
 
     '''
         Same as RankingEval, but just excludes any triples that would have 
@@ -451,12 +451,12 @@ def RankingEvalFil(datapath, logger, reverseRanking, rel = False, dataset='FB15k
     idxvo = convert2idx(vo)
     
     ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
-        subtensorspec=Nsyn)
+        subtensorspec=Nsyn, modelType=modelType)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
-        subtensorspec=Nsyn) 
+        subtensorspec=Nsyn, modelType=modelType) 
     if rel == True:
         rankrelfunc = RankRelFnIdx(simfn, embeddings, leftop, rightop,
-            subtensorspec=Nsyn_rel)
+            subtensorspec=Nsyn_rel, modelType=modelType)
     else:
         rankrelfunc = None
 

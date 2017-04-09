@@ -121,7 +121,7 @@ def RankRightFnIdx(fnsim, embeddings, leftop, rightop, subtensorspec=None, model
         tmp = leftop(lhs, lmod, rell)
         simi = fnsim(tmp.reshape((1, tmp.shape[1])), rightop(rhs, rmod))
     else:
-        tmp = leftop(rhs, relr)
+        tmp = leftop(lhs, rell)
         simi = fnsim(tmp.reshape((1, tmp.shape[1])), rightop(rhs, relr))
 
     """
