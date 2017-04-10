@@ -201,15 +201,16 @@ def RankingScoreIdx(logger, sl, sr, idxl, idxr, idxo, reverseRanking, rank_rel=N
         #     sl(r, o)[0]).flatten())[::-1]).flatten()[l] + 1]
         # errr += [np.argsort(np.argsort((
         #     sr(l, o)[0]).flatten())[::-1]).flatten()[r] + 1]
-
         if reverseRanking: 
         # sorting from high scores to low scores is best to worst
             scores_l = -1*(sl(r, o)[0]).flatten()
             scores_r = -1*(sr(l, o)[0]).flatten()
+
         else:
         # sorting from low scores to high scores is best worst
             scores_l = (sl(r, o)[0]).flatten()
             scores_r = (sr(l, o)[0]).flatten()
+
         errl += [np.argsort(np.argsort(scores_l)).flatten()[l] + 1]
         errr += [np.argsort(np.argsort(scores_r)).flatten()[r] + 1]
 
@@ -306,7 +307,7 @@ def FilteredRankingScoreIdx(logger, sl, sr, idxl, idxr, idxo, true_triples, reve
 
 def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
     dataset='FB15k-test', loadmodel='best_valid_model.pkl', neval='all', 
-    Nsyn=14951, n=10, idx2synsetfile='FB15k_idx2entity.pkl', modelType=None):
+    Nsyn=14951, n=10, Nrel = 1345, idx2synsetfile='FB15k_idx2entity.pkl', modelType=None):
 
     '''
         to be called after training is complete and the best model is saved
@@ -320,19 +321,24 @@ def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
     # Load model
     f = open(loadmodel)
     embeddings = cPickle.load(f)
+    if modelType and 'Path' in modelType:
+        compop = cPickle.load(f)
     leftop = cPickle.load(f)
     rightop = cPickle.load(f)
     simfn = cPickle.load(f)
+    if modelType and 'Text' in modelType:
+        textsim = cPickle.load(f)
+        word_embeddings =cPickle.load(f)
     f.close()
 
     # Load data
     l = load_file(datapath + dataset + '-lhs.pkl')
     r = load_file(datapath + dataset + '-rhs.pkl')
     o = load_file(datapath + dataset + '-rel.pkl')
-    if type(embeddings) is list:
-        o = o[-embeddings[1].N:, :]
+    o = o[-Nrel:, :]
 
     # Convert sparse matrix to indexes
+    ### one-dimensional arrays of indices
     if neval == 'all':
         idxl = convert2idx(l)
         idxr = convert2idx(r)
@@ -342,6 +348,7 @@ def RankingEval(datapath, logger, reverseRanking, rel = False, Nsyn_rel = 1345,
         idxr = convert2idx(r)[:neval]
         idxo = convert2idx(o)[:neval]
 
+    # idxo -= Nsyn ### I THINK YOU HAVE TO DO THIS TO AVOID INDX OUT OF BOUNDS
     ranklfunc = RankLeftFnIdx(simfn, embeddings, leftop, rightop,
             subtensorspec=Nsyn, modelType=modelType)
     rankrfunc = RankRightFnIdx(simfn, embeddings, leftop, rightop,
@@ -408,11 +415,16 @@ def RankingEvalFil(datapath, logger, reverseRanking, rel = False, dataset='FB15k
     if rel == True:
         logger.info('RELATION ranking: each rel ranked against %s other rels' %(Nsyn_rel))
 
-    f = open(loadmodel, 'r')
+    f = open(loadmodel)
     embeddings = cPickle.load(f)
-    leftop =cPickle.load(f)
-    rightop =cPickle.load(f)
-    simfn = cPickle.load(f) ### wasn't here?
+    if modelType and 'Path' in modelType:
+        compop = cPickle.load(f)
+    leftop = cPickle.load(f)
+    rightop = cPickle.load(f)
+    simfn = cPickle.load(f)
+    if modelType and 'Text' in modelType:
+        textsim = cPickle.load(f)
+        word_embeddings =cPickle.load(f)
     f.close()
 
     # Load data

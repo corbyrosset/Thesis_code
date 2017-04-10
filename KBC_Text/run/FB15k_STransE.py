@@ -17,7 +17,7 @@ lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
 totepochs = 500 # number of epochs
-test_all = 1   # number of epochs between ranking on validation sets again
+test_all = 10   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
@@ -52,23 +52,23 @@ logger, logFile = initialize_logging(savepath + identifier + '/', identifier)
 
 logger.info('identifier: ' + str(identifier))
 logger.info('models saved to path: ' + str(savepath))
-launch(identifier, experiment_type, logger, op='STransE', simfn= simfn, \
-	ndim= ndim, \
-	marge= marge, margincostfunction=margincostfunction, \
-	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
-	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
-	savepath= savepath + str(identifier), reg=reg, \
-	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath=datapath)
+# launch(identifier, experiment_type, logger, op='STransE', simfn= simfn, \
+# 	ndim= ndim, \
+# 	marge= marge, margincostfunction=margincostfunction, \
+# 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
+# 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
+# 	savepath= savepath + str(identifier), reg=reg, \
+# 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
+# 	datapath=datapath)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 RankingEval(datapath, logger, reverseRanking=False, neval=neval, \
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
-	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel, modelType='STransE')
 RankingEvalFil(datapath, logger, reverseRanking=False, neval=neval,\
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
-	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
+	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel, modelType='STransE')
 # send_notification(identifier, logFile)
 
 ###############################################################################
