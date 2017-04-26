@@ -10,8 +10,8 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 ###############################################################################
 
 simfn = 'L1'
-margincostfunction = 'margincost' ### from top of Operations
-compop = 'compose_TransE'
+margincostfunction = 'margincost_pos_high' ### from top of Operations
+compop = 'compose_BilinearDiag' #'compose_TransE'
 ndim = 100 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
 marge = 1.0     # {0.5, 1.0} 
@@ -45,7 +45,9 @@ graph_files = ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'] #['le
 ### for these two flags, see graph/Graph.py
 useHornPaths = False 
 needIntermediateNodesOnPaths = False
-loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/' + 'BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL' + '/best_valid_model.pkl'
+# loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/' + 'BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL' + '/best_valid_model.pkl'
+loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_BilinearDiag/' + 'BEST_BilinearDiag_Dot_ndim_100_marg_0.2_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL' + '/best_valid_model.pkl'
+
 
 ###############################################################################
 # DONT TOUCH BETWEEN HERE

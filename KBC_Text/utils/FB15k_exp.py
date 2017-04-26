@@ -381,10 +381,15 @@ def FB15kexp_path(state):
     
     log.debug('FB15kexp_path: training paths: %s, dev paths: %s' % (str([i.shape for i in trainPathRels]), str([i.shape for i in devPathRels])))
     ### for instance trainPathRels is [array(1000000, 2), array(1000000, 3)]
+    #####################################################################
+    train_initial_vecs = np.ones((np.shape(trainPathHeads)[0], state.ndim), dtype=theano.config.floatX) #### FIX THIS IT'S A HACK!!!!
+    model = Path_model(state, train_initial_vecs = train_initial_vecs) #trainPathHeads)
+    #####################################################################
 
-    model = Path_model(state, train_initial_vecs = trainPathHeads)
+
     assert hasattr(model, 'trainfunc')
     assert hasattr(graph, 'stringToPath')
+    reverseRanking = model.reverseRanking
 
     log.debug('loaded data, constructed model, constructed graph...')
     batchsize = trainPathRels[0].shape[0] / state.nbatches

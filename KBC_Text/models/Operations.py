@@ -498,8 +498,8 @@ class compose_BilinearDiag(object):
     def __call__(self, idxs, initial, all_rels):
         path_rep, updates = theano.reduce(
                     fn = lambda x, y: x * y, #compose_TransE,
-                    sequences=all_rels[:, idxs].T)
-                    # outputs_info=initial)
+                    sequences=all_rels[:, idxs].T,
+                    outputs_info=initial)
         return path_rep
 
 # ----------------------------------------------------------------------------

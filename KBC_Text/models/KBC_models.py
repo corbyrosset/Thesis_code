@@ -1208,9 +1208,15 @@ class Path_model():
             if state.compop == 'compose_TransE':
                 self.compop = compose_TransE()
                 self.leftop = LayerTrans()
+                if 'pos_high' in state.margincostfunction:
+                    raise ValueError('a path model using the TransE composer must use the kind of margin that ranks positive triples lower than negative, e.g. margincost()')
+                self.reverseRanking = False
             elif state.compop == 'compose_BilinearDiag':
                 self.compop = compose_BilinearDiag()
                 self.leftop = LayerBilinearDiag()
+                if 'pos_high' not in state.margincostfunction:
+                    raise ValueError('a path model using the BilinearDiag composer must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+                self.reverseRanking = True
             else:
                 raise ValueError("compop is not an acceptable string")
             
@@ -1234,7 +1240,7 @@ class Path_model():
             assert type(self.embeddings) is list
             assert all([isinstance(i, Embeddings) for i in self.embeddings])
             assert len(self.embeddings) == 3
-            
+
             ### similarity function of output of left and right ops
             self.simfn = eval(state.simfn + 'sim') 
             self.margincost = eval(state.margincostfunction)
