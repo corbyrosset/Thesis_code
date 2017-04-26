@@ -15,7 +15,7 @@ reverseRanking = True # rank from best -> worst <=> high to low score
 
 ndim = 100 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
-marge = 1.5     # {0.5, 1.0} 
+marge = 1.0     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -25,7 +25,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = False      # This must be false for Model E because we can't sample
+rel = True      # This must be false for Model E because we can't sample
 				 # 'negative' two part relations...
 reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
 

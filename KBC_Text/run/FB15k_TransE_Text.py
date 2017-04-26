@@ -11,11 +11,11 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE_Text/'
 
-simfn = 'L2'
+simfn = 'L1'
 margincostfunction = 'margincost' ### from top of Operations
 ndim = 100 # dimension of both relationship and entity embeddings
 	      # {10, 50, 100, 150}
-marge = 0.5     # {0.5, 1.0}
+marge = 2.0     # {0.5, 1.0}
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -42,7 +42,7 @@ experiment_type = 'FB15k_text'
 ###############################################################################
 ### parameters specific for textual triples.
 textual_role = 'TextAsRegularizer' # {TextAsRegularizer, TextAsRelation, TextAsRelAndReg}
-marg_text = 2.0
+marg_text = 5.0
 textsim = 'L2' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
 word_dim = 100 # dimension of each word embedding

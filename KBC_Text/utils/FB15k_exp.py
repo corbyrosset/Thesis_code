@@ -1,8 +1,10 @@
 #! /usr/bin/python
 import sys
+import scipy.sparse as sp
 from KBC_Text.utils.Utils import *
 from KBC_Text.evaluation.evaluate_KBC import *
 from KBC_Text.models.KBC_models import *
+from KBC_Text.graph.Graph import Graph
 
 
 # Experiment function --------------------------------------------------------
@@ -344,7 +346,7 @@ def FB15kexp_path(state):
         resvalid & state.valid = ranks of all epoch dev triples, and the mean thereof
 
     '''
-    out, percent_rel, percent_right = [], [], []
+    out, percent_left, percent_rel, percent_right = [], [], [], []
     state.bestvalidMRR = -1
     model = None
     batchsize = -1
@@ -365,154 +367,217 @@ def FB15kexp_path(state):
     if not os.path.isdir(state.savepath):
         os.mkdir(state.savepath)
 
+    ### very important: graph has access to entire KB, don't abuse it
+    graph = Graph(state, None, text_quads=False)
+
+    ### for negative sampling, yes it's ugly
+    _, _, _, trainlidx, trainridx, trainoidx, validlidx, validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB = load_FB15k_data(state)
+
     ### load data, training data uses paths (trainp) instead of relations
-    trainl, trainr, trainp, trainlidx, trainridx, trainpidx, validlidx, \
-    validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
-    = load_FB15k_path_data(state)
-    log.debug('FB15kexp_path: load_FB15k_data(): trainl%s, trainr%s, trainp%s, trainlidx%s' % (np.shape(trainl), np.shape(trainr), np.shape(trainp), np.shape(trainlidx)))
+    trainPathRels, devPathRels, testPathRels, trainPathEnts, devPathEnts, \
+    testPathEnts, trainPathHeads, devPathHeads, testPathHeads, \
+    trainPathTails, devPathTails, testPathTails, trainTargetRels, \
+    devTargetRels, testTargetRels = load_FB15k_path_data(state, graph)
+    
+    log.debug('FB15kexp_path: training paths: %s, dev paths: %s' % (str([i.shape for i in trainPathRels]), str([i.shape for i in devPathRels])))
+    ### for instance trainPathRels is [array(1000000, 2), array(1000000, 3)]
 
-    model = Path_model(state)
+    model = Path_model(state, train_initial_vecs = trainPathHeads)
     assert hasattr(model, 'trainfunc')
+    assert hasattr(graph, 'stringToPath')
 
-    log.debug('loaded data and constructed model...')
-    batchsize = trainl.shape[1] / state.nbatches
+    log.debug('loaded data, constructed model, constructed graph...')
+    batchsize = trainPathRels[0].shape[0] / state.nbatches
     log.debug('num epochs: ' + str(state.totepochs))
     log.debug('num batches per epoch: ' + str(state.nbatches))
     log.debug('batchsize: ' + str(batchsize))
     log.debug('left and right entity ranking functions will rank a slot against ' + str(state.Nsyn) + ' competitors')
 
-    log.info("BEGIN TRAINING")
+    if state.loademb and state.nvalid > 0 and state.ntrain > 0:
+        log.info("--------------------------------------------------------------------------------------------------")
+        log.info('Since we initialized embeddings with pre-trained vectors, establish baseline of their performance:')
+        verl, verr, ver_rel = FilteredRankingScoreIdx(log, model.ranklfunc, model.rankrfunc, validlidx, validridx, \
+            validoidx, true_triples, reverseRanking)
+        validMR = np.mean(verl + verr)# only tune on entity ranking
+        validMRR = np.mean(np.reciprocal(verl + verr))
+
+        terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
+            model.ranklfunc, model.rankrfunc, trainlidx, \
+            trainridx, trainoidx, true_triples, reverseRanking)
+        train = np.mean(terl + terr)# only tune on entity ranking
+   
+        log.info("\tMEAN RANK >> valid: %s, train: %s" % (
+                round(validMR, 1), round(train, 1)))
+        log.info("\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+        log.info("\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1)))
+        log.info("\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(validMRR, 4)))
+
     timeref = time.time()
-    for epoch_count in xrange(1, state.totepochs + 1):
-        # Shuffling
-        order = np.random.permutation(trainl.shape[1])
-        trainl = trainl[:, order]
-        trainr = trainr[:, order]
-        trainp = trainp[:, order] ### FIX FIX FIX
+    for length in range(len(trainPathRels)):
+        log.info('======================== BEGIN TRAINING: %s ========================' % str(state.graph_files[length]))
+        # reset inter-length-dataset statistics
+        failedImprovements = 3
+        state.bestvalidMRR = -1
+        state.besttrain = None
+        state.besttest = None
+        state.bestepoch = None
+        trainPRels = trainPathRels[length]
+        devPRels = devPathRels[length]
+        testPRels = testPathRels[length]
+        trainPEnts = trainPathEnts[length]
+        devPEnts = devPathEnts[length]
+        testPEnts = testPathEnts[length]
+        trainPHeads = expand_to_mat(trainPathHeads[length], state.Nent)
+        devPHeads = expand_to_mat(devPathHeads[length], state.Nent)
+        testPHeads = expand_to_mat(testPathHeads[length], state.Nent)
+        trainPTails = expand_to_mat(trainPathTails[length], state.Nent)
+        devPTails = expand_to_mat(devPathTails[length], state.Nent)
+        testPTails = expand_to_mat(testPathTails[length], state.Nent)
+        trainTrels = expand_to_mat(trainTargetRels[length], state.Nrel) if trainTargetRels[length] else None
+        devTrels = expand_to_mat(devTargetRels[length], state.Nrel) if devTargetRels[length] else None
+        testTrels = expand_to_mat(testTargetRels[length], state.Nrel) if testTargetRels[length] else None
 
-        if state.is_horn_path == True: ### needs only negative relations
-            trainon = negative_samples_filtered(traino, KB, rels=state.Nsyn_rel)
-        else: ### needs only negative right entities - THESE ARE TRICKY TO MAKE
-            trainrn = negative_samples_filtered(trainr, KB)
+        # print np.shape(trainPHeads)
+        # print np.shape(trainPTails)
 
-        for i in range(state.nbatches):
+        for epoch_count in xrange(1, state.totepochs + 1):
+            # Shuffling, note examples are now along 0th axis
+            # print (trainPHeads.shape, trainPTails.shape, trainPRels.shape)
+            order = np.random.permutation(trainPRels.shape[0])
+            ### indices of head, relationpaths, and tail of a path query
+            trainl = trainPHeads[:, order]
+            trainr = trainPTails[:, order]
+            trainPrel = trainPRels[order, :] ### train path relations  
+            trainPent = trainPEnts[order, :]
+            second_to_last_ent = expand_to_mat(trainPent[:, -1], state.Nent)
+            last_rel = expand_to_mat(trainPrel[:, -1], state.Nrel)
+
+            if state.useHornPaths == True: ### needs only negative relations
+                traino = trainTrels[:, order]
+                trainln, trainon, trainrn = negative_samples_filtered(\
+                    second_to_last_ent, traino, trainr, rels=state.Nsyn_rel)
+                # print str(np.shape(trainon))
+            else: 
+                trainln, trainrn = negative_samples_filtered(\
+                    trainl, last_rel, trainr, KB)
+
+            for i in range(state.nbatches):
+                pathidx = trainPrel[i * batchsize:(i + 1) * batchsize, :]
+                if state.useHornPaths: ### needs paths, relations and neg relations
+                    tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
+                    tmpr = trainr[:, i * batchsize:(i + 1) * batchsize]
+                    tmpnl = trainln[:, i * batchsize:(i + 1) * batchsize]
+                    tmpnr = trainrn[:, i * batchsize:(i + 1) * batchsize]
+                    tmpo = traino[:, i * batchsize:(i + 1) * batchsize]
+                    tmpno = trainon[:, i * batchsize:(i + 1) * batchsize]
+
+                    batch_cost, per_l, per_o, per_r = model.trainfunc(\
+                        state.lremb, state.lrparam, pathidx, tmpl, \
+                        tmpr, tmpnl, tmpnr, tmpo, tmpno)
+                    out += [batch_cost / float(batchsize)]
+                    percent_left = [per_l] ### TODO!
+                    percent_right += [per_r]
+                    percent_rel += [per_o]
+
+                else: ### needs only paths and negative right entities
+
+                    tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
+                    tmpr = trainr[:, i * batchsize:(i + 1) * batchsize]
+                    tmpnl = trainln[:, i * batchsize:(i + 1) * batchsize]
+                    tmpnr = trainrn[:, i * batchsize:(i + 1) * batchsize]
+                    # print str((np.shape(pathidx), np.shape(tmpl), np.shape(tmpr), np.shape(tmpnr)))
+                    batch_cost, per_l, per_r = model.trainfunc(\
+                        state.lremb, state.lrparam, pathidx, tmpl, \
+                        tmpr, tmpnl, tmpnr)
+
+                    out += [batch_cost / float(batchsize)]
+                    percent_left = [per_l]
+                    percent_right = [per_r]
+                    percent_rel += [0]
+
+                if type(model.embeddings) is list:
+                    model.embeddings[0].normalize()
+                else:
+                    model.embeddings.normalize()
+
+            log.info("----------------------------------------------------------------------------")
+            log.info("EPOCH %s (%s seconds):" % (
+                    epoch_count, round(time.time() - timeref, 3)))
+            if state.reg != None:
+                log.info("\tAverage L2 norm of relation vector: %s" % \
+                (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
+                float(state.Nrel), 5)))
             
-            if state.is_horn_path: ### needs paths, relations and neg relations
-                tmpo = traino[:, i * batchsize:(i + 1) * batchsize]
-                tmpno = trainon[:, i * batchsize:(i + 1) * batchsize]
-            else: ### needs only paths and negative right entities
-                tmpl = trainl[:, i * batchsize:(i + 1) * batchsize]
-                tmpr = trainr[:, i * batchsize:(i + 1) * batchsize]
-                tmpnr = trainrn[:, i * batchsize:(i + 1) * batchsize]
-            
-            ### FIX FIX FIX
-            # training iteration
-            if state.rel == True: # (has tmpo as additional argument)
-                batch_cost, per_l, per_o, per_r = model.trainfunc(state.lremb,\
-                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr, tmpno)
-                out += [batch_cost / float(batchsize)]
-                percent_left += [per_l]
-                percent_rel += [per_o]
-                percent_right += [per_r]
-
-            else:
-                batch_cost, per_l, per_r = model.trainfunc(state.lremb, \
-                    state.lrparam, tmpl, tmpr, tmpo, tmpnl, tmpnr)
-                out += [batch_cost / float(batchsize)]
-                percent_left += [per_l]
-                percent_right += [per_r]
-
-            # embeddings normalization
-            ### TODO: why only normalize embeddings[0]?? only normalize entity 
-            ### embs, not the relationships ones??
-            if type(model.embeddings) is list:
-                model.embeddings[0].normalize()
-            else:
-                model.embeddings.normalize()
-
-        log.info("----------------------------------------------------------------------------")
-        log.info("EPOCH %s (%s seconds):" % (
-                epoch_count, round(time.time() - timeref, 3)))
-        if state.reg != None:
-            log.info("\tAverage L2 norm of relation vector: %s" % \
-            (round(np.sqrt(model.embeddings[1].L2_sqr_norm.eval())/ \
-            float(state.Nrel), 5)))
-        if state.rel:
             log.info("\tCOST >> %s +/- %s, %% updates Left: %s%% Rel: %s%% Right: %s%%" % (round(np.mean(out), 3), \
                 round(np.std(out), 3), \
                 round(np.mean(percent_left) * 100, 2), \
                 round(np.mean(percent_rel) * 100, 2), \
                 round(np.mean(percent_right) * 100, 2)))
-        else:
-            log.info("\tCOST >> %s +/- %s, %% updates Left: %s%%  Right: %s%%" % (round(np.mean(out), 3),round(np.std(out), 3),\
-                round(np.mean(percent_left) * 100, 2), \
-                round(np.mean(percent_right) * 100, 2)))
 
-        out, percent_left, percent_rel, percent_right = [], [], [], []
-        timeref = time.time()
-        
-        if (epoch_count % state.test_all) == 0:
-            ### evaluate by actually computing ranking metrics on some data
-            if state.nvalid > 0:
-                verl, verr, ver_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
-                    model.rankrfunc, validlidx, validridx, validoidx, \
-                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
-                state.validMR = np.mean(verl + verr)# only tune on entity ranking
-                state.validMRR = np.mean(np.reciprocal(verl + verr))
-            else:
-                state.valid = 'not applicable'
+            out, percent_left, percent_rel, percent_right = [], [], [], []
+            timeref = time.time()
             
-            if state.ntrain > 0:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(log, model.ranklfunc,\
-                    model.rankrfunc, trainlidx, trainridx, trainoidx, \
-                    true_triples, reverseRanking, rank_rel=model.rankrelfunc)
-                state.train = np.mean(terl + terr)# only tune on entity ranking
-            else:
-                state.train = 'not applicable'
-            
-            log.info("\tMEAN RANK >> valid: %s, train: %s" % (
-                    round(state.validMR, 1), round(state.train, 1)))
-            log.info("\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
-            log.info("\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1)))
-            log.info("\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4)))
-
-            ### save model that performs best on dev data
-            if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
-                terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
-                model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+            if (epoch_count % state.test_all) == 0:
+                ### evaluate by actually computing ranking metrics on some data
+                if state.nvalid > 0:
+                    verl, verr, ver_rel = FilteredRankingScoreIdx(log, model.ranklfunc, model.rankrfunc, validlidx, validridx, \
+                        validoidx, true_triples, reverseRanking)
+                    state.validMR = np.mean(verl + verr)# only tune on entity ranking
+                    state.validMRR = np.mean(np.reciprocal(verl + verr))
+                else:
+                    state.valid = 'not applicable'
                 
-                failedImprovements = 3
-                state.bestvalidMRR = state.validMRR
-                state.besttrain = state.train
-                state.besttest = np.mean(terl + terr)
-                state.bestepoch = epoch_count
-                # Save model best valid model
-                f = open(state.savepath + '/best_valid_model.pkl', 'w')
+                if state.ntrain > 0:
+                    terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
+                        model.ranklfunc, model.rankrfunc, trainlidx, \
+                        trainridx, trainoidx, true_triples, reverseRanking)
+                    state.train = np.mean(terl + terr)# only tune on entity ranking
+                else:
+                    state.train = 'not applicable'
+                
+                log.info("\tMEAN RANK >> valid: %s, train: %s" % (
+                        round(state.validMR, 1), round(state.train, 1)))
+                log.info("\t\tMEAN RANK TRAIN: Left: %s Rel: %s Right: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+                log.info("\t\tMEAN RANK VALID: Left: %s Rel: %s Right: %s" % (round(np.mean(verl), 1), round(np.mean(ver_rel), 1), round(np.mean(verr), 1)))
+                log.info("\t\tMEAN RECIPROCAL RANK VALID (L & R): %s" % (round(state.validMRR, 4)))
+
+                ### save model that performs best on dev data
+                if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
+                    terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
+                    model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
+                    
+                    failedImprovements = 3
+                    state.bestvalidMRR = state.validMRR
+                    state.besttrain = state.train
+                    state.besttest = np.mean(terl + terr)
+                    state.bestepoch = epoch_count
+                    # Save model best valid model
+                    f = open(state.savepath + '/best_valid_model.pkl', 'w')
+                    cPickle.dump(model.embeddings, f, -1)
+                    cPickle.dump(model.leftop, f, -1)
+                    cPickle.dump(model.rightop, f, -1)
+                    cPickle.dump(model.simfn, f, -1)
+                    f.close()
+                    log.info("\tNEW BEST TEST MR: %s" % round(state.besttest, 1)) 
+                    log.info("\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
+                else:
+                    if failedImprovements == 0:
+                        log.warning("EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all))
+                        break
+                    log.warning("\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1))
+                    failedImprovements -= 1
+                # Save current model regardless
+                f = open(state.savepath + '/current_model.pkl', 'w')
                 cPickle.dump(model.embeddings, f, -1)
+                cPickle.dump(model.compop, f, -1)
                 cPickle.dump(model.leftop, f, -1)
                 cPickle.dump(model.rightop, f, -1)
                 cPickle.dump(model.simfn, f, -1)
                 f.close()
-                log.info("\tNEW BEST TEST MR: %s" % round(state.besttest, 1)) 
-                log.info("\t\tLeft MR: %s Rel MR: %s Right MR: %s" % (round(np.mean(terl), 1), round(np.mean(ter_rel), 1), round(np.mean(terr), 1)))
-            else:
-                if failedImprovements == 0:
-                    log.warning("EARLY STOPPING, failed to improve MRR on valid after %s epochs" % (3*state.test_all))
-                    break
-                log.warning("\tWARNING, failed to improve MRR on valid, %s chances left\n" % (failedImprovements-1))
-                failedImprovements -= 1
-            # Save current model regardless
-            f = open(state.savepath + '/current_model.pkl', 'w')
-            cPickle.dump(model.embeddings, f, -1)
-            cPickle.dump(model.compop, f, -1)
-            cPickle.dump(model.leftop, f, -1)
-            cPickle.dump(model.rightop, f, -1)
-            cPickle.dump(model.simfn, f, -1)
-            f.close()
-            state.nbepochs = epoch_count
-            log.info("\t(ranking took %s seconds)" % (
-                round(time.time() - timeref, 3)))
-            timeref = time.time()
+                state.nbepochs = epoch_count
+                log.info("\t(ranking took %s seconds)" % (
+                    round(time.time() - timeref, 3)))
+                timeref = time.time()
 
 
     log.info("----------------------------------------------------------------------------")
@@ -745,7 +810,7 @@ def FB15kexp(state):
 
 def launch(identifier, experiment_type, logger, datapath='data/', \
     dataset='FB15k', \
-    Nent=16296, rhoE=1, margincostfunction='margincost', reg=0.01, \
+    Nent=14951, rhoE=1, margincostfunction='margincost', reg=0.01, \
     rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
@@ -802,13 +867,13 @@ def launch(identifier, experiment_type, logger, datapath='data/', \
     FB15kexp(state)
 
 def launch_path(identifier, experiment_type, logger, datapath='data/', \
-    dataset='FB15k', use_horn_path=False, compop='compose_TransE', \
-    Nent=16296, rhoE=1, margincostfunction='margincost', reg=0.01, \
+    dataset='FB15k', useHornPaths=False, compop='compose_TransE', \
+    Nent=14951, rhoE=1, margincostfunction='margincost', reg=0.01, \
     rhoL=5, Nsyn_rel = 1345, Nsyn=14951, Nrel=1345, loadmodel=False, \
-    loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
-    lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
+    loademb=False, simfn='Dot', ndim=50, marge=1., \
+    lremb=0.1, lrparam=1., nbatches=100, totepochs=500, test_all=1, \
     ntrain = 'all', nvalid = 'all', ntest = 'all', seed=123, \
-    savepath='', rel=False):
+    savepath='', rel=False, needIntermediateNodesOnPaths=False, graph_files=['length_2_numPaths_50000000']):
 
     # Argument of the experiment script
     state = DD()
@@ -817,13 +882,9 @@ def launch_path(identifier, experiment_type, logger, datapath='data/', \
     state.dataset = dataset
     state.savepath = savepath
     state.experiment_type = experiment_type
+    
     state.margincostfunction = margincostfunction
     state.reg = reg
-
-    state.use_horn_path = use_horn_path
-    state.compop = compop
-
-
     state.Nent = Nent # Total number of entities
     state.Nsyn = Nsyn # number of entities against which to rank a given test
                       # set entity. It could be all entities (14951) or less,
@@ -832,16 +893,10 @@ def launch_path(identifier, experiment_type, logger, datapath='data/', \
     state.Nsyn_rel = Nsyn_rel # number of relatins against which to rank a 
                               # given missing relation
     state.loadmodel = loadmodel
-    # state.loadmodelBi = loadmodelBi
-    # state.loadmodelTri = loadmodelTri
-    state.loademb = loademb ### load previously trained embeddings?
-    
-    state.op = op
+    state.loademb = loademb # load previously trained embeddings
     state.simfn = simfn
-    state.ndim = ndim # dimension of both relationship and entity embeddings
-    state.marge = marge # margin used in ranking loss
-    # state.rhoE = rhoE
-    # state.rhoL = rhoL
+    state.ndim = ndim       # dimension of relationship and entity embeddings
+    state.marge = marge     # margin used in ranking loss
     state.lremb = lremb     # learning rate for embeddings
     state.lrparam = lrparam # learning rate for params of leftop, rightop, 
                             # and fnsim, if they have parametesr
@@ -855,6 +910,11 @@ def launch_path(identifier, experiment_type, logger, datapath='data/', \
     state.nvalid = nvalid # num exs from valid to compute a rank for
     state.ntest = ntest   # num exs from test to compute a rank for
     state.seed = seed
+
+    state.graph_files = graph_files
+    state.compop = compop
+    state.useHornPaths = useHornPaths
+    state.needIntermediateNodesOnPaths = needIntermediateNodesOnPaths
 
     if not os.path.isdir(state.savepath):
         os.mkdir(state.savepath)

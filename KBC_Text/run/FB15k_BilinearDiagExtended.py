@@ -15,17 +15,17 @@ reverseRanking = True # rank from best -> worst <=> high to low score
 
 ndim = 200 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
-marge = 1.0     # {0.5, 1.0} 
+marge = 0.2     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
-totepochs = 500 # maximum number of epochs
+totepochs = 1000 # maximum number of epochs
 test_all = 10   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = True      
+rel = False      
 reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would

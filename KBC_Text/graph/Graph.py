@@ -1,5 +1,8 @@
+import ast
+
 from random import randint, sample
 from KBC_Text.utils.Utils import *
+
 
 
 class Graph():
@@ -33,8 +36,8 @@ class Graph():
 			:param text_quads: {(e_h, r, r_text, e_t)} triples with indexes of which 
 							   sentences mentioned this triple in Clueweb09 corpus
 		'''
-		state.logger.info('parameters:\n %s', str(state))
-		start = time.clock()
+		state.logger.info('initializing graph')
+		# state.logger.info('parameters:\n %s', str(state))
 		self.outgoing  = [set([]) for i in range(state.Nent)] 
 		# outgoing[i] = set([set of all (rel, entity) pairs that i is 
 		# incident on via relation rel]) 
@@ -48,11 +51,16 @@ class Graph():
 		self.state = state
 		self.batchSize = 100000
 		self.triesPerPath = 20
+		self.true_triples = true_triples
+		self.text_quads = text_quads
 		# for triple in triples ...blah blah
-		if true_triples is not None:
+		
+	def construct(self):
+		start = time.clock()
+		if self.true_triples is not None:
 			self.log.info("%s triples in KB, initializing graph..." % \
 				len(true_triples))
-			for (h, r, t) in true_triples:
+			for (h, r, t) in self.true_triples:
 				self.checkEntityIdx(h)
 				self.checkEntityIdx(t) 
 				self.checkRelationIdx(r)
@@ -220,22 +228,32 @@ class Graph():
 			raise NotImplementedError
 
 	def pathToString(self, path):
-		if self.state.useHornPaths and self.state.needIntermediateNodesOnPaths:
+		'''
+			this method is very important because this is what is written to 
+			file
+		'''
+		if self.state.useHornPaths:
 			# format of path: (inteded rel, [(None, h), (r1, e1), ... (rn, t)])
 			return str(path[0]) + '\t' + str(path[1])
-		elif not self.state.useHornPaths and self.state.needIntermediateNodesOnPaths: 
+		else: 
 			# format of path: [(None, h), (r1, e1), ... (rn, t)]
 			return str(path)
 
-		elif self.state.useHornPaths and not self.state.needIntermediateNodesOnPaths:
+	def stringToPath(self, s):
+		'''
+			This method is untested except for case 4
+			the inverse of pathToString. returns a 5-tuple
+			(intended rel, headEntity, TailEntity, intermediateEntities, intermediateRelations) in this order
+		'''
+		path = s.strip()
+		if self.state.useHornPaths:
 			# format of path: (inteded rel, [(None, h), (r1, e1), ... (rn, t)])
-			# transform to (intended rel, h, t, [r1, r2, ..., rn])
-			return str(path[0]) + '\t' + str(path[1][0][1]) + '\t' + str(path[1][-1][1]) + str(map(lambda (x, y): x, path[1][1:]))
-
-		else:
+			traversed = ast.literal_eval(path[1])
+			return (int(path[0]), int(traversed[0][1]), int(traversed[-1][1]), map(lambda (x, y): int(y), traversed[1:]), map(lambda (x, y): int(x), traversed[1:]))
+		else: 
 			# format of path: [(None, h), (r1, e1), ... (rn, t)]
-			# transform to (h, t, [r1, r2, ..., rn])
-			return str(path[0][1]) + '\t' + str(path[-1][1]) + '\t' + str(map(lambda (x, y): x, path[1:]))
+			traversed = ast.literal_eval(path)
+			return (None, int(traversed[0][1]), int(traversed[-1][1]), map(lambda (x, y): int(y), traversed[1:]), map(lambda (x, y): int(x), traversed[1:]))
 
 	def generatePathDataset(self):
 		self.log.info('BEGIN RANDOM PATH GENERATION')
@@ -252,23 +270,25 @@ class Graph():
 				while len(self.outgoing[start]) == 0: #start with connected nod
 					start = self.random_entity()
 				if self.state.useHornPaths:
-					# pick random adjecent 
+					# pick random triple where head is adjacent to tail entity
+					# that relation becomes the target relation
 					(rel, tail) = sample(self.outgoing[start])
 					path = self.generateRandomPath(start, length, to=tail)
-					if path:
+					assert path[-1][1] == tail
+					if not path or len(path) <= 1 or (start == tail):
+						continue
+					else:
 						paths.append((rel, path)) # path represents the rel
 						count += 1
-					else:
-						# self.log.warning('\tfailed to produce path this try')
-						continue
+
 				else: # there is no "closing" edge bc it's a path not cycle
 					path = self.generateRandomPath(start, length)
-					if path:
+					if not path or len(path) <= 1 or (start == path[-1][1]):
+						continue
+					else:
 						paths.append(path)
 						count += 1
-					else:
-						# self.log.warning('\tfailed to produce path this try')
-						continue
+
 				# print self.pathToString(path)
 				if count % self.batchSize == 0:
 					self.log.info('\twriting batch of %s paths to file' % self.batchSize)
@@ -411,9 +431,12 @@ class Graph():
 
 
 if __name__ == '__main__':
+	'''
+		generate a data set of non-horn random paths of certain length
+	'''
 	state = DD()
-	state.path_lengths = [2, 3, 4, 5]
-	state.num_paths = [50000000, 50000000, 50000000, 50000000]
+	state.path_lengths = [2, 3, 4] 
+	state.num_paths = [50000000, 50000000, 50000000]
 	state.useHornPaths = False
 	state.needIntermediateNodesOnPaths = False
 	state.savepath = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/GraphPaths/'
@@ -445,6 +468,7 @@ if __name__ == '__main__':
 
 
 	g = Graph(state, trainKB, text_quads=False)
+	g.construct()
 	g.generatePathDataset()
 	
 	

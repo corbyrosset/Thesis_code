@@ -24,8 +24,8 @@ Nsyn = 14951    # number of entities against which to rank a given test
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
 reverseRanking = True # rank from best -> worst <=> high to low score
-rel = False      # whether to also rank relations
-reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
+rel = True      # whether to also rank relations
+reg = 0.001       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 

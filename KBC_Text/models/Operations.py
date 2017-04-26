@@ -447,7 +447,20 @@ class LayerSTransE_right(object):
 
 # Path composition methods ----------------------------------------------------
 
-def compose_TransE(idxs, initial, all_rels):
+class LayerSTransE_right(object):
+
+    def __init__(self, n_inp, n_out):
+        self.n_inp = n_inp
+        self.n_out = n_out
+        self.params = []
+
+    def __call__(self, rhs, W):
+        rW = W.reshape((W.shape[0], self.n_inp, self.n_out))
+        rrhs = rhs.reshape((rhs.shape[0], rhs.shape[1], 1))
+        res = (rrhs * rW).sum(1)
+        return res
+
+class compose_TransE(object):
     '''
         method for composing relations along a path in KG using the TransE
         model. This happens to be a quick and dirty trick for TransE 
@@ -457,9 +470,17 @@ def compose_TransE(idxs, initial, all_rels):
         length: length of each path, they are all equal length!
 
     '''
-    return initial + all_rels[:, idxs].sum(axis = 1)
+    def __init__(self):
+        self.params = []
+    
+    def __call__(self, idxs, initial, all_rels):
+        '''
+            ignore initial vecs for now
+        '''
+        path_rep = all_rels[:, idxs].sum(axis = 1)
+        return path_rep 
 
-def compose_BilinearDiag(idxs, initial, all_rels):
+class compose_BilinearDiag(object):
     '''
         method for composing relations along a path in KG using the 
         BilinearDiag model
@@ -471,12 +492,15 @@ def compose_BilinearDiag(idxs, initial, all_rels):
 
     ### the output would be the same if you used "scan" instead of 
     ### "reduce", and returned res[-1] instead of res!
+    def __init__(self):
+        self.params = []
 
-    res, updates = theano.reduce(
+    def __call__(self, idxs, initial, all_rels):
+        path_rep, updates = theano.reduce(
                     fn = lambda x, y: x * y, #compose_TransE,
-                    sequences=all_rels[:, idxs].T,
-                    outputs_info=initial)
-    return res
+                    sequences=all_rels[:, idxs].T)
+                    # outputs_info=initial)
+        return path_rep
 
 # ----------------------------------------------------------------------------
 

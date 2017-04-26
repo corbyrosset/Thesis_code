@@ -12,9 +12,8 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 simfn = 'L1'
 margincostfunction = 'margincost' ### from top of Operations
 compop = 'compose_TransE'
-ndim = 50 # dimension of both relationship and entity embeddings
+ndim = 100 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
-use_horn_path = False	       
 marge = 1.0     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
@@ -26,7 +25,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
 rel = False      # whether to also rank relations
-reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
+reg = 0.005       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
@@ -40,8 +39,24 @@ experiment_type = 'FB15k_path_exp'
 savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path/'
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/'
 
-identifier = 'TransE_Path_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + str(margincostfunction) + '_reg_' + str(reg) + '_horn_' + str(use_horn_path) + '_compop_' + str(compop)
+### these are prefixes to the train, dev, test splits of the .path files
+graph_files = ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'] #['length_2_numPaths_50000000', 'length_3_numPaths_50000000']
+
+### for these two flags, see graph/Graph.py
+useHornPaths = False 
+needIntermediateNodesOnPaths = False
+loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/' + 'BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL' + '/best_valid_model.pkl'
+
+###############################################################################
+# DONT TOUCH BETWEEN HERE
+###############################################################################
+
+identifier = 'Path_' + str(simfn) + '_ndim_' + str(ndim) + \
+			'_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + \
+			str(margincostfunction) + '_reg_' + str(reg) + '_horn_' + \
+			str(useHornPaths) + '_useIntermedNodes_' + \
+			str(needIntermediateNodesOnPaths) + '_compop_' + str(compop)
+
 if rel == True:
 	identifier += '_REL'
 
@@ -56,22 +71,27 @@ else:
 	reverseRanking = True
 	
 ###############################################################################
+# AND HERE
 ###############################################################################
 
+### comment out this part if you just want to evaluate an already-trained model
 logger.info('identifier: ' + str(identifier))
 logger.info('models saved to path: ' + str(savepath))
-launch_path(identifier, experiment_type, logger, op='Path', \
-	ndim= ndim, use_horn_path=use_horn_path, compop=compop, simfn= simfn, \
+launch_path(identifier, experiment_type, logger, \
+	ndim= ndim, compop=compop, simfn= simfn, \
 	marge= marge, margincostfunction=margincostfunction, \
 	lremb= lremb, lrparam= lrparam, nbatches= nbatches, totepochs= totepochs,\
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
 	savepath= savepath + str(identifier), reg=reg, \
 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath=datapath)
+	datapath=datapath, graph_files=graph_files, useHornPaths=useHornPaths, \
+	needIntermediateNodesOnPaths=needIntermediateNodesOnPaths, \
+	loademb = loademb)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
+# send_notification(identifier, logFile)
 RankingEval(datapath, logger, reverseRanking=reverseRanking, neval=neval, \
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)

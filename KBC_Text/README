@@ -8,7 +8,9 @@ TODO: create a "high quality" textual triples dataset that filters out
 	sentences that are 
 	1) labeled with too many different triples (bc theyre not indicative 
 		of a unique relationship)
+	
 	2) labeled with more than one relationship?
+	
 	3) Trigram and Precision filtering of Toutanova: I counted for each 
 	pattern and each trigram in a pattern (trigram being a consecutive trigram 
 	in the dependency path including words and dependency links), the total 
@@ -19,6 +21,8 @@ TODO: create a "high quality" textual triples dataset that filters out
 	precision. I had cutoffs on patterns and pattern trigrams, where if a 
 	pattern passed the cutoff or if one of its trigrams passed the cutoff, the 
 	pattern was included in the pruned set.
+
+	4) in path training of non_horn_paths, see if you can do you lhs entity ranking as well to explicity opdate those. That means dont include the lhs in the pathvec
 
 TODO: integrate the SIF word average embedding class into the 
 	FB15k_text_experiment file. (perhaps forget the RMPC part, since that can't

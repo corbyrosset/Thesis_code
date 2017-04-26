@@ -904,7 +904,7 @@ def Train1MemberTextAsRelAndReg(margincost, KBsim, textsim, KBembeddings, wordem
         return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr), T.mean(outtext)],
             updates=updates, on_unused_input='ignore')
 
-def TrainFnPath(compop, use_horn_path, initial_vecs, margincost, fnsim, embeddings, marge=1.0, reg=0.001):
+def TrainFnPath(leftop, compop, useHornPaths, initial_vecs, margincost, fnsim, embeddings, marge=1.0, reg=0.001):
     """
     Instead of just ranking a positive triple with one relation against a 
     negative triple with one relation, we allow relation paths as long 
@@ -926,30 +926,28 @@ def TrainFnPath(compop, use_horn_path, initial_vecs, margincost, fnsim, embeddin
     """
 
     embedding, relationl, relationr = parse_embeddings(embeddings)
+    embedding.E.set_value(embedding.E.get_value()[:, :14951]) ### hack, since apparently the saved embeddings were D * 16296 which is 14951 + 1345
 
     # Inputs
     lrembeddings = T.scalar('lrembeddings')
     lrparams = T.scalar('lrparams')
-    inpo = S.csr_matrix()
-    idxs_per_path = T.imatrix("indexes") # N paths (rows), each length L
+    idxs_per_path = T.lmatrix("indexes") # N paths (rows), each length L
     # List of inputs of the function
-    list_in = [lrembeddings, lrparams, inpo, idxs_per_path]
+    list_in = [lrembeddings, lrparams, idxs_per_path]
 
-    # Graph
-    rel = S.dot(relationl.E, inpo).T
+    inpl = S.csr_matrix()
+    inpr = S.csr_matrix()
+    inprn = S.csr_matrix()
+    inpln = S.csr_matrix()
+    list_in = [lrembeddings, lrparams, idxs_per_path, inpl, inpr, inpln, inprn]
+
+    lhs = S.dot(embedding.E, inpl).T # initial vecs!
+    rhs = S.dot(embedding.E, inpr).T
+    rhsn = S.dot(embedding.E, inprn).T
+    lhsn = S.dot(embedding.E, inpln).T # initial vecs!
+
     
-    # Symbolic description of the result
-    if not use_horn_path:
-        assert initial_vecs == None
-        inpl = S.csr_matrix()
-        inpr = S.csr_matrix()
-        inprn = S.csr_matrix()
-        list_in += [inpl, inpr, inprn]
-
-        lhs = S.dot(embedding.E, inpl).T # initial vecs!
-        rhs = S.dot(embedding.E, inpr).T
-        rhsn = S.dot(embedding.E, inprn).T
-
+    if not useHornPaths:
         ### we want to ignore previous steps of the outputs.
         ### idxs_per_path is a matrix of N paths (rows), each length L
         ### we are mapping each row of idxs_per_path to a D-dim vector 
@@ -962,57 +960,64 @@ def TrainFnPath(compop, use_horn_path, initial_vecs, margincost, fnsim, embeddin
         pathvec, _ = theano.map(
                         fn= compop, #compose_TransE,
                         sequences=[idxs_per_path, lhs],
-                        non_sequences=[rel])
+                        non_sequences=[relationl.E])
+
         ### for non-horn paths, we care about bookended entities, so it's 
         ### the same as before:
-        simi = fnsim(pathvec, rhs) ### ONLY THIS MAKES SENSE TO DO
-        # MAKES NOT SENSE TO USE A Negative 'left' member
-        # similn = fnsim(leftop(lhsn, pathvec), rightop(rhs, pathvec))
-        # Negative 'right' member
-        simirn = fnsim(pathvec, rhsn)
-        # costl, outl = margincost(simi, similn, marge)
-        cost, out = margincost(simi, simirn, marge)
-        # regularize only relations, as entities are re-normalized
-        ### TODO TODO regularization actually breaks eventually?
-
+        simi = fnsim(leftop(lhs, pathvec), rhs) ### ONLY THIS MAKES SENSE TO DO
+        similn = fnsim(leftop(lhsn, pathvec), rhs)
+        simirn = fnsim(leftop(lhs, pathvec), rhsn)
+        costl, outl = margincost(simi, similn, marge)
+        costr, outr = margincost(simi, simirn, marge)
+        cost = costl + costr
     else:
         assert initial_vecs is not None
         # paths start at first relation, compose relations until finished.
         # final result should be close to the intended cycle-completing rel
 
         # consider a negative relation member
+        inpo = S.csr_matrix()
         inpon = S.csr_matrix()
-        listin += [inpon]
+        listin += [inpo, inpon]
 
         reln = S.dot(relationl.E, inpon).T
 
         ### be mindful what to set initial vectors to - 0s for transE, 
         ### 1s for bilinear
-        if initial_vecs == 0:
-            initial_vecs = np.zeros((idxs_per_path.shape[0], relationl.D)
-            , dtype=theano.config.floatX) # num paths by dimension
-        elif initial_vecs == 1:
-            initial_vecs = np.ones((idxs_per_path.shape[0], relationl.D)
-            , dtype=theano.config.floatX)
-        else: 
+        # if initial_vecs == None:
+        #     initial_vecs = np.zeros((idxs_per_path.shape[0], relationl.D)
+        #     , dtype=theano.config.floatX) # num paths by dimension
+        # elif initial_vecs == 1:
+        #     initial_vecs = np.ones((idxs_per_path.shape[0], relationl.D)
+        #     , dtype=theano.config.floatX)
+        # else: 
+        #raise ValueError("invalid value for initial vectors, must be identity element in the ring")
+        if initial_vecs == None:
             raise ValueError("invalid value for initial vectors, must be identity element in the ring")
         initial_vecs_fixed = theano.shared(value=initial_vecs, name='init')
 
         pathvec, updates = theano.map(
                         fn= compop, #compose_TransE,
                         sequences=[idxs_per_path, initial_vecs_fixed],
-                        non_sequences=[rels])
+                        non_sequences=[relationl.E])
 
-        simi = fnsim(pathvec, rel) ### ONLY THIS MAKES SENSE TO DO
+        simi = fnsim(leftop(lhs, pathvec), rhs) ### ONLY THIS MAKES SENSE TO DO
+        similn = fnsim(leftop(lhsn, pathvec), rhs)
+        simirn = fnsim(leftop(lhs, pathvec), rhsn)
+        simio = fnsim(pathvec, rel) ### ONLY THIS MAKES SENSE TO DO
         simion = fnsim(pathvec, reln)
-        cost, out = margincost(simi, simion, marge)
+
+        costl, outl = margincost(simi, similn, marge)
+        costr, outr = margincost(simi, simirn, marge)
+        cost_rel, out_rel = margincost(simi, simion, marge)
+        cost = costl + cost_rel + costr
 
     if reg != None:
         cost += (reg/2)*relationl.L2_sqr_norm + (reg/2)*relationr.L2_sqr_norm
     
     updates = OrderedDict()
     ### update parameters with a particular learning rate
-    params = leftop.params + rightop.params ### KG embedding params
+    params = compop.params ### KG embedding params
     if hasattr(fnsim, 'params'):
         params += fnsim.params
     # updates = sgd(cost, params, learning_rate=lrparams)
@@ -1050,8 +1055,10 @@ def TrainFnPath(compop, use_horn_path, initial_vecs, margincost, fnsim, embeddin
     :output mean(out): ratio of examples for which the margin is violated,
                        i.e. for which an update occurs.
     """
-    return theano.function(list_in, [T.mean(cost), T.mean(out)],
-            updates=updates, on_unused_input='ignore')
+    if not useHornPaths:
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(outr)], updates=updates, on_unused_input='ignore')
+    else:
+        return theano.function(list_in, [T.mean(cost), T.mean(outl), T.mean(out_rel), T.mean(outr)], updates=updates, on_unused_input='ignore')
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
@@ -1161,6 +1168,8 @@ class TransE_model():
 
 
             ### similarity function of output of left and right ops
+            if 'pos_high' in state.margincostfunction:
+                raise ValueError('TransE must use the kind of margin that ranks positive triples lower than negative, e.g. margincost')
             self.simfn = eval(state.simfn + 'sim') 
             self.margincost = eval(state.margincostfunction)
         else:
@@ -1192,16 +1201,16 @@ class TransE_model():
 # ----------------------------------------------------------------------------
 class Path_model():
 
-    def __init__(self, state):
+    def __init__(self, state, train_initial_vecs = None):
         if not state.loadmodel:
             # operators, left and right ops are for distance function
-            self.leftop  = LayerTrans()
             self.rightop = Unstructured()
-
             if state.compop == 'compose_TransE':
-                self.compop = compose_TransE
+                self.compop = compose_TransE()
+                self.leftop = LayerTrans()
             elif state.compop == 'compose_BilinearDiag':
-                self.compop = compose_BilinearDiag
+                self.compop = compose_BilinearDiag()
+                self.leftop = LayerBilinearDiag()
             else:
                 raise ValueError("compop is not an acceptable string")
             
@@ -1214,6 +1223,7 @@ class Path_model():
                 self.embeddings = [embeddings, relationVec, relationVec]
             else:
                 try:
+                    state.logger.info('INITIALIZING EMBEDDINGS FROM MODEL')
                     state.logger.info('loading embeddings from ' + str(state.loademb))
                     f = open(state.loademb)
                     self.embeddings = cPickle.load(f)
@@ -1222,9 +1232,9 @@ class Path_model():
                     raise ValueError('could not load embeddings')
         
             assert type(self.embeddings) is list
+            assert all([isinstance(i, Embeddings) for i in self.embeddings])
             assert len(self.embeddings) == 3
-
-
+            
             ### similarity function of output of left and right ops
             self.simfn = eval(state.simfn + 'sim') 
             self.margincost = eval(state.margincostfunction)
@@ -1242,9 +1252,12 @@ class Path_model():
                 raise ValueError('could not load model...')
 
         # function compilation
-        self.trainfunc = TrainFnPath(self.compop, state.use_horn_path, \
-            self.margincost, self.simfn, self.embeddings, \
-            marge=state.marge, reg=state.reg)
+        if state.useHornPaths and train_initial_vecs == None:
+            raise ValueError("if using horn paths for training, must supply initial 'head' vectors!")
+
+        self.trainfunc = TrainFnPath(self.leftop, self.compop, \
+            state.useHornPaths, train_initial_vecs, self.margincost, \
+            self.simfn, self.embeddings, marge=state.marge, reg=state.reg)
         ### even though the training function is for paths, we still 
         ### evaluate on single edges for now...
         self.ranklfunc = RankLeftFnIdx(self.simfn, self.embeddings, \

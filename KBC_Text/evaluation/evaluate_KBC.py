@@ -119,7 +119,8 @@ def macro_evaluation_statistics(res, idxo, n, rel=False):
         if rel:
             ranks_per_relation[i][2] = np.array(ranks_per_relation[i][2], dtype=np.float64)
             res_combined = np.append(ranks_per_relation[i][0], ranks_per_relation[i][1])
-            res_combined = np.append(res_combined, ranks_per_relation[i][2])
+            ### DONT DO THIS:
+            # res_combined = np.append(res_combined, ranks_per_relation[i][2])
             assert np.all(res_combined) > 0
             assert np.all(res_combined) <= 14951
 

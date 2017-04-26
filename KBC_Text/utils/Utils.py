@@ -120,14 +120,27 @@ def negative_samples_filtered(pos_left, pos_rel, pos_right, KB, rels=None):
 
     :note: if shape[1] > shape[0], it loops over the shape[0] indexes.
     """
+    if isinstance(pos_left, sp.csc_matrix) or isinstance(pos_left, sp.csr_matrix):
+        num_samples = np.shape(pos_left)[1]
+        num_entities = np.shape(pos_left)[0]
+        assert np.shape(pos_left)[1] == np.shape(pos_right)[1] 
+        assert np.shape(pos_left)[0] == np.shape(pos_right)[0] 
+        rows_lhs, cols_lhs, _ = sp.find(pos_left)
+        rows_rel, cols_rel, _ = sp.find(pos_rel)
+        rows_rhs, cols_rhs, _ = sp.find(pos_right)
+    else:
+        num_samples = len(pos_left)
+        num_entities = len(pos_left)
+        assert len(pos_left) == len(pos_right) 
+        assert len(pos_left) == len(pos_right) 
+        
+        pos_left = expand_to_mat(pos_left, num_entities)
+        pos_rel = expand_to_mat(pos_rel, rels)
+        pos_right = expand_to_mat(pos_right, num_entities)
 
-    num_samples = np.shape(pos_left)[1]
-    num_entities = np.shape(pos_left)[0]
-    assert np.shape(pos_left)[1] == np.shape(pos_right)[1] 
-    assert np.shape(pos_left)[0] == np.shape(pos_right)[0] 
-    rows_lhs, cols_lhs, _ = sp.find(pos_left)
-    rows_rel, cols_rel, _ = sp.find(pos_rel)
-    rows_rhs, cols_rhs, _ = sp.find(pos_right)
+        rows_lhs, cols_lhs, _ = sp.find(pos_left)
+        rows_rel, cols_rel, _ = sp.find(pos_rel)
+        rows_rhs, cols_rhs, _ = sp.find(pos_right)
     
     ### sample some random indices, will check later
     neg_l_idx = np.random.random_integers(0, high=num_entities-1, \
@@ -269,8 +282,8 @@ def load_FB15k_data(state):
     # if state.op == 'SE' or state.op == 'TransE':
     traino = traino[-state.Nrel:, :] ### take bottom Nrel relations?
     # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
-    #     trainl = trainl[:state.Nsyn, :]
-    #     trainr = trainr[:state.Nsyn, :]
+    trainl = trainl[:state.Nent, :]
+    trainr = trainr[:state.Nent, :]
     #     traino = traino[-state.Nrel:, :]
 
     # Valid set
@@ -280,8 +293,8 @@ def load_FB15k_data(state):
     # if state.op == 'SE' or state.op == 'TransE':
     valido = valido[-state.Nrel:, :]
     # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
-    #     validl = validl[:state.Nsyn, :]
-    #     validr = validr[:state.Nsyn, :]
+    validl = validl[:state.Nent, :]
+    validr = validr[:state.Nent, :]
     #     valido = valido[-state.Nrel:, :]
 
 
@@ -292,8 +305,8 @@ def load_FB15k_data(state):
     # if state.op == 'SE' or state.op == 'TransE':
     testo = testo[-state.Nrel:, :]
     # elif state.op =='Bi' or state.op == 'Tri'or state.op == 'TATEC':
-    #     testl = testl[:state.Nsyn, :]
-    #     testr = testr[:state.Nsyn, :]
+    testl = testl[:state.Nent, :]
+    testr = testr[:state.Nent, :]
     #     testo = testo[-state.Nrel:, :]
 
     # Index conversion 
@@ -469,7 +482,7 @@ def load_FB15k_Clueweb_data(state):
         idxtl, idxtr, idxto, text_test, text_per_triple_cntr, \
         unique_text_per_triple, triple_per_text, sent2idx, idx2sent
 
-def load_FB15k_path_data(state):
+def load_FB15k_path_data(state, graph):
 
     # trainl, trainr, trainp, trainlidx, trainridx, trainpidx, validlidx, \
     # validridx, validoidx, testlidx, testridx, testoidx, true_triples, KB \
@@ -499,6 +512,101 @@ def load_FB15k_path_data(state):
         each one-hot. Except now the relation column has multiple hot rows,
         each corresponding to the relation on the path.
 
-    '''
-    raise NotImplementedError
+        Each call to graph.stringToPath returns a 5-tuple:
+        (int(targetRel), int(head), int(tail), [pathEtns], [pathRels])
 
+    '''
+    trainPathRels,  devPathRels,  testPathRels  = [], [], []
+    trainPathEnts,  devPathEnts,  testPathEnts  = [], [], []
+    trainPathHeads, devPathHeads, testPathHeads = [], [], []
+    trainPathTails, devPathTails, testPathTails = [], [], []
+    trainTargetRels, devTargetRels, testTargetRels = [], [], []
+
+    for pathType in state.graph_files:
+        state.logger.info('loading %s_train.path file' % pathType)
+        with open(state.datapath + pathType + '_train.path') as f:
+            trainRels, trainPEnts, trainHeads, trainTails, trainTRels = [], [], [], [], []
+            cntr = 0
+            prevLen = None
+            for pathStr in f:
+                if state.ntrain != 'all' and cntr >= 100000:
+                    break
+                (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
+                # print (targetRel, head, tail, pathEtns, pathRels)
+                if len(pathRels) <= 1 or (head == tail):
+                    continue
+                if prevLen:
+                    assert prevLen == len(pathRels)
+                trainRels.append(pathRels)
+                trainHeads.append(head)
+                trainTails.append(tail)
+                if targetRel:
+                    trainTRels.append(targetRel)
+                if pathEtns:
+                    trainPEnts.append(pathEtns)
+                prevLen = len(pathRels)
+                cntr += 1
+            trainPathRels.append(np.array(trainRels, dtype=int))
+            trainPathHeads.append(np.array(trainHeads, dtype=int))
+            trainPathTails.append(np.array(trainTails, dtype=int))
+            trainTargetRels.append(np.array(trainTRels, dtype=int))
+            trainPathEnts.append(np.array(trainPEnts, dtype=int))
+            # print trainPathRels[-1].shape
+            # print trainPathHeads[-1].shape
+            # print trainPathTails[-1].shape
+        state.logger.info('loading %s_dev.path file' % pathType)
+        with open(state.datapath + pathType + '_dev.path') as f:
+            devRels, devPEnts, devHeads, devTails, devTRels = [], [], [], [], []
+            cntr = 0
+            for pathStr in f:
+                if state.nvalid != 'all' and cntr >= state.nvalid:
+                    break
+                (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
+                if len(pathRels) <= 1 or (head == tail):
+                    continue
+                devRels.append(pathRels)
+                devHeads.append(head)
+                devTails.append(tail)
+                if targetRel:
+                    devTRels.append(targetRel)
+                if pathEtns:
+                    devPEnts.append(pathEtns)
+                cntr += 1
+            devPathRels.append(np.array(devRels, dtype=int))
+            devPathHeads.append(np.array(devHeads, dtype=int))
+            devPathTails.append(np.array(devTails, dtype=int))
+            devTargetRels.append(np.array(devTRels, dtype=int))
+            devPathEnts.append(np.array(devPEnts, dtype=int))
+            # print devPathRels[-1].shape
+            # print devPathHeads[-1].shape
+            # print devPathTails[-1].shape
+        state.logger.info('loading %s_test.path file' % pathType)
+        with open(state.datapath + pathType + '_test.path') as f:
+            testRels, testPEnts, testHeads, testTails, testTrels = [], [], [], [], []
+            cntr = 0
+            for pathStr in f:
+                if state.ntest != 'all' and cntr >= state.ntest:
+                    break
+                (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
+                if len(pathRels) <= 1 or (head == tail):
+                    continue
+                testRels.append(pathRels)
+                testHeads.append(head)
+                testTails.append(tail)
+                if targetRel:
+                    testTrels.append(targetRel)
+                if pathEtns:
+                    testPEnts.append(pathEtns)
+                cntr += 1
+            testPathRels.append(np.array(testRels, dtype=int))
+            testPathHeads.append(np.array(testHeads, dtype=int))
+            testPathTails.append(np.array(testTails, dtype=int))
+            testTargetRels.append(np.array(testTrels, dtype=int))
+            testPathEnts.append(np.array(testPEnts, dtype=int))
+            # print testPathRels[-1].shape
+            # print testPathHeads[-1].shape
+            # print testPathTails[-1].shape
+
+    assert len(trainPathRels) ==len(trainPathEnts) ==len(trainPathHeads) == len(trainTargetRels)
+    return trainPathRels, devPathRels, testPathRels, trainPathEnts, devPathEnts, testPathEnts, trainPathHeads, devPathHeads, testPathHeads, trainPathTails, devPathTails, testPathTails, trainTargetRels, devTargetRels, testTargetRels
+    
