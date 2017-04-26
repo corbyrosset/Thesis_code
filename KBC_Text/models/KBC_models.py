@@ -1203,8 +1203,10 @@ class Path_model():
 
     def __init__(self, state, train_initial_vecs = None):
         if not state.loadmodel:
-            # operators, left and right ops are for distance function
             self.rightop = Unstructured()
+            self.simfn = eval(state.simfn + 'sim') 
+            self.margincost = eval(state.margincostfunction)
+
             if state.compop == 'compose_TransE':
                 self.compop = compose_TransE()
                 self.leftop = LayerTrans()
@@ -1217,6 +1219,8 @@ class Path_model():
                 if 'pos_high' not in state.margincostfunction:
                     raise ValueError('a path model using the BilinearDiag composer must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
                 self.reverseRanking = True
+                if state.simfn != 'Dot':
+                    raise ValueError('BilinearDiag must use dotproduct similarity')
             else:
                 raise ValueError("compop is not an acceptable string")
             
@@ -1240,10 +1244,6 @@ class Path_model():
             assert type(self.embeddings) is list
             assert all([isinstance(i, Embeddings) for i in self.embeddings])
             assert len(self.embeddings) == 3
-
-            ### similarity function of output of left and right ops
-            self.simfn = eval(state.simfn + 'sim') 
-            self.margincost = eval(state.margincostfunction)
         else:
             try:
                 state.logger.info('loading model from file: ' + str(state.loadmodel))

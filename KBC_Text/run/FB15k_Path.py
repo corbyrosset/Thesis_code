@@ -9,8 +9,8 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 ###############################################################################
 ###############################################################################
 
-simfn = 'L1'
-margincostfunction = 'margincost_pos_high' ### from top of Operations
+simfn = 'Dot' # L1'
+margincostfunction = 'margincost_pos_high' # 'margincost'
 compop = 'compose_BilinearDiag' #'compose_TransE'
 ndim = 100 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
