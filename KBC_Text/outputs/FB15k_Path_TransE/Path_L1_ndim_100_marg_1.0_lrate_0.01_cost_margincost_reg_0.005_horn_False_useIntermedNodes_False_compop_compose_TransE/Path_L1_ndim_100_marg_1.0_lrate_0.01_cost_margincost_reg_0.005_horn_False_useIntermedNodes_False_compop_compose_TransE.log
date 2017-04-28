@@ -1,0 +1,989 @@
+2017-04-26 01:17:11,133 INFO: logger initialized for experiment identifier: Path_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.005_horn_False_useIntermedNodes_False_compop_compose_TransE
+2017-04-26 01:17:11,133 INFO: identifier: Path_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.005_horn_False_useIntermedNodes_False_compop_compose_TransE
+2017-04-26 01:17:11,133 INFO: models saved to path: /Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path/
+2017-04-26 01:17:11,133 INFO: DD{'ndim': 100, 'test_all': 10, 'Nsyn_rel': 1345, 'graph_files': ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'], 'nvalid': 1000, 'seed': 123, 'simfn': 'L1', 'nbatches': 100, 'lrparam': 0.01, 'loademb': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL/best_valid_model.pkl', 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/', 'compop': 'compose_TransE', 'Nrel': 1345, 'rel': False, 'Nent': 14951, 'logger': <logging.RootLogger object at 0x109a90110>, 'Nsyn': 14951, 'reg': 0.005, 'useHornPaths': False, 'dataset': 'FB15k', 'bestvalidMRR': -1, 'loadmodel': False, 'needIntermediateNodesOnPaths': False, 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path/Path_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.005_horn_False_useIntermedNodes_False_compop_compose_TransE', 'marge': 1.0, 'margincostfunction': 'margincost', 'lremb': 0.01, 'identifier': 'Path_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.005_horn_False_useIntermedNodes_False_compop_compose_TransE', 'ntrain': 1000, 'experiment_type': 'FB15k_path_exp', 'totepochs': 500, 'ntest': 1000}
+2017-04-26 01:17:11,133 INFO: initializing graph
+2017-04-26 01:17:12,880 INFO: loaded FB15k data in: 1.725928 seconds
+2017-04-26 01:17:12,882 INFO: loading length_2_numPaths_50000000_train.path file
+2017-04-26 01:17:18,157 INFO: loading length_2_numPaths_50000000_dev.path file
+2017-04-26 01:17:18,210 INFO: loading length_2_numPaths_50000000_test.path file
+2017-04-26 01:17:18,256 INFO: loading length_3_numPaths_50000000_train.path file
+2017-04-26 01:17:23,761 INFO: loading length_3_numPaths_50000000_dev.path file
+2017-04-26 01:17:23,815 INFO: loading length_3_numPaths_50000000_test.path file
+2017-04-26 01:17:23,907 DEBUG: FB15kexp_path: training paths: [(100000, 2), (100000, 3)], dev paths: [(1000, 2), (1000, 3)]
+2017-04-26 01:17:23,908 INFO: INITIALIZING EMBEDDINGS FROM MODEL
+2017-04-26 01:17:23,908 INFO: loading embeddings from /Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL/best_valid_model.pkl
+2017-04-26 01:17:27,202 DEBUG: loaded data, constructed model, constructed graph...
+2017-04-26 01:17:27,202 DEBUG: num epochs: 500
+2017-04-26 01:17:27,202 DEBUG: num batches per epoch: 100
+2017-04-26 01:17:27,202 DEBUG: batchsize: 1000
+2017-04-26 01:17:27,202 DEBUG: left and right entity ranking functions will rank a slot against 14951 competitors
+2017-04-26 01:17:27,202 INFO: --------------------------------------------------------------------------------------------------
+2017-04-26 01:17:27,202 INFO: Since we initialized embeddings with pre-trained vectors, establish baseline of their performance:
+2017-04-26 01:17:27,203 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 01:18:26,389 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 01:19:27,909 INFO: 	MEAN RANK >> valid: 632.7, train: 328.2
+2017-04-26 01:19:27,909 INFO: 		MEAN RANK TRAIN: Left: 313.9 Rel: 0.0 Right: 342.5
+2017-04-26 01:19:27,910 INFO: 		MEAN RANK VALID: Left: 640.2 Rel: 0.0 Right: 625.3
+2017-04-26 01:19:27,910 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.138
+2017-04-26 01:19:27,910 INFO: ======================== BEGIN TRAINING: length_2_numPaths_50000000 ========================
+2017-04-26 01:22:07,356 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:22:07,356 INFO: EPOCH 1 (159.446 seconds):
+2017-04-26 01:22:07,372 INFO: 	Average L2 norm of relation vector: 0.057
+2017-04-26 01:22:07,372 INFO: 	COST >> 1.38 +/- 0.242, % updates Left: 47.1% Rel: 0.0% Right: 43.2%
+2017-04-26 01:24:53,000 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:24:53,000 INFO: EPOCH 2 (165.628 seconds):
+2017-04-26 01:24:53,001 INFO: 	Average L2 norm of relation vector: 0.05797
+2017-04-26 01:24:53,001 INFO: 	COST >> 0.826 +/- 0.053, % updates Left: 35.7% Rel: 0.0% Right: 30.8%
+2017-04-26 01:27:12,558 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:27:12,561 INFO: EPOCH 3 (139.56 seconds):
+2017-04-26 01:27:12,562 INFO: 	Average L2 norm of relation vector: 0.05831
+2017-04-26 01:27:12,563 INFO: 	COST >> 0.655 +/- 0.052, % updates Left: 29.5% Rel: 0.0% Right: 28.4%
+2017-04-26 01:29:58,151 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:29:58,152 INFO: EPOCH 4 (165.589 seconds):
+2017-04-26 01:29:58,152 INFO: 	Average L2 norm of relation vector: 0.05843
+2017-04-26 01:29:58,153 INFO: 	COST >> 0.558 +/- 0.05, % updates Left: 27.2% Rel: 0.0% Right: 24.5%
+2017-04-26 01:32:38,010 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:32:38,010 INFO: EPOCH 5 (159.857 seconds):
+2017-04-26 01:32:38,011 INFO: 	Average L2 norm of relation vector: 0.05841
+2017-04-26 01:32:38,011 INFO: 	COST >> 0.492 +/- 0.041, % updates Left: 28.7% Rel: 0.0% Right: 23.4%
+2017-04-26 01:35:13,346 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:35:13,346 INFO: EPOCH 6 (155.335 seconds):
+2017-04-26 01:35:13,347 INFO: 	Average L2 norm of relation vector: 0.05831
+2017-04-26 01:35:13,347 INFO: 	COST >> 0.436 +/- 0.046, % updates Left: 23.0% Rel: 0.0% Right: 21.1%
+2017-04-26 01:38:09,245 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:38:09,246 INFO: EPOCH 7 (175.898 seconds):
+2017-04-26 01:38:09,246 INFO: 	Average L2 norm of relation vector: 0.05818
+2017-04-26 01:38:09,247 INFO: 	COST >> 0.397 +/- 0.037, % updates Left: 22.3% Rel: 0.0% Right: 21.2%
+2017-04-26 01:40:39,590 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:40:39,590 INFO: EPOCH 8 (150.343 seconds):
+2017-04-26 01:40:39,591 INFO: 	Average L2 norm of relation vector: 0.05799
+2017-04-26 01:40:39,591 INFO: 	COST >> 0.365 +/- 0.034, % updates Left: 22.2% Rel: 0.0% Right: 18.7%
+2017-04-26 01:43:24,476 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:43:24,476 INFO: EPOCH 9 (164.884 seconds):
+2017-04-26 01:43:24,476 INFO: 	Average L2 norm of relation vector: 0.05776
+2017-04-26 01:43:24,477 INFO: 	COST >> 0.329 +/- 0.033, % updates Left: 20.2% Rel: 0.0% Right: 16.3%
+2017-04-26 01:46:00,819 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:46:00,819 INFO: EPOCH 10 (156.342 seconds):
+2017-04-26 01:46:00,819 INFO: 	Average L2 norm of relation vector: 0.05752
+2017-04-26 01:46:00,820 INFO: 	COST >> 0.305 +/- 0.028, % updates Left: 19.7% Rel: 0.0% Right: 17.0%
+2017-04-26 01:46:00,820 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 01:47:08,835 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 01:48:16,362 INFO: 	MEAN RANK >> valid: 1771.1, train: 1527.7
+2017-04-26 01:48:16,363 INFO: 		MEAN RANK TRAIN: Left: 1651.0 Rel: 0.0 Right: 1404.5
+2017-04-26 01:48:16,363 INFO: 		MEAN RANK VALID: Left: 2007.7 Rel: 0.0 Right: 1534.6
+2017-04-26 01:48:16,363 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.047
+2017-04-26 01:48:16,363 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 01:49:26,452 INFO: 	NEW BEST TEST MR: 1898.8
+2017-04-26 01:49:26,453 INFO: 		Left MR: 2011.9 Rel MR: 0.0 Right MR: 1785.6
+2017-04-26 01:49:26,494 INFO: 	(ranking took 205.675 seconds)
+2017-04-26 01:52:33,393 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:52:33,394 INFO: EPOCH 11 (186.9 seconds):
+2017-04-26 01:52:33,395 INFO: 	Average L2 norm of relation vector: 0.05728
+2017-04-26 01:52:33,396 INFO: 	COST >> 0.279 +/- 0.026, % updates Left: 14.4% Rel: 0.0% Right: 14.5%
+2017-04-26 01:55:16,170 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:55:16,171 INFO: EPOCH 12 (162.775 seconds):
+2017-04-26 01:55:16,171 INFO: 	Average L2 norm of relation vector: 0.05702
+2017-04-26 01:55:16,172 INFO: 	COST >> 0.264 +/- 0.025, % updates Left: 13.7% Rel: 0.0% Right: 16.0%
+2017-04-26 01:58:32,679 INFO: ----------------------------------------------------------------------------
+2017-04-26 01:58:32,679 INFO: EPOCH 13 (196.507 seconds):
+2017-04-26 01:58:32,680 INFO: 	Average L2 norm of relation vector: 0.05676
+2017-04-26 01:58:32,680 INFO: 	COST >> 0.246 +/- 0.023, % updates Left: 16.2% Rel: 0.0% Right: 15.1%
+2017-04-26 02:01:33,002 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:01:33,002 INFO: EPOCH 14 (180.322 seconds):
+2017-04-26 02:01:33,003 INFO: 	Average L2 norm of relation vector: 0.05648
+2017-04-26 02:01:33,004 INFO: 	COST >> 0.23 +/- 0.021, % updates Left: 17.2% Rel: 0.0% Right: 12.5%
+2017-04-26 02:04:16,915 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:04:16,915 INFO: EPOCH 15 (163.911 seconds):
+2017-04-26 02:04:16,916 INFO: 	Average L2 norm of relation vector: 0.0562
+2017-04-26 02:04:16,916 INFO: 	COST >> 0.221 +/- 0.022, % updates Left: 14.8% Rel: 0.0% Right: 15.0%
+2017-04-26 02:07:20,898 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:07:20,899 INFO: EPOCH 16 (183.982 seconds):
+2017-04-26 02:07:20,899 INFO: 	Average L2 norm of relation vector: 0.05592
+2017-04-26 02:07:20,900 INFO: 	COST >> 0.208 +/- 0.021, % updates Left: 13.5% Rel: 0.0% Right: 12.6%
+2017-04-26 02:10:07,630 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:10:07,630 INFO: EPOCH 17 (166.73 seconds):
+2017-04-26 02:10:07,630 INFO: 	Average L2 norm of relation vector: 0.05563
+2017-04-26 02:10:07,631 INFO: 	COST >> 0.2 +/- 0.018, % updates Left: 13.8% Rel: 0.0% Right: 11.3%
+2017-04-26 02:12:45,168 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:12:45,168 INFO: EPOCH 18 (157.537 seconds):
+2017-04-26 02:12:45,169 INFO: 	Average L2 norm of relation vector: 0.05534
+2017-04-26 02:12:45,169 INFO: 	COST >> 0.193 +/- 0.018, % updates Left: 11.8% Rel: 0.0% Right: 12.5%
+2017-04-26 02:16:07,534 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:16:07,534 INFO: EPOCH 19 (202.365 seconds):
+2017-04-26 02:16:07,535 INFO: 	Average L2 norm of relation vector: 0.05505
+2017-04-26 02:16:07,535 INFO: 	COST >> 0.181 +/- 0.019, % updates Left: 10.1% Rel: 0.0% Right: 12.3%
+2017-04-26 02:19:19,057 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:19:19,058 INFO: EPOCH 20 (191.522 seconds):
+2017-04-26 02:19:19,058 INFO: 	Average L2 norm of relation vector: 0.05476
+2017-04-26 02:19:19,059 INFO: 	COST >> 0.175 +/- 0.018, % updates Left: 14.5% Rel: 0.0% Right: 11.8%
+2017-04-26 02:19:19,059 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 02:20:33,879 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 02:21:53,891 INFO: 	MEAN RANK >> valid: 2060.4, train: 1742.5
+2017-04-26 02:21:53,892 INFO: 		MEAN RANK TRAIN: Left: 1783.4 Rel: 0.0 Right: 1701.6
+2017-04-26 02:21:53,892 INFO: 		MEAN RANK VALID: Left: 2254.4 Rel: 0.0 Right: 1866.5
+2017-04-26 02:21:53,892 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.052
+2017-04-26 02:21:53,893 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 02:23:13,828 INFO: 	NEW BEST TEST MR: 2173.6
+2017-04-26 02:23:13,828 INFO: 		Left MR: 2281.0 Rel MR: 0.0 Right MR: 2066.3
+2017-04-26 02:23:13,881 INFO: 	(ranking took 234.822 seconds)
+2017-04-26 02:26:30,617 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:26:30,618 INFO: EPOCH 21 (196.737 seconds):
+2017-04-26 02:26:30,619 INFO: 	Average L2 norm of relation vector: 0.05446
+2017-04-26 02:26:30,619 INFO: 	COST >> 0.167 +/- 0.017, % updates Left: 11.8% Rel: 0.0% Right: 10.7%
+2017-04-26 02:29:41,191 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:29:41,191 INFO: EPOCH 22 (190.572 seconds):
+2017-04-26 02:29:41,192 INFO: 	Average L2 norm of relation vector: 0.05417
+2017-04-26 02:29:41,192 INFO: 	COST >> 0.162 +/- 0.016, % updates Left: 11.5% Rel: 0.0% Right: 10.1%
+2017-04-26 02:33:05,934 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:33:05,934 INFO: EPOCH 23 (204.742 seconds):
+2017-04-26 02:33:05,935 INFO: 	Average L2 norm of relation vector: 0.05387
+2017-04-26 02:33:05,935 INFO: 	COST >> 0.159 +/- 0.013, % updates Left: 11.7% Rel: 0.0% Right: 10.3%
+2017-04-26 02:36:03,645 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:36:03,646 INFO: EPOCH 24 (177.71 seconds):
+2017-04-26 02:36:03,647 INFO: 	Average L2 norm of relation vector: 0.05357
+2017-04-26 02:36:03,647 INFO: 	COST >> 0.155 +/- 0.014, % updates Left: 10.4% Rel: 0.0% Right: 11.7%
+2017-04-26 02:39:27,042 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:39:27,042 INFO: EPOCH 25 (203.395 seconds):
+2017-04-26 02:39:27,043 INFO: 	Average L2 norm of relation vector: 0.05328
+2017-04-26 02:39:27,043 INFO: 	COST >> 0.149 +/- 0.015, % updates Left: 11.1% Rel: 0.0% Right: 10.9%
+2017-04-26 02:42:44,824 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:42:44,824 INFO: EPOCH 26 (197.78 seconds):
+2017-04-26 02:42:44,825 INFO: 	Average L2 norm of relation vector: 0.053
+2017-04-26 02:42:44,825 INFO: 	COST >> 0.145 +/- 0.014, % updates Left: 10.0% Rel: 0.0% Right: 9.2%
+2017-04-26 02:45:40,500 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:45:40,501 INFO: EPOCH 27 (175.676 seconds):
+2017-04-26 02:45:40,502 INFO: 	Average L2 norm of relation vector: 0.05271
+2017-04-26 02:45:40,502 INFO: 	COST >> 0.141 +/- 0.015, % updates Left: 9.5% Rel: 0.0% Right: 8.5%
+2017-04-26 02:49:07,184 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:49:07,185 INFO: EPOCH 28 (206.682 seconds):
+2017-04-26 02:49:07,186 INFO: 	Average L2 norm of relation vector: 0.05242
+2017-04-26 02:49:07,187 INFO: 	COST >> 0.138 +/- 0.014, % updates Left: 10.9% Rel: 0.0% Right: 7.1%
+2017-04-26 02:52:24,380 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:52:24,380 INFO: EPOCH 29 (197.193 seconds):
+2017-04-26 02:52:24,381 INFO: 	Average L2 norm of relation vector: 0.05213
+2017-04-26 02:52:24,381 INFO: 	COST >> 0.135 +/- 0.013, % updates Left: 11.4% Rel: 0.0% Right: 9.0%
+2017-04-26 02:55:36,269 INFO: ----------------------------------------------------------------------------
+2017-04-26 02:55:36,269 INFO: EPOCH 30 (191.887 seconds):
+2017-04-26 02:55:36,269 INFO: 	Average L2 norm of relation vector: 0.05184
+2017-04-26 02:55:36,270 INFO: 	COST >> 0.132 +/- 0.012, % updates Left: 10.5% Rel: 0.0% Right: 10.3%
+2017-04-26 02:55:36,270 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 02:56:56,091 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 02:58:17,644 INFO: 	MEAN RANK >> valid: 2235.3, train: 1918.6
+2017-04-26 02:58:17,645 INFO: 		MEAN RANK TRAIN: Left: 1959.8 Rel: 0.0 Right: 1877.3
+2017-04-26 02:58:17,646 INFO: 		MEAN RANK VALID: Left: 2452.3 Rel: 0.0 Right: 2018.3
+2017-04-26 02:58:17,646 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0435
+2017-04-26 02:58:17,646 WARNING: 	WARNING, failed to improve MRR on valid, 2 chances left
+
+2017-04-26 02:58:17,767 INFO: 	(ranking took 161.496 seconds)
+2017-04-26 03:00:58,667 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:00:58,667 INFO: EPOCH 31 (160.9 seconds):
+2017-04-26 03:00:58,668 INFO: 	Average L2 norm of relation vector: 0.05156
+2017-04-26 03:00:58,668 INFO: 	COST >> 0.131 +/- 0.015, % updates Left: 12.3% Rel: 0.0% Right: 9.2%
+2017-04-26 03:04:10,287 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:04:10,288 INFO: EPOCH 32 (191.62 seconds):
+2017-04-26 03:04:10,288 INFO: 	Average L2 norm of relation vector: 0.05128
+2017-04-26 03:04:10,289 INFO: 	COST >> 0.127 +/- 0.013, % updates Left: 10.1% Rel: 0.0% Right: 8.6%
+2017-04-26 03:07:29,178 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:07:29,179 INFO: EPOCH 33 (198.89 seconds):
+2017-04-26 03:07:29,180 INFO: 	Average L2 norm of relation vector: 0.051
+2017-04-26 03:07:29,180 INFO: 	COST >> 0.124 +/- 0.014, % updates Left: 9.1% Rel: 0.0% Right: 7.9%
+2017-04-26 03:10:36,423 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:10:36,424 INFO: EPOCH 34 (187.243 seconds):
+2017-04-26 03:10:36,425 INFO: 	Average L2 norm of relation vector: 0.05072
+2017-04-26 03:10:36,425 INFO: 	COST >> 0.12 +/- 0.012, % updates Left: 9.5% Rel: 0.0% Right: 6.7%
+2017-04-26 03:14:02,306 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:14:02,306 INFO: EPOCH 35 (205.881 seconds):
+2017-04-26 03:14:02,307 INFO: 	Average L2 norm of relation vector: 0.05045
+2017-04-26 03:14:02,308 INFO: 	COST >> 0.118 +/- 0.012, % updates Left: 10.1% Rel: 0.0% Right: 7.3%
+2017-04-26 03:17:05,889 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:17:05,889 INFO: EPOCH 36 (183.581 seconds):
+2017-04-26 03:17:05,890 INFO: 	Average L2 norm of relation vector: 0.05018
+2017-04-26 03:17:05,890 INFO: 	COST >> 0.118 +/- 0.012, % updates Left: 9.6% Rel: 0.0% Right: 8.2%
+2017-04-26 03:20:02,776 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:20:02,776 INFO: EPOCH 37 (176.886 seconds):
+2017-04-26 03:20:02,777 INFO: 	Average L2 norm of relation vector: 0.04991
+2017-04-26 03:20:02,778 INFO: 	COST >> 0.117 +/- 0.011, % updates Left: 9.2% Rel: 0.0% Right: 7.3%
+2017-04-26 03:23:02,868 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:23:02,868 INFO: EPOCH 38 (180.091 seconds):
+2017-04-26 03:23:02,869 INFO: 	Average L2 norm of relation vector: 0.04964
+2017-04-26 03:23:02,869 INFO: 	COST >> 0.114 +/- 0.01, % updates Left: 8.6% Rel: 0.0% Right: 7.1%
+2017-04-26 03:26:01,418 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:26:01,419 INFO: EPOCH 39 (178.549 seconds):
+2017-04-26 03:26:01,419 INFO: 	Average L2 norm of relation vector: 0.04938
+2017-04-26 03:26:01,420 INFO: 	COST >> 0.11 +/- 0.011, % updates Left: 9.4% Rel: 0.0% Right: 7.7%
+2017-04-26 03:29:00,170 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:29:00,174 INFO: EPOCH 40 (178.754 seconds):
+2017-04-26 03:29:00,175 INFO: 	Average L2 norm of relation vector: 0.04911
+2017-04-26 03:29:00,175 INFO: 	COST >> 0.11 +/- 0.011, % updates Left: 8.3% Rel: 0.0% Right: 8.1%
+2017-04-26 03:29:00,175 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 03:30:14,523 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 03:31:29,889 INFO: 	MEAN RANK >> valid: 2312.8, train: 2070.5
+2017-04-26 03:31:29,890 INFO: 		MEAN RANK TRAIN: Left: 2139.1 Rel: 0.0 Right: 2001.9
+2017-04-26 03:31:29,890 INFO: 		MEAN RANK VALID: Left: 2501.8 Rel: 0.0 Right: 2123.9
+2017-04-26 03:31:29,890 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0465
+2017-04-26 03:31:29,890 WARNING: 	WARNING, failed to improve MRR on valid, 1 chances left
+
+2017-04-26 03:31:29,994 INFO: 	(ranking took 149.819 seconds)
+2017-04-26 03:34:31,043 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:34:31,043 INFO: EPOCH 41 (181.049 seconds):
+2017-04-26 03:34:31,044 INFO: 	Average L2 norm of relation vector: 0.04885
+2017-04-26 03:34:31,045 INFO: 	COST >> 0.107 +/- 0.011, % updates Left: 8.0% Rel: 0.0% Right: 6.4%
+2017-04-26 03:37:29,930 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:37:29,930 INFO: EPOCH 42 (178.885 seconds):
+2017-04-26 03:37:29,931 INFO: 	Average L2 norm of relation vector: 0.04859
+2017-04-26 03:37:29,931 INFO: 	COST >> 0.107 +/- 0.012, % updates Left: 6.9% Rel: 0.0% Right: 6.4%
+2017-04-26 03:40:30,943 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:40:30,943 INFO: EPOCH 43 (181.012 seconds):
+2017-04-26 03:40:30,944 INFO: 	Average L2 norm of relation vector: 0.04833
+2017-04-26 03:40:30,944 INFO: 	COST >> 0.105 +/- 0.011, % updates Left: 8.6% Rel: 0.0% Right: 8.8%
+2017-04-26 03:43:30,262 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:43:30,262 INFO: EPOCH 44 (179.318 seconds):
+2017-04-26 03:43:30,264 INFO: 	Average L2 norm of relation vector: 0.04807
+2017-04-26 03:43:30,264 INFO: 	COST >> 0.103 +/- 0.011, % updates Left: 9.9% Rel: 0.0% Right: 7.6%
+2017-04-26 03:46:29,321 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:46:29,322 INFO: EPOCH 45 (179.057 seconds):
+2017-04-26 03:46:29,322 INFO: 	Average L2 norm of relation vector: 0.04782
+2017-04-26 03:46:29,323 INFO: 	COST >> 0.101 +/- 0.011, % updates Left: 8.5% Rel: 0.0% Right: 7.1%
+2017-04-26 03:49:29,238 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:49:29,238 INFO: EPOCH 46 (179.915 seconds):
+2017-04-26 03:49:29,238 INFO: 	Average L2 norm of relation vector: 0.04757
+2017-04-26 03:49:29,239 INFO: 	COST >> 0.102 +/- 0.011, % updates Left: 8.5% Rel: 0.0% Right: 7.0%
+2017-04-26 03:52:24,457 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:52:24,458 INFO: EPOCH 47 (175.219 seconds):
+2017-04-26 03:52:24,458 INFO: 	Average L2 norm of relation vector: 0.04733
+2017-04-26 03:52:24,459 INFO: 	COST >> 0.099 +/- 0.01, % updates Left: 10.0% Rel: 0.0% Right: 7.7%
+2017-04-26 03:55:02,396 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:55:02,396 INFO: EPOCH 48 (157.937 seconds):
+2017-04-26 03:55:02,397 INFO: 	Average L2 norm of relation vector: 0.04709
+2017-04-26 03:55:02,397 INFO: 	COST >> 0.101 +/- 0.01, % updates Left: 9.2% Rel: 0.0% Right: 8.3%
+2017-04-26 03:58:00,955 INFO: ----------------------------------------------------------------------------
+2017-04-26 03:58:00,955 INFO: EPOCH 49 (178.558 seconds):
+2017-04-26 03:58:00,956 INFO: 	Average L2 norm of relation vector: 0.04684
+2017-04-26 03:58:00,956 INFO: 	COST >> 0.098 +/- 0.011, % updates Left: 7.4% Rel: 0.0% Right: 6.7%
+2017-04-26 04:01:01,437 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:01:01,437 INFO: EPOCH 50 (180.481 seconds):
+2017-04-26 04:01:01,439 INFO: 	Average L2 norm of relation vector: 0.04661
+2017-04-26 04:01:01,439 INFO: 	COST >> 0.097 +/- 0.009, % updates Left: 8.1% Rel: 0.0% Right: 5.8%
+2017-04-26 04:01:01,440 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 04:02:16,073 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 04:03:31,484 INFO: 	MEAN RANK >> valid: 2409.6, train: 2184.7
+2017-04-26 04:03:31,485 INFO: 		MEAN RANK TRAIN: Left: 2350.8 Rel: 0.0 Right: 2018.7
+2017-04-26 04:03:31,485 INFO: 		MEAN RANK VALID: Left: 2569.9 Rel: 0.0 Right: 2249.2
+2017-04-26 04:03:31,485 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0435
+2017-04-26 04:03:31,486 WARNING: 	WARNING, failed to improve MRR on valid, 0 chances left
+
+2017-04-26 04:03:31,548 INFO: 	(ranking took 150.109 seconds)
+2017-04-26 04:06:29,772 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:06:29,772 INFO: EPOCH 51 (178.224 seconds):
+2017-04-26 04:06:29,774 INFO: 	Average L2 norm of relation vector: 0.04639
+2017-04-26 04:06:29,774 INFO: 	COST >> 0.095 +/- 0.009, % updates Left: 7.2% Rel: 0.0% Right: 6.3%
+2017-04-26 04:09:29,334 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:09:29,335 INFO: EPOCH 52 (179.56 seconds):
+2017-04-26 04:09:29,335 INFO: 	Average L2 norm of relation vector: 0.04616
+2017-04-26 04:09:29,336 INFO: 	COST >> 0.095 +/- 0.009, % updates Left: 6.6% Rel: 0.0% Right: 7.3%
+2017-04-26 04:12:28,537 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:12:28,537 INFO: EPOCH 53 (179.202 seconds):
+2017-04-26 04:12:28,538 INFO: 	Average L2 norm of relation vector: 0.04594
+2017-04-26 04:12:28,538 INFO: 	COST >> 0.095 +/- 0.01, % updates Left: 6.4% Rel: 0.0% Right: 6.0%
+2017-04-26 04:15:25,166 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:15:25,166 INFO: EPOCH 54 (176.627 seconds):
+2017-04-26 04:15:25,167 INFO: 	Average L2 norm of relation vector: 0.04571
+2017-04-26 04:15:25,167 INFO: 	COST >> 0.092 +/- 0.01, % updates Left: 7.9% Rel: 0.0% Right: 6.5%
+2017-04-26 04:18:20,536 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:18:20,536 INFO: EPOCH 55 (175.369 seconds):
+2017-04-26 04:18:20,537 INFO: 	Average L2 norm of relation vector: 0.0455
+2017-04-26 04:18:20,537 INFO: 	COST >> 0.092 +/- 0.01, % updates Left: 8.0% Rel: 0.0% Right: 6.2%
+2017-04-26 04:21:15,605 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:21:15,605 INFO: EPOCH 56 (175.068 seconds):
+2017-04-26 04:21:15,606 INFO: 	Average L2 norm of relation vector: 0.04527
+2017-04-26 04:21:15,606 INFO: 	COST >> 0.089 +/- 0.009, % updates Left: 7.0% Rel: 0.0% Right: 7.5%
+2017-04-26 04:24:09,908 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:24:09,908 INFO: EPOCH 57 (174.302 seconds):
+2017-04-26 04:24:09,909 INFO: 	Average L2 norm of relation vector: 0.04504
+2017-04-26 04:24:09,909 INFO: 	COST >> 0.087 +/- 0.009, % updates Left: 7.0% Rel: 0.0% Right: 6.9%
+2017-04-26 04:27:05,384 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:27:05,390 INFO: EPOCH 58 (175.481 seconds):
+2017-04-26 04:27:05,392 INFO: 	Average L2 norm of relation vector: 0.04482
+2017-04-26 04:27:05,393 INFO: 	COST >> 0.088 +/- 0.01, % updates Left: 8.0% Rel: 0.0% Right: 5.2%
+2017-04-26 04:30:01,786 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:30:01,786 INFO: EPOCH 59 (176.393 seconds):
+2017-04-26 04:30:01,786 INFO: 	Average L2 norm of relation vector: 0.04461
+2017-04-26 04:30:01,787 INFO: 	COST >> 0.088 +/- 0.01, % updates Left: 7.3% Rel: 0.0% Right: 5.4%
+2017-04-26 04:32:56,347 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:32:56,347 INFO: EPOCH 60 (174.56 seconds):
+2017-04-26 04:32:56,348 INFO: 	Average L2 norm of relation vector: 0.04441
+2017-04-26 04:32:56,349 INFO: 	COST >> 0.086 +/- 0.009, % updates Left: 7.9% Rel: 0.0% Right: 6.4%
+2017-04-26 04:32:56,349 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 04:34:10,094 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 04:35:24,957 INFO: 	MEAN RANK >> valid: 2532.3, train: 2238.8
+2017-04-26 04:35:24,958 INFO: 		MEAN RANK TRAIN: Left: 2430.9 Rel: 0.0 Right: 2046.7
+2017-04-26 04:35:24,958 INFO: 		MEAN RANK VALID: Left: 2791.3 Rel: 0.0 Right: 2273.3
+2017-04-26 04:35:24,958 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0405
+2017-04-26 04:35:24,959 WARNING: EARLY STOPPING, failed to improve MRR on valid after 30 epochs
+2017-04-26 04:35:24,959 INFO: ======================== BEGIN TRAINING: length_3_numPaths_50000000 ========================
+2017-04-26 04:38:22,750 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:38:22,750 INFO: EPOCH 1 (326.401 seconds):
+2017-04-26 04:38:22,751 INFO: 	Average L2 norm of relation vector: 0.0495
+2017-04-26 04:38:22,751 INFO: 	COST >> 0.997 +/- 0.059, % updates Left: 44.7% Rel: 0.0% Right: 33.7%
+2017-04-26 04:41:17,922 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:41:17,922 INFO: EPOCH 2 (175.17 seconds):
+2017-04-26 04:41:17,922 INFO: 	Average L2 norm of relation vector: 0.05182
+2017-04-26 04:41:17,923 INFO: 	COST >> 0.624 +/- 0.033, % updates Left: 30.8% Rel: 0.0% Right: 24.9%
+2017-04-26 04:43:48,407 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:43:48,407 INFO: EPOCH 3 (150.485 seconds):
+2017-04-26 04:43:48,408 INFO: 	Average L2 norm of relation vector: 0.05317
+2017-04-26 04:43:48,408 INFO: 	COST >> 0.461 +/- 0.035, % updates Left: 28.0% Rel: 0.0% Right: 21.7%
+2017-04-26 04:46:39,774 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:46:39,774 INFO: EPOCH 4 (171.366 seconds):
+2017-04-26 04:46:39,775 INFO: 	Average L2 norm of relation vector: 0.05405
+2017-04-26 04:46:39,776 INFO: 	COST >> 0.369 +/- 0.028, % updates Left: 24.8% Rel: 0.0% Right: 17.1%
+2017-04-26 04:49:34,541 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:49:34,542 INFO: EPOCH 5 (174.766 seconds):
+2017-04-26 04:49:34,542 INFO: 	Average L2 norm of relation vector: 0.05465
+2017-04-26 04:49:34,543 INFO: 	COST >> 0.31 +/- 0.026, % updates Left: 17.6% Rel: 0.0% Right: 15.1%
+2017-04-26 04:52:31,281 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:52:31,282 INFO: EPOCH 6 (176.738 seconds):
+2017-04-26 04:52:31,282 INFO: 	Average L2 norm of relation vector: 0.05509
+2017-04-26 04:52:31,283 INFO: 	COST >> 0.271 +/- 0.021, % updates Left: 16.7% Rel: 0.0% Right: 13.9%
+2017-04-26 04:55:26,600 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:55:26,600 INFO: EPOCH 7 (175.317 seconds):
+2017-04-26 04:55:26,600 INFO: 	Average L2 norm of relation vector: 0.05537
+2017-04-26 04:55:26,601 INFO: 	COST >> 0.241 +/- 0.023, % updates Left: 15.0% Rel: 0.0% Right: 12.7%
+2017-04-26 04:58:22,862 INFO: ----------------------------------------------------------------------------
+2017-04-26 04:58:22,862 INFO: EPOCH 8 (176.261 seconds):
+2017-04-26 04:58:22,863 INFO: 	Average L2 norm of relation vector: 0.05556
+2017-04-26 04:58:22,863 INFO: 	COST >> 0.221 +/- 0.02, % updates Left: 15.6% Rel: 0.0% Right: 11.2%
+2017-04-26 05:01:16,954 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:01:16,954 INFO: EPOCH 9 (174.091 seconds):
+2017-04-26 05:01:16,955 INFO: 	Average L2 norm of relation vector: 0.05569
+2017-04-26 05:01:16,955 INFO: 	COST >> 0.203 +/- 0.019, % updates Left: 15.9% Rel: 0.0% Right: 11.1%
+2017-04-26 05:04:09,736 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:04:09,736 INFO: EPOCH 10 (172.781 seconds):
+2017-04-26 05:04:09,737 INFO: 	Average L2 norm of relation vector: 0.05576
+2017-04-26 05:04:09,737 INFO: 	COST >> 0.192 +/- 0.017, % updates Left: 12.9% Rel: 0.0% Right: 11.6%
+2017-04-26 05:04:09,737 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 05:05:23,432 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 05:06:38,045 INFO: 	MEAN RANK >> valid: 1915.7, train: 1692.3
+2017-04-26 05:06:38,046 INFO: 		MEAN RANK TRAIN: Left: 1804.3 Rel: 0.0 Right: 1580.4
+2017-04-26 05:06:38,046 INFO: 		MEAN RANK VALID: Left: 1995.0 Rel: 0.0 Right: 1836.3
+2017-04-26 05:06:38,047 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0555
+2017-04-26 05:06:38,047 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 05:07:52,511 INFO: 	NEW BEST TEST MR: 1949.6
+2017-04-26 05:07:52,512 INFO: 		Left MR: 2020.5 Rel MR: 0.0 Right MR: 1878.6
+2017-04-26 05:07:52,607 INFO: 	(ranking took 222.87 seconds)
+2017-04-26 05:10:49,173 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:10:49,174 INFO: EPOCH 11 (176.566 seconds):
+2017-04-26 05:10:49,174 INFO: 	Average L2 norm of relation vector: 0.05578
+2017-04-26 05:10:49,175 INFO: 	COST >> 0.179 +/- 0.016, % updates Left: 12.7% Rel: 0.0% Right: 8.9%
+2017-04-26 05:13:43,213 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:13:43,213 INFO: EPOCH 12 (174.039 seconds):
+2017-04-26 05:13:43,214 INFO: 	Average L2 norm of relation vector: 0.05576
+2017-04-26 05:13:43,214 INFO: 	COST >> 0.168 +/- 0.015, % updates Left: 12.8% Rel: 0.0% Right: 9.4%
+2017-04-26 05:16:38,641 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:16:38,641 INFO: EPOCH 13 (175.427 seconds):
+2017-04-26 05:16:38,642 INFO: 	Average L2 norm of relation vector: 0.0557
+2017-04-26 05:16:38,642 INFO: 	COST >> 0.156 +/- 0.015, % updates Left: 11.3% Rel: 0.0% Right: 7.5%
+2017-04-26 05:19:33,263 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:19:33,263 INFO: EPOCH 14 (174.621 seconds):
+2017-04-26 05:19:33,264 INFO: 	Average L2 norm of relation vector: 0.05562
+2017-04-26 05:19:33,264 INFO: 	COST >> 0.152 +/- 0.013, % updates Left: 11.4% Rel: 0.0% Right: 9.3%
+2017-04-26 05:22:28,327 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:22:28,327 INFO: EPOCH 15 (175.063 seconds):
+2017-04-26 05:22:28,328 INFO: 	Average L2 norm of relation vector: 0.05553
+2017-04-26 05:22:28,328 INFO: 	COST >> 0.147 +/- 0.013, % updates Left: 10.0% Rel: 0.0% Right: 8.7%
+2017-04-26 05:25:24,734 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:25:24,734 INFO: EPOCH 16 (176.406 seconds):
+2017-04-26 05:25:24,735 INFO: 	Average L2 norm of relation vector: 0.0554
+2017-04-26 05:25:24,735 INFO: 	COST >> 0.141 +/- 0.014, % updates Left: 10.9% Rel: 0.0% Right: 7.8%
+2017-04-26 05:28:20,481 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:28:20,485 INFO: EPOCH 17 (175.75 seconds):
+2017-04-26 05:28:20,486 INFO: 	Average L2 norm of relation vector: 0.05528
+2017-04-26 05:28:20,487 INFO: 	COST >> 0.138 +/- 0.013, % updates Left: 10.3% Rel: 0.0% Right: 7.4%
+2017-04-26 05:31:15,068 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:31:15,068 INFO: EPOCH 18 (174.581 seconds):
+2017-04-26 05:31:15,069 INFO: 	Average L2 norm of relation vector: 0.05512
+2017-04-26 05:31:15,070 INFO: 	COST >> 0.13 +/- 0.013, % updates Left: 9.3% Rel: 0.0% Right: 8.8%
+2017-04-26 05:33:48,080 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:33:48,080 INFO: EPOCH 19 (153.01 seconds):
+2017-04-26 05:33:48,081 INFO: 	Average L2 norm of relation vector: 0.05498
+2017-04-26 05:33:48,081 INFO: 	COST >> 0.127 +/- 0.011, % updates Left: 9.0% Rel: 0.0% Right: 5.6%
+2017-04-26 05:36:27,124 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:36:27,124 INFO: EPOCH 20 (159.043 seconds):
+2017-04-26 05:36:27,125 INFO: 	Average L2 norm of relation vector: 0.05481
+2017-04-26 05:36:27,126 INFO: 	COST >> 0.123 +/- 0.012, % updates Left: 6.9% Rel: 0.0% Right: 6.7%
+2017-04-26 05:36:27,126 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 05:37:38,137 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 05:38:50,362 INFO: 	MEAN RANK >> valid: 1943.7, train: 1661.0
+2017-04-26 05:38:50,363 INFO: 		MEAN RANK TRAIN: Left: 1724.8 Rel: 0.0 Right: 1597.3
+2017-04-26 05:38:50,363 INFO: 		MEAN RANK VALID: Left: 1975.6 Rel: 0.0 Right: 1911.7
+2017-04-26 05:38:50,363 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0525
+2017-04-26 05:38:50,363 WARNING: 	WARNING, failed to improve MRR on valid, 2 chances left
+
+2017-04-26 05:38:50,481 INFO: 	(ranking took 143.355 seconds)
+2017-04-26 05:41:30,085 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:41:30,086 INFO: EPOCH 21 (159.604 seconds):
+2017-04-26 05:41:30,086 INFO: 	Average L2 norm of relation vector: 0.05465
+2017-04-26 05:41:30,087 INFO: 	COST >> 0.121 +/- 0.013, % updates Left: 7.6% Rel: 0.0% Right: 7.3%
+2017-04-26 05:44:09,198 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:44:09,198 INFO: EPOCH 22 (159.111 seconds):
+2017-04-26 05:44:09,199 INFO: 	Average L2 norm of relation vector: 0.05448
+2017-04-26 05:44:09,200 INFO: 	COST >> 0.12 +/- 0.012, % updates Left: 8.6% Rel: 0.0% Right: 6.2%
+2017-04-26 05:46:47,773 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:46:47,774 INFO: EPOCH 23 (158.574 seconds):
+2017-04-26 05:46:47,775 INFO: 	Average L2 norm of relation vector: 0.0543
+2017-04-26 05:46:47,776 INFO: 	COST >> 0.115 +/- 0.012, % updates Left: 7.7% Rel: 0.0% Right: 6.6%
+2017-04-26 05:49:27,899 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:49:27,899 INFO: EPOCH 24 (160.123 seconds):
+2017-04-26 05:49:27,900 INFO: 	Average L2 norm of relation vector: 0.0541
+2017-04-26 05:49:27,901 INFO: 	COST >> 0.113 +/- 0.011, % updates Left: 8.7% Rel: 0.0% Right: 7.5%
+2017-04-26 05:52:06,937 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:52:06,938 INFO: EPOCH 25 (159.037 seconds):
+2017-04-26 05:52:06,938 INFO: 	Average L2 norm of relation vector: 0.05391
+2017-04-26 05:52:06,939 INFO: 	COST >> 0.11 +/- 0.011, % updates Left: 9.0% Rel: 0.0% Right: 6.8%
+2017-04-26 05:54:45,296 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:54:45,297 INFO: EPOCH 26 (158.358 seconds):
+2017-04-26 05:54:45,297 INFO: 	Average L2 norm of relation vector: 0.05372
+2017-04-26 05:54:45,298 INFO: 	COST >> 0.109 +/- 0.009, % updates Left: 9.1% Rel: 0.0% Right: 5.0%
+2017-04-26 05:57:24,508 INFO: ----------------------------------------------------------------------------
+2017-04-26 05:57:24,508 INFO: EPOCH 27 (159.21 seconds):
+2017-04-26 05:57:24,509 INFO: 	Average L2 norm of relation vector: 0.05352
+2017-04-26 05:57:24,509 INFO: 	COST >> 0.107 +/- 0.009, % updates Left: 7.0% Rel: 0.0% Right: 6.6%
+2017-04-26 06:00:03,947 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:00:03,947 INFO: EPOCH 28 (159.438 seconds):
+2017-04-26 06:00:03,948 INFO: 	Average L2 norm of relation vector: 0.05332
+2017-04-26 06:00:03,948 INFO: 	COST >> 0.104 +/- 0.01, % updates Left: 8.6% Rel: 0.0% Right: 6.3%
+2017-04-26 06:02:44,549 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:02:44,550 INFO: EPOCH 29 (160.601 seconds):
+2017-04-26 06:02:44,550 INFO: 	Average L2 norm of relation vector: 0.05312
+2017-04-26 06:02:44,551 INFO: 	COST >> 0.102 +/- 0.01, % updates Left: 8.3% Rel: 0.0% Right: 5.3%
+2017-04-26 06:05:24,190 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:05:24,190 INFO: EPOCH 30 (159.64 seconds):
+2017-04-26 06:05:24,191 INFO: 	Average L2 norm of relation vector: 0.0529
+2017-04-26 06:05:24,192 INFO: 	COST >> 0.102 +/- 0.01, % updates Left: 5.6% Rel: 0.0% Right: 6.4%
+2017-04-26 06:05:24,192 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 06:06:35,388 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 06:07:47,445 INFO: 	MEAN RANK >> valid: 1934.8, train: 1653.0
+2017-04-26 06:07:47,445 INFO: 		MEAN RANK TRAIN: Left: 1725.9 Rel: 0.0 Right: 1580.1
+2017-04-26 06:07:47,445 INFO: 		MEAN RANK VALID: Left: 1940.8 Rel: 0.0 Right: 1928.9
+2017-04-26 06:07:47,446 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0645
+2017-04-26 06:07:47,446 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 06:08:59,532 INFO: 	NEW BEST TEST MR: 2003.9
+2017-04-26 06:08:59,532 INFO: 		Left MR: 2077.3 Rel MR: 0.0 Right MR: 1930.6
+2017-04-26 06:08:59,581 INFO: 	(ranking took 215.39 seconds)
+2017-04-26 06:11:38,563 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:11:38,563 INFO: EPOCH 31 (158.981 seconds):
+2017-04-26 06:11:38,563 INFO: 	Average L2 norm of relation vector: 0.0527
+2017-04-26 06:11:38,564 INFO: 	COST >> 0.099 +/- 0.009, % updates Left: 5.6% Rel: 0.0% Right: 4.9%
+2017-04-26 06:14:18,157 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:14:18,158 INFO: EPOCH 32 (159.592 seconds):
+2017-04-26 06:14:18,158 INFO: 	Average L2 norm of relation vector: 0.0525
+2017-04-26 06:14:18,159 INFO: 	COST >> 0.097 +/- 0.009, % updates Left: 7.3% Rel: 0.0% Right: 5.8%
+2017-04-26 06:16:47,918 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:16:47,918 INFO: EPOCH 33 (149.759 seconds):
+2017-04-26 06:16:47,919 INFO: 	Average L2 norm of relation vector: 0.0523
+2017-04-26 06:16:47,919 INFO: 	COST >> 0.095 +/- 0.011, % updates Left: 7.9% Rel: 0.0% Right: 5.6%
+2017-04-26 06:19:15,575 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:19:15,575 INFO: EPOCH 34 (147.656 seconds):
+2017-04-26 06:19:15,576 INFO: 	Average L2 norm of relation vector: 0.0521
+2017-04-26 06:19:15,577 INFO: 	COST >> 0.095 +/- 0.008, % updates Left: 6.3% Rel: 0.0% Right: 5.0%
+2017-04-26 06:21:55,840 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:21:55,840 INFO: EPOCH 35 (160.264 seconds):
+2017-04-26 06:21:55,841 INFO: 	Average L2 norm of relation vector: 0.05189
+2017-04-26 06:21:55,841 INFO: 	COST >> 0.093 +/- 0.01, % updates Left: 7.3% Rel: 0.0% Right: 6.7%
+2017-04-26 06:24:36,540 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:24:36,540 INFO: EPOCH 36 (160.698 seconds):
+2017-04-26 06:24:36,541 INFO: 	Average L2 norm of relation vector: 0.05167
+2017-04-26 06:24:36,541 INFO: 	COST >> 0.093 +/- 0.009, % updates Left: 5.9% Rel: 0.0% Right: 4.7%
+2017-04-26 06:27:15,375 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:27:15,379 INFO: EPOCH 37 (158.837 seconds):
+2017-04-26 06:27:15,380 INFO: 	Average L2 norm of relation vector: 0.05148
+2017-04-26 06:27:15,381 INFO: 	COST >> 0.092 +/- 0.009, % updates Left: 6.2% Rel: 0.0% Right: 5.5%
+2017-04-26 06:29:54,764 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:29:54,765 INFO: EPOCH 38 (159.384 seconds):
+2017-04-26 06:29:54,765 INFO: 	Average L2 norm of relation vector: 0.05129
+2017-04-26 06:29:54,766 INFO: 	COST >> 0.089 +/- 0.009, % updates Left: 6.0% Rel: 0.0% Right: 5.3%
+2017-04-26 06:32:34,603 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:32:34,603 INFO: EPOCH 39 (159.837 seconds):
+2017-04-26 06:32:34,604 INFO: 	Average L2 norm of relation vector: 0.05108
+2017-04-26 06:32:34,604 INFO: 	COST >> 0.089 +/- 0.009, % updates Left: 7.7% Rel: 0.0% Right: 4.7%
+2017-04-26 06:35:14,278 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:35:14,278 INFO: EPOCH 40 (159.674 seconds):
+2017-04-26 06:35:14,279 INFO: 	Average L2 norm of relation vector: 0.05088
+2017-04-26 06:35:14,280 INFO: 	COST >> 0.088 +/- 0.009, % updates Left: 7.5% Rel: 0.0% Right: 3.6%
+2017-04-26 06:35:14,280 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 06:36:25,870 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 06:37:38,352 INFO: 	MEAN RANK >> valid: 1998.8, train: 1700.7
+2017-04-26 06:37:38,353 INFO: 		MEAN RANK TRAIN: Left: 1748.2 Rel: 0.0 Right: 1653.2
+2017-04-26 06:37:38,353 INFO: 		MEAN RANK VALID: Left: 2025.5 Rel: 0.0 Right: 1972.0
+2017-04-26 06:37:38,353 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.065
+2017-04-26 06:37:38,353 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 06:38:50,968 INFO: 	NEW BEST TEST MR: 2048.2
+2017-04-26 06:38:50,969 INFO: 		Left MR: 2103.9 Rel MR: 0.0 Right MR: 1992.4
+2017-04-26 06:38:51,056 INFO: 	(ranking took 216.777 seconds)
+2017-04-26 06:41:31,201 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:41:31,202 INFO: EPOCH 41 (160.145 seconds):
+2017-04-26 06:41:31,202 INFO: 	Average L2 norm of relation vector: 0.05068
+2017-04-26 06:41:31,203 INFO: 	COST >> 0.086 +/- 0.007, % updates Left: 6.2% Rel: 0.0% Right: 5.8%
+2017-04-26 06:44:10,338 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:44:10,339 INFO: EPOCH 42 (159.136 seconds):
+2017-04-26 06:44:10,339 INFO: 	Average L2 norm of relation vector: 0.05049
+2017-04-26 06:44:10,340 INFO: 	COST >> 0.085 +/- 0.009, % updates Left: 6.3% Rel: 0.0% Right: 6.6%
+2017-04-26 06:46:49,707 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:46:49,708 INFO: EPOCH 43 (159.368 seconds):
+2017-04-26 06:46:49,709 INFO: 	Average L2 norm of relation vector: 0.05029
+2017-04-26 06:46:49,709 INFO: 	COST >> 0.084 +/- 0.009, % updates Left: 7.1% Rel: 0.0% Right: 3.8%
+2017-04-26 06:49:28,742 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:49:28,743 INFO: EPOCH 44 (159.033 seconds):
+2017-04-26 06:49:28,743 INFO: 	Average L2 norm of relation vector: 0.05009
+2017-04-26 06:49:28,744 INFO: 	COST >> 0.084 +/- 0.007, % updates Left: 6.6% Rel: 0.0% Right: 4.1%
+2017-04-26 06:52:08,433 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:52:08,433 INFO: EPOCH 45 (159.689 seconds):
+2017-04-26 06:52:08,434 INFO: 	Average L2 norm of relation vector: 0.0499
+2017-04-26 06:52:08,434 INFO: 	COST >> 0.083 +/- 0.008, % updates Left: 6.7% Rel: 0.0% Right: 4.4%
+2017-04-26 06:54:47,345 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:54:47,345 INFO: EPOCH 46 (158.911 seconds):
+2017-04-26 06:54:47,346 INFO: 	Average L2 norm of relation vector: 0.04972
+2017-04-26 06:54:47,347 INFO: 	COST >> 0.082 +/- 0.008, % updates Left: 8.6% Rel: 0.0% Right: 5.3%
+2017-04-26 06:57:26,671 INFO: ----------------------------------------------------------------------------
+2017-04-26 06:57:26,671 INFO: EPOCH 47 (159.324 seconds):
+2017-04-26 06:57:26,672 INFO: 	Average L2 norm of relation vector: 0.04952
+2017-04-26 06:57:26,672 INFO: 	COST >> 0.081 +/- 0.008, % updates Left: 5.9% Rel: 0.0% Right: 4.8%
+2017-04-26 07:00:04,820 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:00:04,820 INFO: EPOCH 48 (158.148 seconds):
+2017-04-26 07:00:04,821 INFO: 	Average L2 norm of relation vector: 0.04933
+2017-04-26 07:00:04,821 INFO: 	COST >> 0.08 +/- 0.008, % updates Left: 6.8% Rel: 0.0% Right: 4.4%
+2017-04-26 07:02:33,741 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:02:33,742 INFO: EPOCH 49 (148.92 seconds):
+2017-04-26 07:02:33,742 INFO: 	Average L2 norm of relation vector: 0.04912
+2017-04-26 07:02:33,743 INFO: 	COST >> 0.079 +/- 0.008, % updates Left: 4.8% Rel: 0.0% Right: 4.3%
+2017-04-26 07:05:00,079 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:05:00,080 INFO: EPOCH 50 (146.337 seconds):
+2017-04-26 07:05:00,080 INFO: 	Average L2 norm of relation vector: 0.04893
+2017-04-26 07:05:00,081 INFO: 	COST >> 0.079 +/- 0.007, % updates Left: 6.0% Rel: 0.0% Right: 4.1%
+2017-04-26 07:05:00,081 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 07:06:11,576 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 07:07:23,836 INFO: 	MEAN RANK >> valid: 1982.9, train: 1713.0
+2017-04-26 07:07:23,837 INFO: 		MEAN RANK TRAIN: Left: 1784.0 Rel: 0.0 Right: 1641.9
+2017-04-26 07:07:23,837 INFO: 		MEAN RANK VALID: Left: 2048.2 Rel: 0.0 Right: 1917.6
+2017-04-26 07:07:23,837 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.07
+2017-04-26 07:07:23,837 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 07:08:35,852 INFO: 	NEW BEST TEST MR: 2098.8
+2017-04-26 07:08:35,853 INFO: 		Left MR: 2167.5 Rel MR: 0.0 Right MR: 2030.1
+2017-04-26 07:08:35,911 INFO: 	(ranking took 215.83 seconds)
+2017-04-26 07:11:15,499 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:11:15,499 INFO: EPOCH 51 (159.588 seconds):
+2017-04-26 07:11:15,501 INFO: 	Average L2 norm of relation vector: 0.04876
+2017-04-26 07:11:15,501 INFO: 	COST >> 0.079 +/- 0.009, % updates Left: 6.0% Rel: 0.0% Right: 4.1%
+2017-04-26 07:13:54,742 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:13:54,743 INFO: EPOCH 52 (159.241 seconds):
+2017-04-26 07:13:54,743 INFO: 	Average L2 norm of relation vector: 0.04857
+2017-04-26 07:13:54,744 INFO: 	COST >> 0.076 +/- 0.008, % updates Left: 5.8% Rel: 0.0% Right: 3.7%
+2017-04-26 07:16:34,223 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:16:34,224 INFO: EPOCH 53 (159.48 seconds):
+2017-04-26 07:16:34,224 INFO: 	Average L2 norm of relation vector: 0.04838
+2017-04-26 07:16:34,225 INFO: 	COST >> 0.077 +/- 0.007, % updates Left: 5.1% Rel: 0.0% Right: 3.9%
+2017-04-26 07:19:12,351 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:19:12,351 INFO: EPOCH 54 (158.126 seconds):
+2017-04-26 07:19:12,351 INFO: 	Average L2 norm of relation vector: 0.04819
+2017-04-26 07:19:12,352 INFO: 	COST >> 0.077 +/- 0.009, % updates Left: 6.0% Rel: 0.0% Right: 4.1%
+2017-04-26 07:21:51,781 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:21:51,781 INFO: EPOCH 55 (159.429 seconds):
+2017-04-26 07:21:51,782 INFO: 	Average L2 norm of relation vector: 0.04802
+2017-04-26 07:21:51,782 INFO: 	COST >> 0.077 +/- 0.008, % updates Left: 5.9% Rel: 0.0% Right: 3.9%
+2017-04-26 07:24:30,696 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:24:30,696 INFO: EPOCH 56 (158.914 seconds):
+2017-04-26 07:24:30,697 INFO: 	Average L2 norm of relation vector: 0.04784
+2017-04-26 07:24:30,697 INFO: 	COST >> 0.074 +/- 0.008, % updates Left: 5.9% Rel: 0.0% Right: 4.7%
+2017-04-26 07:27:09,828 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:27:09,834 INFO: EPOCH 57 (159.136 seconds):
+2017-04-26 07:27:09,835 INFO: 	Average L2 norm of relation vector: 0.04766
+2017-04-26 07:27:09,836 INFO: 	COST >> 0.074 +/- 0.007, % updates Left: 5.3% Rel: 0.0% Right: 5.3%
+2017-04-26 07:29:49,284 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:29:49,285 INFO: EPOCH 58 (159.449 seconds):
+2017-04-26 07:29:49,285 INFO: 	Average L2 norm of relation vector: 0.04749
+2017-04-26 07:29:49,286 INFO: 	COST >> 0.073 +/- 0.008, % updates Left: 6.7% Rel: 0.0% Right: 4.3%
+2017-04-26 07:32:28,464 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:32:28,465 INFO: EPOCH 59 (159.179 seconds):
+2017-04-26 07:32:28,466 INFO: 	Average L2 norm of relation vector: 0.04731
+2017-04-26 07:32:28,466 INFO: 	COST >> 0.074 +/- 0.007, % updates Left: 5.4% Rel: 0.0% Right: 3.5%
+2017-04-26 07:35:06,787 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:35:06,787 INFO: EPOCH 60 (158.321 seconds):
+2017-04-26 07:35:06,788 INFO: 	Average L2 norm of relation vector: 0.04714
+2017-04-26 07:35:06,788 INFO: 	COST >> 0.073 +/- 0.008, % updates Left: 5.8% Rel: 0.0% Right: 5.2%
+2017-04-26 07:35:06,788 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 07:36:18,095 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 07:37:30,226 INFO: 	MEAN RANK >> valid: 2058.2, train: 1741.9
+2017-04-26 07:37:30,226 INFO: 		MEAN RANK TRAIN: Left: 1776.6 Rel: 0.0 Right: 1707.2
+2017-04-26 07:37:30,227 INFO: 		MEAN RANK VALID: Left: 2073.6 Rel: 0.0 Right: 2042.8
+2017-04-26 07:37:30,227 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.071
+2017-04-26 07:37:30,227 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 07:38:42,273 INFO: 	NEW BEST TEST MR: 2075.6
+2017-04-26 07:38:42,274 INFO: 		Left MR: 2158.5 Rel MR: 0.0 Right MR: 1992.7
+2017-04-26 07:38:42,387 INFO: 	(ranking took 215.598 seconds)
+2017-04-26 07:41:23,505 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:41:23,505 INFO: EPOCH 61 (161.118 seconds):
+2017-04-26 07:41:23,506 INFO: 	Average L2 norm of relation vector: 0.04697
+2017-04-26 07:41:23,506 INFO: 	COST >> 0.073 +/- 0.008, % updates Left: 5.4% Rel: 0.0% Right: 5.3%
+2017-04-26 07:44:02,712 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:44:02,712 INFO: EPOCH 62 (159.205 seconds):
+2017-04-26 07:44:02,713 INFO: 	Average L2 norm of relation vector: 0.04678
+2017-04-26 07:44:02,713 INFO: 	COST >> 0.071 +/- 0.008, % updates Left: 5.9% Rel: 0.0% Right: 4.7%
+2017-04-26 07:46:41,649 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:46:41,650 INFO: EPOCH 63 (158.936 seconds):
+2017-04-26 07:46:41,650 INFO: 	Average L2 norm of relation vector: 0.04661
+2017-04-26 07:46:41,651 INFO: 	COST >> 0.072 +/- 0.007, % updates Left: 5.2% Rel: 0.0% Right: 5.0%
+2017-04-26 07:49:14,856 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:49:14,856 INFO: EPOCH 64 (153.205 seconds):
+2017-04-26 07:49:14,857 INFO: 	Average L2 norm of relation vector: 0.04645
+2017-04-26 07:49:14,857 INFO: 	COST >> 0.071 +/- 0.007, % updates Left: 5.3% Rel: 0.0% Right: 3.9%
+2017-04-26 07:51:47,063 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:51:47,064 INFO: EPOCH 65 (152.206 seconds):
+2017-04-26 07:51:47,065 INFO: 	Average L2 norm of relation vector: 0.04627
+2017-04-26 07:51:47,065 INFO: 	COST >> 0.07 +/- 0.008, % updates Left: 4.5% Rel: 0.0% Right: 5.3%
+2017-04-26 07:54:25,727 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:54:25,727 INFO: EPOCH 66 (158.662 seconds):
+2017-04-26 07:54:25,728 INFO: 	Average L2 norm of relation vector: 0.04612
+2017-04-26 07:54:25,728 INFO: 	COST >> 0.07 +/- 0.009, % updates Left: 4.8% Rel: 0.0% Right: 3.2%
+2017-04-26 07:57:04,374 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:57:04,374 INFO: EPOCH 67 (158.646 seconds):
+2017-04-26 07:57:04,375 INFO: 	Average L2 norm of relation vector: 0.04595
+2017-04-26 07:57:04,375 INFO: 	COST >> 0.07 +/- 0.007, % updates Left: 4.3% Rel: 0.0% Right: 4.0%
+2017-04-26 07:59:43,245 INFO: ----------------------------------------------------------------------------
+2017-04-26 07:59:43,245 INFO: EPOCH 68 (158.87 seconds):
+2017-04-26 07:59:43,246 INFO: 	Average L2 norm of relation vector: 0.04579
+2017-04-26 07:59:43,246 INFO: 	COST >> 0.069 +/- 0.008, % updates Left: 5.8% Rel: 0.0% Right: 3.7%
+2017-04-26 08:02:21,276 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:02:21,277 INFO: EPOCH 69 (158.03 seconds):
+2017-04-26 08:02:21,277 INFO: 	Average L2 norm of relation vector: 0.04565
+2017-04-26 08:02:21,278 INFO: 	COST >> 0.069 +/- 0.008, % updates Left: 4.9% Rel: 0.0% Right: 4.3%
+2017-04-26 08:04:59,754 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:04:59,755 INFO: EPOCH 70 (158.477 seconds):
+2017-04-26 08:04:59,755 INFO: 	Average L2 norm of relation vector: 0.0455
+2017-04-26 08:04:59,756 INFO: 	COST >> 0.069 +/- 0.008, % updates Left: 5.9% Rel: 0.0% Right: 4.9%
+2017-04-26 08:04:59,756 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 08:06:10,814 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 08:07:22,561 INFO: 	MEAN RANK >> valid: 2015.6, train: 1726.4
+2017-04-26 08:07:22,562 INFO: 		MEAN RANK TRAIN: Left: 1811.5 Rel: 0.0 Right: 1641.3
+2017-04-26 08:07:22,562 INFO: 		MEAN RANK VALID: Left: 2056.3 Rel: 0.0 Right: 1974.8
+2017-04-26 08:07:22,562 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.062
+2017-04-26 08:07:22,562 WARNING: 	WARNING, failed to improve MRR on valid, 2 chances left
+
+2017-04-26 08:07:22,623 INFO: 	(ranking took 142.867 seconds)
+2017-04-26 08:10:01,998 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:10:01,998 INFO: EPOCH 71 (159.375 seconds):
+2017-04-26 08:10:01,999 INFO: 	Average L2 norm of relation vector: 0.04537
+2017-04-26 08:10:01,999 INFO: 	COST >> 0.067 +/- 0.008, % updates Left: 6.8% Rel: 0.0% Right: 5.3%
+2017-04-26 08:12:40,836 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:12:40,836 INFO: EPOCH 72 (158.837 seconds):
+2017-04-26 08:12:40,837 INFO: 	Average L2 norm of relation vector: 0.04521
+2017-04-26 08:12:40,837 INFO: 	COST >> 0.066 +/- 0.007, % updates Left: 5.3% Rel: 0.0% Right: 4.0%
+2017-04-26 08:15:20,151 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:15:20,151 INFO: EPOCH 73 (159.314 seconds):
+2017-04-26 08:15:20,151 INFO: 	Average L2 norm of relation vector: 0.04507
+2017-04-26 08:15:20,152 INFO: 	COST >> 0.065 +/- 0.007, % updates Left: 4.5% Rel: 0.0% Right: 3.5%
+2017-04-26 08:17:59,162 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:17:59,162 INFO: EPOCH 74 (159.01 seconds):
+2017-04-26 08:17:59,163 INFO: 	Average L2 norm of relation vector: 0.04494
+2017-04-26 08:17:59,163 INFO: 	COST >> 0.066 +/- 0.007, % updates Left: 5.6% Rel: 0.0% Right: 3.9%
+2017-04-26 08:20:39,793 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:20:39,793 INFO: EPOCH 75 (160.63 seconds):
+2017-04-26 08:20:39,794 INFO: 	Average L2 norm of relation vector: 0.04479
+2017-04-26 08:20:39,795 INFO: 	COST >> 0.065 +/- 0.008, % updates Left: 4.6% Rel: 0.0% Right: 4.9%
+2017-04-26 08:23:19,360 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:23:19,360 INFO: EPOCH 76 (159.566 seconds):
+2017-04-26 08:23:19,361 INFO: 	Average L2 norm of relation vector: 0.04466
+2017-04-26 08:23:19,361 INFO: 	COST >> 0.066 +/- 0.008, % updates Left: 5.3% Rel: 0.0% Right: 4.4%
+2017-04-26 08:25:57,995 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:25:57,995 INFO: EPOCH 77 (158.634 seconds):
+2017-04-26 08:25:57,996 INFO: 	Average L2 norm of relation vector: 0.04452
+2017-04-26 08:25:57,997 INFO: 	COST >> 0.065 +/- 0.007, % updates Left: 5.3% Rel: 0.0% Right: 3.5%
+2017-04-26 08:28:38,375 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:28:38,379 INFO: EPOCH 78 (160.382 seconds):
+2017-04-26 08:28:38,380 INFO: 	Average L2 norm of relation vector: 0.04438
+2017-04-26 08:28:38,381 INFO: 	COST >> 0.065 +/- 0.007, % updates Left: 4.2% Rel: 0.0% Right: 3.0%
+2017-04-26 08:31:18,291 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:31:18,291 INFO: EPOCH 79 (159.91 seconds):
+2017-04-26 08:31:18,292 INFO: 	Average L2 norm of relation vector: 0.04425
+2017-04-26 08:31:18,292 INFO: 	COST >> 0.064 +/- 0.006, % updates Left: 4.9% Rel: 0.0% Right: 5.0%
+2017-04-26 08:33:56,637 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:33:56,637 INFO: EPOCH 80 (158.345 seconds):
+2017-04-26 08:33:56,638 INFO: 	Average L2 norm of relation vector: 0.0441
+2017-04-26 08:33:56,638 INFO: 	COST >> 0.063 +/- 0.006, % updates Left: 4.0% Rel: 0.0% Right: 2.3%
+2017-04-26 08:33:56,638 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 08:35:04,615 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 08:36:14,737 INFO: 	MEAN RANK >> valid: 2009.6, train: 1799.9
+2017-04-26 08:36:14,738 INFO: 		MEAN RANK TRAIN: Left: 1900.6 Rel: 0.0 Right: 1699.2
+2017-04-26 08:36:14,738 INFO: 		MEAN RANK VALID: Left: 2104.0 Rel: 0.0 Right: 1915.2
+2017-04-26 08:36:14,738 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.071
+2017-04-26 08:36:14,738 WARNING: 	WARNING, failed to improve MRR on valid, 1 chances left
+
+2017-04-26 08:36:14,842 INFO: 	(ranking took 138.203 seconds)
+2017-04-26 08:38:55,229 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:38:55,229 INFO: EPOCH 81 (160.387 seconds):
+2017-04-26 08:38:55,230 INFO: 	Average L2 norm of relation vector: 0.04397
+2017-04-26 08:38:55,230 INFO: 	COST >> 0.062 +/- 0.007, % updates Left: 3.7% Rel: 0.0% Right: 2.5%
+2017-04-26 08:41:36,197 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:41:36,197 INFO: EPOCH 82 (160.966 seconds):
+2017-04-26 08:41:36,198 INFO: 	Average L2 norm of relation vector: 0.04384
+2017-04-26 08:41:36,198 INFO: 	COST >> 0.063 +/- 0.006, % updates Left: 5.2% Rel: 0.0% Right: 4.2%
+2017-04-26 08:44:14,953 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:44:14,953 INFO: EPOCH 83 (158.755 seconds):
+2017-04-26 08:44:14,954 INFO: 	Average L2 norm of relation vector: 0.04372
+2017-04-26 08:44:14,954 INFO: 	COST >> 0.064 +/- 0.007, % updates Left: 5.0% Rel: 0.0% Right: 3.9%
+2017-04-26 08:46:53,195 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:46:53,195 INFO: EPOCH 84 (158.241 seconds):
+2017-04-26 08:46:53,196 INFO: 	Average L2 norm of relation vector: 0.0436
+2017-04-26 08:46:53,196 INFO: 	COST >> 0.063 +/- 0.007, % updates Left: 5.4% Rel: 0.0% Right: 3.5%
+2017-04-26 08:49:33,092 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:49:33,093 INFO: EPOCH 85 (159.896 seconds):
+2017-04-26 08:49:33,093 INFO: 	Average L2 norm of relation vector: 0.04347
+2017-04-26 08:49:33,094 INFO: 	COST >> 0.063 +/- 0.007, % updates Left: 3.7% Rel: 0.0% Right: 4.4%
+2017-04-26 08:52:13,663 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:52:13,663 INFO: EPOCH 86 (160.569 seconds):
+2017-04-26 08:52:13,663 INFO: 	Average L2 norm of relation vector: 0.04336
+2017-04-26 08:52:13,664 INFO: 	COST >> 0.062 +/- 0.007, % updates Left: 4.4% Rel: 0.0% Right: 3.6%
+2017-04-26 08:54:53,135 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:54:53,135 INFO: EPOCH 87 (159.471 seconds):
+2017-04-26 08:54:53,136 INFO: 	Average L2 norm of relation vector: 0.04324
+2017-04-26 08:54:53,136 INFO: 	COST >> 0.063 +/- 0.008, % updates Left: 5.2% Rel: 0.0% Right: 4.0%
+2017-04-26 08:57:32,594 INFO: ----------------------------------------------------------------------------
+2017-04-26 08:57:32,595 INFO: EPOCH 88 (159.458 seconds):
+2017-04-26 08:57:32,595 INFO: 	Average L2 norm of relation vector: 0.04312
+2017-04-26 08:57:32,596 INFO: 	COST >> 0.062 +/- 0.007, % updates Left: 5.2% Rel: 0.0% Right: 4.6%
+2017-04-26 09:00:10,797 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:00:10,797 INFO: EPOCH 89 (158.201 seconds):
+2017-04-26 09:00:10,798 INFO: 	Average L2 norm of relation vector: 0.04299
+2017-04-26 09:00:10,798 INFO: 	COST >> 0.062 +/- 0.006, % updates Left: 5.2% Rel: 0.0% Right: 3.3%
+2017-04-26 09:02:50,387 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:02:50,387 INFO: EPOCH 90 (159.589 seconds):
+2017-04-26 09:02:50,388 INFO: 	Average L2 norm of relation vector: 0.04287
+2017-04-26 09:02:50,388 INFO: 	COST >> 0.061 +/- 0.006, % updates Left: 5.4% Rel: 0.0% Right: 3.8%
+2017-04-26 09:02:50,389 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 09:04:01,632 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 09:05:13,520 INFO: 	MEAN RANK >> valid: 2021.4, train: 1750.5
+2017-04-26 09:05:13,521 INFO: 		MEAN RANK TRAIN: Left: 1800.5 Rel: 0.0 Right: 1700.5
+2017-04-26 09:05:13,521 INFO: 		MEAN RANK VALID: Left: 2094.8 Rel: 0.0 Right: 1948.1
+2017-04-26 09:05:13,521 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0755
+2017-04-26 09:05:13,521 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 09:06:25,622 INFO: 	NEW BEST TEST MR: 2088.2
+2017-04-26 09:06:25,623 INFO: 		Left MR: 2094.4 Rel MR: 0.0 Right MR: 2081.9
+2017-04-26 09:06:25,673 INFO: 	(ranking took 215.284 seconds)
+2017-04-26 09:09:05,858 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:09:05,858 INFO: EPOCH 91 (160.185 seconds):
+2017-04-26 09:09:05,859 INFO: 	Average L2 norm of relation vector: 0.04276
+2017-04-26 09:09:05,860 INFO: 	COST >> 0.062 +/- 0.007, % updates Left: 5.8% Rel: 0.0% Right: 3.4%
+2017-04-26 09:11:46,402 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:11:46,402 INFO: EPOCH 92 (160.541 seconds):
+2017-04-26 09:11:46,402 INFO: 	Average L2 norm of relation vector: 0.04265
+2017-04-26 09:11:46,403 INFO: 	COST >> 0.06 +/- 0.007, % updates Left: 5.9% Rel: 0.0% Right: 4.4%
+2017-04-26 09:14:24,791 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:14:24,792 INFO: EPOCH 93 (158.389 seconds):
+2017-04-26 09:14:24,792 INFO: 	Average L2 norm of relation vector: 0.04254
+2017-04-26 09:14:24,793 INFO: 	COST >> 0.059 +/- 0.007, % updates Left: 3.3% Rel: 0.0% Right: 3.9%
+2017-04-26 09:17:05,719 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:17:05,719 INFO: EPOCH 94 (160.926 seconds):
+2017-04-26 09:17:05,720 INFO: 	Average L2 norm of relation vector: 0.04242
+2017-04-26 09:17:05,720 INFO: 	COST >> 0.059 +/- 0.007, % updates Left: 5.5% Rel: 0.0% Right: 3.6%
+2017-04-26 09:19:36,220 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:19:36,220 INFO: EPOCH 95 (150.5 seconds):
+2017-04-26 09:19:36,221 INFO: 	Average L2 norm of relation vector: 0.0423
+2017-04-26 09:19:36,221 INFO: 	COST >> 0.058 +/- 0.007, % updates Left: 4.9% Rel: 0.0% Right: 3.5%
+2017-04-26 09:22:03,453 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:22:03,454 INFO: EPOCH 96 (147.232 seconds):
+2017-04-26 09:22:03,454 INFO: 	Average L2 norm of relation vector: 0.04218
+2017-04-26 09:22:03,454 INFO: 	COST >> 0.059 +/- 0.007, % updates Left: 4.3% Rel: 0.0% Right: 3.4%
+2017-04-26 09:24:36,224 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:24:36,225 INFO: EPOCH 97 (152.77 seconds):
+2017-04-26 09:24:36,225 INFO: 	Average L2 norm of relation vector: 0.04208
+2017-04-26 09:24:36,226 INFO: 	COST >> 0.059 +/- 0.007, % updates Left: 4.4% Rel: 0.0% Right: 2.8%
+2017-04-26 09:27:15,528 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:27:15,530 INFO: EPOCH 98 (159.305 seconds):
+2017-04-26 09:27:15,531 INFO: 	Average L2 norm of relation vector: 0.04197
+2017-04-26 09:27:15,532 INFO: 	COST >> 0.059 +/- 0.007, % updates Left: 4.6% Rel: 0.0% Right: 3.1%
+2017-04-26 09:29:53,907 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:29:53,907 INFO: EPOCH 99 (158.375 seconds):
+2017-04-26 09:29:53,908 INFO: 	Average L2 norm of relation vector: 0.04187
+2017-04-26 09:29:53,908 INFO: 	COST >> 0.06 +/- 0.007, % updates Left: 4.1% Rel: 0.0% Right: 3.8%
+2017-04-26 09:32:34,368 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:32:34,368 INFO: EPOCH 100 (160.459 seconds):
+2017-04-26 09:32:34,369 INFO: 	Average L2 norm of relation vector: 0.04176
+2017-04-26 09:32:34,369 INFO: 	COST >> 0.058 +/- 0.008, % updates Left: 4.8% Rel: 0.0% Right: 4.5%
+2017-04-26 09:32:34,369 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 09:33:45,880 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 09:34:58,121 INFO: 	MEAN RANK >> valid: 2028.8, train: 1781.9
+2017-04-26 09:34:58,121 INFO: 		MEAN RANK TRAIN: Left: 1855.5 Rel: 0.0 Right: 1708.3
+2017-04-26 09:34:58,122 INFO: 		MEAN RANK VALID: Left: 2055.7 Rel: 0.0 Right: 2001.8
+2017-04-26 09:34:58,122 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.069
+2017-04-26 09:34:58,122 WARNING: 	WARNING, failed to improve MRR on valid, 2 chances left
+
+2017-04-26 09:34:58,228 INFO: 	(ranking took 143.859 seconds)
+2017-04-26 09:37:36,960 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:37:36,961 INFO: EPOCH 101 (158.732 seconds):
+2017-04-26 09:37:36,961 INFO: 	Average L2 norm of relation vector: 0.04167
+2017-04-26 09:37:36,962 INFO: 	COST >> 0.059 +/- 0.006, % updates Left: 4.2% Rel: 0.0% Right: 3.4%
+2017-04-26 09:40:16,182 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:40:16,182 INFO: EPOCH 102 (159.219 seconds):
+2017-04-26 09:40:16,183 INFO: 	Average L2 norm of relation vector: 0.04158
+2017-04-26 09:40:16,183 INFO: 	COST >> 0.059 +/- 0.006, % updates Left: 6.6% Rel: 0.0% Right: 2.9%
+2017-04-26 09:42:54,171 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:42:54,173 INFO: EPOCH 103 (157.989 seconds):
+2017-04-26 09:42:54,174 INFO: 	Average L2 norm of relation vector: 0.04149
+2017-04-26 09:42:54,174 INFO: 	COST >> 0.058 +/- 0.006, % updates Left: 4.2% Rel: 0.0% Right: 3.2%
+2017-04-26 09:45:33,238 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:45:33,238 INFO: EPOCH 104 (159.064 seconds):
+2017-04-26 09:45:33,239 INFO: 	Average L2 norm of relation vector: 0.04138
+2017-04-26 09:45:33,239 INFO: 	COST >> 0.058 +/- 0.007, % updates Left: 4.4% Rel: 0.0% Right: 2.8%
+2017-04-26 09:48:11,626 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:48:11,628 INFO: EPOCH 105 (158.388 seconds):
+2017-04-26 09:48:11,628 INFO: 	Average L2 norm of relation vector: 0.0413
+2017-04-26 09:48:11,629 INFO: 	COST >> 0.058 +/- 0.008, % updates Left: 6.2% Rel: 0.0% Right: 4.2%
+2017-04-26 09:50:50,172 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:50:50,172 INFO: EPOCH 106 (158.544 seconds):
+2017-04-26 09:50:50,173 INFO: 	Average L2 norm of relation vector: 0.0412
+2017-04-26 09:50:50,174 INFO: 	COST >> 0.057 +/- 0.006, % updates Left: 4.2% Rel: 0.0% Right: 2.8%
+2017-04-26 09:53:29,365 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:53:29,367 INFO: EPOCH 107 (159.193 seconds):
+2017-04-26 09:53:29,368 INFO: 	Average L2 norm of relation vector: 0.04109
+2017-04-26 09:53:29,368 INFO: 	COST >> 0.057 +/- 0.006, % updates Left: 5.7% Rel: 0.0% Right: 4.0%
+2017-04-26 09:56:08,530 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:56:08,530 INFO: EPOCH 108 (159.162 seconds):
+2017-04-26 09:56:08,531 INFO: 	Average L2 norm of relation vector: 0.041
+2017-04-26 09:56:08,531 INFO: 	COST >> 0.057 +/- 0.007, % updates Left: 5.8% Rel: 0.0% Right: 4.0%
+2017-04-26 09:58:47,284 INFO: ----------------------------------------------------------------------------
+2017-04-26 09:58:47,286 INFO: EPOCH 109 (158.755 seconds):
+2017-04-26 09:58:47,287 INFO: 	Average L2 norm of relation vector: 0.04092
+2017-04-26 09:58:47,287 INFO: 	COST >> 0.056 +/- 0.006, % updates Left: 4.4% Rel: 0.0% Right: 3.9%
+2017-04-26 10:01:26,445 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:01:26,445 INFO: EPOCH 110 (159.158 seconds):
+2017-04-26 10:01:26,446 INFO: 	Average L2 norm of relation vector: 0.04084
+2017-04-26 10:01:26,447 INFO: 	COST >> 0.057 +/- 0.006, % updates Left: 5.8% Rel: 0.0% Right: 3.0%
+2017-04-26 10:01:26,447 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 10:02:37,972 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 10:03:50,535 INFO: 	MEAN RANK >> valid: 2089.1, train: 1820.8
+2017-04-26 10:03:50,536 INFO: 		MEAN RANK TRAIN: Left: 1882.1 Rel: 0.0 Right: 1759.4
+2017-04-26 10:03:50,536 INFO: 		MEAN RANK VALID: Left: 2128.0 Rel: 0.0 Right: 2050.3
+2017-04-26 10:03:50,536 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0645
+2017-04-26 10:03:50,536 WARNING: 	WARNING, failed to improve MRR on valid, 1 chances left
+
+2017-04-26 10:03:50,595 INFO: 	(ranking took 144.148 seconds)
+2017-04-26 10:06:28,913 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:06:28,914 INFO: EPOCH 111 (158.318 seconds):
+2017-04-26 10:06:28,914 INFO: 	Average L2 norm of relation vector: 0.04074
+2017-04-26 10:06:28,914 INFO: 	COST >> 0.056 +/- 0.005, % updates Left: 4.5% Rel: 0.0% Right: 3.3%
+2017-04-26 10:09:03,713 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:09:03,716 INFO: EPOCH 112 (154.801 seconds):
+2017-04-26 10:09:03,717 INFO: 	Average L2 norm of relation vector: 0.04065
+2017-04-26 10:09:03,718 INFO: 	COST >> 0.057 +/- 0.007, % updates Left: 6.4% Rel: 0.0% Right: 3.5%
+2017-04-26 10:11:44,189 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:11:44,189 INFO: EPOCH 113 (160.471 seconds):
+2017-04-26 10:11:44,189 INFO: 	Average L2 norm of relation vector: 0.04056
+2017-04-26 10:11:44,190 INFO: 	COST >> 0.056 +/- 0.006, % updates Left: 4.7% Rel: 0.0% Right: 4.4%
+2017-04-26 10:14:26,872 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:14:26,874 INFO: EPOCH 114 (162.684 seconds):
+2017-04-26 10:14:26,875 INFO: 	Average L2 norm of relation vector: 0.04047
+2017-04-26 10:14:26,875 INFO: 	COST >> 0.055 +/- 0.005, % updates Left: 3.8% Rel: 0.0% Right: 3.9%
+2017-04-26 10:17:06,424 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:17:06,424 INFO: EPOCH 115 (159.549 seconds):
+2017-04-26 10:17:06,425 INFO: 	Average L2 norm of relation vector: 0.04037
+2017-04-26 10:17:06,425 INFO: 	COST >> 0.055 +/- 0.006, % updates Left: 5.6% Rel: 0.0% Right: 3.0%
+2017-04-26 10:19:46,498 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:19:46,498 INFO: EPOCH 116 (160.072 seconds):
+2017-04-26 10:19:46,498 INFO: 	Average L2 norm of relation vector: 0.04029
+2017-04-26 10:19:46,499 INFO: 	COST >> 0.055 +/- 0.007, % updates Left: 4.2% Rel: 0.0% Right: 3.8%
+2017-04-26 10:22:26,154 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:22:26,154 INFO: EPOCH 117 (159.655 seconds):
+2017-04-26 10:22:26,155 INFO: 	Average L2 norm of relation vector: 0.0402
+2017-04-26 10:22:26,155 INFO: 	COST >> 0.054 +/- 0.006, % updates Left: 4.4% Rel: 0.0% Right: 3.0%
+2017-04-26 10:25:07,812 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:25:07,812 INFO: EPOCH 118 (161.657 seconds):
+2017-04-26 10:25:07,813 INFO: 	Average L2 norm of relation vector: 0.04013
+2017-04-26 10:25:07,814 INFO: 	COST >> 0.055 +/- 0.007, % updates Left: 5.7% Rel: 0.0% Right: 3.5%
+2017-04-26 10:27:37,188 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:27:37,194 INFO: EPOCH 119 (149.38 seconds):
+2017-04-26 10:27:37,195 INFO: 	Average L2 norm of relation vector: 0.04006
+2017-04-26 10:27:37,196 INFO: 	COST >> 0.054 +/- 0.006, % updates Left: 4.5% Rel: 0.0% Right: 3.3%
+2017-04-26 10:30:09,850 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:30:09,852 INFO: EPOCH 120 (152.656 seconds):
+2017-04-26 10:30:09,853 INFO: 	Average L2 norm of relation vector: 0.03996
+2017-04-26 10:30:09,853 INFO: 	COST >> 0.054 +/- 0.007, % updates Left: 4.1% Rel: 0.0% Right: 3.6%
+2017-04-26 10:30:09,853 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 10:31:21,121 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 10:32:30,661 INFO: 	MEAN RANK >> valid: 2068.4, train: 1846.6
+2017-04-26 10:32:30,661 INFO: 		MEAN RANK TRAIN: Left: 1892.6 Rel: 0.0 Right: 1800.7
+2017-04-26 10:32:30,662 INFO: 		MEAN RANK VALID: Left: 2098.7 Rel: 0.0 Right: 2038.0
+2017-04-26 10:32:30,662 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0745
+2017-04-26 10:32:30,662 WARNING: 	WARNING, failed to improve MRR on valid, 0 chances left
+
+2017-04-26 10:32:30,804 INFO: 	(ranking took 140.951 seconds)
+2017-04-26 10:35:12,516 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:35:12,518 INFO: EPOCH 121 (161.714 seconds):
+2017-04-26 10:35:12,519 INFO: 	Average L2 norm of relation vector: 0.03989
+2017-04-26 10:35:12,519 INFO: 	COST >> 0.055 +/- 0.006, % updates Left: 3.6% Rel: 0.0% Right: 2.8%
+2017-04-26 10:37:46,145 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:37:46,147 INFO: EPOCH 122 (153.628 seconds):
+2017-04-26 10:37:46,148 INFO: 	Average L2 norm of relation vector: 0.0398
+2017-04-26 10:37:46,148 INFO: 	COST >> 0.053 +/- 0.006, % updates Left: 5.3% Rel: 0.0% Right: 3.5%
+2017-04-26 10:40:24,338 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:40:24,340 INFO: EPOCH 123 (158.191 seconds):
+2017-04-26 10:40:24,340 INFO: 	Average L2 norm of relation vector: 0.03973
+2017-04-26 10:40:24,341 INFO: 	COST >> 0.053 +/- 0.006, % updates Left: 4.3% Rel: 0.0% Right: 3.9%
+2017-04-26 10:42:47,622 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:42:47,624 INFO: EPOCH 124 (143.283 seconds):
+2017-04-26 10:42:47,624 INFO: 	Average L2 norm of relation vector: 0.03965
+2017-04-26 10:42:47,625 INFO: 	COST >> 0.054 +/- 0.006, % updates Left: 3.3% Rel: 0.0% Right: 3.1%
+2017-04-26 10:45:09,260 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:45:09,261 INFO: EPOCH 125 (141.636 seconds):
+2017-04-26 10:45:09,261 INFO: 	Average L2 norm of relation vector: 0.03958
+2017-04-26 10:45:09,262 INFO: 	COST >> 0.053 +/- 0.007, % updates Left: 5.1% Rel: 0.0% Right: 4.6%
+2017-04-26 10:47:42,572 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:47:42,572 INFO: EPOCH 126 (153.31 seconds):
+2017-04-26 10:47:42,573 INFO: 	Average L2 norm of relation vector: 0.0395
+2017-04-26 10:47:42,573 INFO: 	COST >> 0.053 +/- 0.006, % updates Left: 4.7% Rel: 0.0% Right: 3.5%
+2017-04-26 10:50:14,099 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:50:14,099 INFO: EPOCH 127 (151.525 seconds):
+2017-04-26 10:50:14,100 INFO: 	Average L2 norm of relation vector: 0.03946
+2017-04-26 10:50:14,100 INFO: 	COST >> 0.054 +/- 0.007, % updates Left: 6.7% Rel: 0.0% Right: 3.3%
+2017-04-26 10:52:42,407 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:52:42,407 INFO: EPOCH 128 (148.307 seconds):
+2017-04-26 10:52:42,408 INFO: 	Average L2 norm of relation vector: 0.03938
+2017-04-26 10:52:42,408 INFO: 	COST >> 0.053 +/- 0.007, % updates Left: 4.0% Rel: 0.0% Right: 3.4%
+2017-04-26 10:55:20,705 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:55:20,705 INFO: EPOCH 129 (158.296 seconds):
+2017-04-26 10:55:20,706 INFO: 	Average L2 norm of relation vector: 0.03932
+2017-04-26 10:55:20,706 INFO: 	COST >> 0.054 +/- 0.006, % updates Left: 4.7% Rel: 0.0% Right: 2.2%
+2017-04-26 10:57:59,860 INFO: ----------------------------------------------------------------------------
+2017-04-26 10:57:59,861 INFO: EPOCH 130 (159.155 seconds):
+2017-04-26 10:57:59,862 INFO: 	Average L2 norm of relation vector: 0.03924
+2017-04-26 10:57:59,862 INFO: 	COST >> 0.053 +/- 0.006, % updates Left: 4.5% Rel: 0.0% Right: 4.6%
+2017-04-26 10:57:59,862 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 10:59:11,058 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-26 11:00:23,258 INFO: 	MEAN RANK >> valid: 2056.0, train: 1855.8
+2017-04-26 11:00:23,258 INFO: 		MEAN RANK TRAIN: Left: 1930.7 Rel: 0.0 Right: 1780.9
+2017-04-26 11:00:23,259 INFO: 		MEAN RANK VALID: Left: 2120.7 Rel: 0.0 Right: 1991.3
+2017-04-26 11:00:23,259 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.0715
+2017-04-26 11:00:23,259 WARNING: EARLY STOPPING, failed to improve MRR on valid after 30 epochs
+2017-04-26 11:00:23,259 INFO: ----------------------------------------------------------------------------
+2017-04-26 11:00:23,259 INFO: ----------------------------------------------------------------------------
+2017-04-26 11:00:23,525 INFO: 	Ranking model on all examples from test. Each example ranked against 14951 other entities
+2017-04-26 11:00:23,886 INFO: 	Ranking: evaluating rank on 59071 triples
+2017-04-26 13:13:16,645 INFO: left_ranks: (59071,), right_ranks: (59071,), rel_ranks: (59071,)
+2017-04-26 13:13:16,664 INFO: max left_ranks: 14951, max right_ranks: 14951, max rel_ranks: 0
+2017-04-26 13:13:17,123 INFO: MICRO RAW:
+2017-04-26 13:13:17,123 INFO: 	Left mean rank: 2236.623, MRR: 0.051, median rank: 441.0, hits@10: 10.313%
+2017-04-26 13:13:17,124 INFO: 	Right mean rank: 2046.784, MRR: 0.127, median rank: 205.0, hits@10: 22.217%
+2017-04-26 13:13:17,124 INFO: 	Global mean rank: 2141.704, MRR: 0.089, median rank: 321.0, hits@10: 16.265%
+2017-04-26 13:13:17,124 INFO: MACRO RAW
+2017-04-26 13:13:17,124 INFO: 	Left mean rank: 3327.217, MRR: 0.061, median rank: 1038.0, hits@10: 12.057%
+2017-04-26 13:13:17,124 INFO: 	Right mean rank: 3036.055, MRR: 0.122, median rank: 658.0, hits@10: 20.699%
+2017-04-26 13:13:17,124 INFO: 	Global mean rank: 3181.636, MRR: 0.092, median rank: 536.0, hits@10: 16.378%
+2017-04-26 13:13:17,130 INFO: Ranking model on all examples from test. Each example ranked against 14951 other entities which are FILTERED
+2017-04-26 13:13:17,929 INFO: 	FilteredRanking: evaluating rank on 59071 triples
+2017-04-26 16:09:25,164 INFO: MICRO FILTERED:
+2017-04-26 16:09:25,171 INFO: 	Left mean rank: 2121.42054, MRR: 0.06641, median rank: 339.0, hits@10: 13.206%
+2017-04-26 16:09:25,172 INFO: 	Right mean rank: 1974.43891, MRR: 0.15653, median rank: 183.0, hits@10: 25.033%
+2017-04-26 16:09:25,172 INFO: 	Global mean rank: 2047.92973, MRR: 0.11147, median rank: 260.0, hits@10: 19.119%
+2017-04-26 16:09:25,172 INFO: MACRO FILTERED
+2017-04-26 16:09:25,173 INFO: 	Left mean rank: 3301.36392, MRR: 0.07049, median rank: 1005.5, hits@10: 13.691%
+2017-04-26 16:09:25,173 INFO: 	Right mean rank: 3024.04048, MRR: 0.13773, median rank: 640.0, hits@10: 21.699%
+2017-04-26 16:09:25,173 INFO: 	Global mean rank: 3162.7022, MRR: 0.10411, median rank: 535.0, hits@10: 17.695%

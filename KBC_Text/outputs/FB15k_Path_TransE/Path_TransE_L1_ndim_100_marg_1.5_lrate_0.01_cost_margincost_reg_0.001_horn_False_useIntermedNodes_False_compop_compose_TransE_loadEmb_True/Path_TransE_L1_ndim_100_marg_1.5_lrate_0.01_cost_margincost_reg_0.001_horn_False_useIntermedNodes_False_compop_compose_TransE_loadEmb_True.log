@@ -1,0 +1,29 @@
+2017-04-27 21:48:49,852 INFO: logger initialized for experiment identifier: Path_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True
+2017-04-27 21:48:49,852 INFO: identifier: Path_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True
+2017-04-27 21:48:49,852 INFO: models saved to path: /Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path_TransE/
+2017-04-27 21:48:49,852 INFO: DD{'ndim': 100, 'test_all': 3, 'Nsyn_rel': 1345, 'graph_files': ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'], 'nvalid': 1000, 'seed': 123, 'simfn': 'L1', 'nbatches': 100, 'lrparam': 0.01, 'loademb': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL/best_valid_model.pkl', 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/', 'compop': 'compose_TransE', 'Nrel': 1345, 'rel': False, 'Nent': 14951, 'logger': <logging.RootLogger object at 0x10975afd0>, 'Nsyn': 14951, 'reg': 0.001, 'useHornPaths': False, 'dataset': 'FB15k', 'bestvalidMRR': -1, 'loadmodel': False, 'needIntermediateNodesOnPaths': False, 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path_TransE/Path_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True', 'marge': 1.5, 'margincostfunction': 'margincost', 'lremb': 0.01, 'identifier': 'Path_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True', 'ntrain': 1000, 'experiment_type': 'FB15k_path_exp', 'totepochs': 500, 'ntest': 1000}
+2017-04-27 21:48:49,852 INFO: initializing graph
+2017-04-27 21:48:52,060 INFO: loaded FB15k data in: 2.158936 seconds
+2017-04-27 21:48:52,063 INFO: loading length_2_numPaths_50000000_train.path file
+2017-04-27 21:58:13,077 INFO: loading length_2_numPaths_50000000_dev.path file
+2017-04-27 21:58:13,138 INFO: loading length_2_numPaths_50000000_test.path file
+2017-04-27 21:58:13,226 INFO: loading length_3_numPaths_50000000_train.path file
+2017-04-27 22:08:23,017 INFO: loading length_3_numPaths_50000000_dev.path file
+2017-04-27 22:08:23,076 INFO: loading length_3_numPaths_50000000_test.path file
+2017-04-27 22:08:27,086 DEBUG: FB15kexp_path: training paths: [(10000000, 2), (10000000, 3)], dev paths: [(1000, 2), (1000, 3)]
+2017-04-27 22:08:27,208 INFO: INITIALIZING EMBEDDINGS FROM MODEL
+2017-04-27 22:08:27,208 INFO: loading embeddings from /Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL/best_valid_model.pkl
+2017-04-27 22:08:31,918 DEBUG: loaded data, constructed model, constructed graph...
+2017-04-27 22:08:31,919 DEBUG: num epochs: 500
+2017-04-27 22:08:31,919 DEBUG: num batches per epoch: 100
+2017-04-27 22:08:31,919 DEBUG: batchsize: 100000
+2017-04-27 22:08:31,919 DEBUG: left and right entity ranking functions will rank a slot against 14951 competitors
+2017-04-27 22:08:31,919 INFO: --------------------------------------------------------------------------------------------------
+2017-04-27 22:08:31,919 INFO: Since we initialized embeddings with pre-trained vectors, establish baseline of their performance:
+2017-04-27 22:08:31,919 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-27 22:09:40,566 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-27 22:10:50,101 INFO: 	MEAN RANK >> valid: 632.7, train: 328.2
+2017-04-27 22:10:50,102 INFO: 		MEAN RANK TRAIN: Left: 313.9 Rel: 0.0 Right: 342.5
+2017-04-27 22:10:50,102 INFO: 		MEAN RANK VALID: Left: 640.2 Rel: 0.0 Right: 625.3
+2017-04-27 22:10:50,103 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.138
+2017-04-27 22:10:50,103 INFO: ======================== BEGIN TRAINING: length_2_numPaths_50000000 ========================

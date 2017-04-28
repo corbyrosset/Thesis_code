@@ -529,7 +529,7 @@ def load_FB15k_path_data(state, graph):
             cntr = 0
             prevLen = None
             for pathStr in f:
-                if state.ntrain != 'all' and cntr >= 100000:
+                if state.ntrain != 'all' and cntr >= 10000000:
                     break
                 (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
                 # print (targetRel, head, tail, pathEtns, pathRels)

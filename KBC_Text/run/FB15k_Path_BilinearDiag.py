@@ -9,8 +9,8 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 ###############################################################################
 ###############################################################################
 
-simfn = 'Dot' # L1'
-margincostfunction = 'margincost_pos_high' # 'margincost'
+simfn =  'Dot'
+margincostfunction = 'margincost_pos_high' 
 compop = 'compose_BilinearDiag' #'compose_TransE'
 ndim = 100 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
@@ -36,7 +36,7 @@ nvalid = 1000 # 'all'
 ntest = 1000 # 'all'
 neval = 'all' # 'all'### only for final testing, not training
 experiment_type = 'FB15k_path_exp'
-savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path/'
+savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path_BilinearDiag/'
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/'
 
 ### these are prefixes to the train, dev, test splits of the .path files
@@ -45,7 +45,7 @@ graph_files = ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'] #['le
 ### for these two flags, see graph/Graph.py
 useHornPaths = False 
 needIntermediateNodesOnPaths = False
-# loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/' + 'BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL' + '/best_valid_model.pkl'
+
 loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_BilinearDiag/' + 'BEST_BilinearDiag_Dot_ndim_100_marg_0.2_lrate_0.01_cost_margincost_pos_high_reg_0.01_REL' + '/best_valid_model.pkl'
 
 
@@ -53,11 +53,12 @@ loademb = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_
 # DONT TOUCH BETWEEN HERE
 ###############################################################################
 
-identifier = 'Path_' + str(simfn) + '_ndim_' + str(ndim) + \
+identifier = 'Path_BilinearDiag_' + str(simfn) + '_ndim_' + str(ndim) + \
 			'_marg_' + str(marge) + '_lrate_' + str(lremb) + '_cost_' + \
 			str(margincostfunction) + '_reg_' + str(reg) + '_horn_' + \
 			str(useHornPaths) + '_useIntermedNodes_' + \
-			str(needIntermediateNodesOnPaths) + '_compop_' + str(compop)
+			str(needIntermediateNodesOnPaths) + '_compop_' + str(compop) + \
+			'_loadEmb_' + str(True if loademb else False)
 
 if rel == True:
 	identifier += '_REL'
