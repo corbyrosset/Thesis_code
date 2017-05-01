@@ -1,0 +1,89 @@
+2017-04-28 10:29:04,124 INFO: logger initialized for experiment identifier: Path_TransE_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True_batchsize10k_train1M
+2017-04-28 10:29:04,124 INFO: identifier: Path_TransE_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True_batchsize10k_train1M
+2017-04-28 10:29:04,124 INFO: models saved to path: /Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path_TransE/
+2017-04-28 10:29:04,124 INFO: DD{'ndim': 100, 'test_all': 5, 'Nsyn_rel': 1345, 'graph_files': ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'], 'nvalid': 1000, 'seed': 123, 'simfn': 'L1', 'nbatches': 10000, 'lrparam': 0.01, 'loademb': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL/best_valid_model.pkl', 'datapath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/', 'compop': 'compose_TransE', 'Nrel': 1345, 'rel': False, 'Nent': 14951, 'logger': <logging.RootLogger object at 0x110b9c050>, 'Nsyn': 14951, 'reg': 0.001, 'useHornPaths': False, 'dataset': 'FB15k', 'bestvalidMRR': -1, 'loadmodel': False, 'needIntermediateNodesOnPaths': False, 'savepath': '/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_Path_TransE/Path_TransE_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True_batchsize10k_train1M', 'marge': 1.0, 'margincostfunction': 'margincost', 'lremb': 0.01, 'identifier': 'Path_TransE_L1_ndim_100_marg_1.0_lrate_0.01_cost_margincost_reg_0.001_horn_False_useIntermedNodes_False_compop_compose_TransE_loadEmb_True_batchsize10k_train1M', 'ntrain': 1000, 'experiment_type': 'FB15k_path_exp', 'totepochs': 500, 'ntest': 1000}
+2017-04-28 10:29:04,126 INFO: initializing graph
+2017-04-28 10:29:06,260 INFO: loaded FB15k data in: 2.091625 seconds
+2017-04-28 10:29:06,263 INFO: loading length_2_numPaths_50000000_train.path file
+2017-04-28 10:29:59,171 INFO: loading length_2_numPaths_50000000_dev.path file
+2017-04-28 10:29:59,221 INFO: loading length_2_numPaths_50000000_test.path file
+2017-04-28 10:29:59,701 INFO: loading length_3_numPaths_50000000_train.path file
+2017-04-28 10:30:59,696 INFO: loading length_3_numPaths_50000000_dev.path file
+2017-04-28 10:30:59,759 INFO: loading length_3_numPaths_50000000_test.path file
+2017-04-28 10:31:00,277 DEBUG: FB15kexp_path: training paths: [(1000000, 2), (1000000, 3)], dev paths: [(1000, 2), (1000, 3)]
+2017-04-28 10:31:00,295 INFO: INITIALIZING EMBEDDINGS FROM MODEL
+2017-04-28 10:31:00,296 INFO: loading embeddings from /Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_TransE/BEST_TransE_L1_ndim_100_marg_1.5_lrate_0.01_cost_margincost_reg_0.01_REL/best_valid_model.pkl
+2017-04-28 10:31:05,492 DEBUG: loaded data, constructed model, constructed graph...
+2017-04-28 10:31:05,492 DEBUG: num epochs: 500
+2017-04-28 10:31:05,493 DEBUG: num batches per epoch: 10000
+2017-04-28 10:31:05,493 DEBUG: batchsize: 100
+2017-04-28 10:31:05,493 DEBUG: left and right entity ranking functions will rank a slot against 14951 competitors
+2017-04-28 10:31:05,493 INFO: --------------------------------------------------------------------------------------------------
+2017-04-28 10:31:05,493 INFO: Since we initialized embeddings with pre-trained vectors, establish baseline of their performance:
+2017-04-28 10:31:05,493 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 10:32:21,256 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 10:33:38,280 INFO: 	MEAN RANK >> valid: 632.7, train: 328.2
+2017-04-28 10:33:38,282 INFO: 		MEAN RANK TRAIN: Left: 313.9 Rel: 0.0 Right: 342.5
+2017-04-28 10:33:38,283 INFO: 		MEAN RANK VALID: Left: 640.2 Rel: 0.0 Right: 625.3
+2017-04-28 10:33:38,283 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.138
+2017-04-28 10:33:38,283 INFO: ======================== BEGIN TRAINING: length_2_numPaths_50000000 ========================
+2017-04-28 12:16:58,751 INFO: ----------------------------------------------------------------------------
+2017-04-28 12:16:58,753 INFO: EPOCH 1 (6200.47 seconds):
+2017-04-28 12:16:58,774 INFO: 	Average L2 norm of relation vector: 0.0604
+2017-04-28 12:16:58,776 INFO: 	COST >> 1.14 +/- 0.185, % updates Left: 36.0% Rel: 0.0% Right: 35.0%
+2017-04-28 13:08:19,482 INFO: ----------------------------------------------------------------------------
+2017-04-28 13:08:19,486 INFO: EPOCH 2 (3080.71 seconds):
+2017-04-28 13:08:19,488 INFO: 	Average L2 norm of relation vector: 0.05864
+2017-04-28 13:08:19,492 INFO: 	COST >> 0.921 +/- 0.13, % updates Left: 32.0% Rel: 0.0% Right: 29.0%
+2017-04-28 15:29:03,578 INFO: ----------------------------------------------------------------------------
+2017-04-28 15:29:03,583 INFO: EPOCH 3 (8444.091 seconds):
+2017-04-28 15:29:03,585 INFO: 	Average L2 norm of relation vector: 0.05667
+2017-04-28 15:29:03,589 INFO: 	COST >> 0.827 +/- 0.121, % updates Left: 27.0% Rel: 0.0% Right: 33.0%
+2017-04-28 16:40:35,608 INFO: ----------------------------------------------------------------------------
+2017-04-28 16:40:35,613 INFO: EPOCH 4 (4292.023 seconds):
+2017-04-28 16:40:35,615 INFO: 	Average L2 norm of relation vector: 0.05504
+2017-04-28 16:40:35,617 INFO: 	COST >> 0.777 +/- 0.118, % updates Left: 35.0% Rel: 0.0% Right: 27.0%
+2017-04-28 17:45:42,650 INFO: ----------------------------------------------------------------------------
+2017-04-28 17:45:42,656 INFO: EPOCH 5 (3907.038 seconds):
+2017-04-28 17:45:42,657 INFO: 	Average L2 norm of relation vector: 0.0537
+2017-04-28 17:45:42,660 INFO: 	COST >> 0.742 +/- 0.115, % updates Left: 34.0% Rel: 0.0% Right: 28.0%
+2017-04-28 17:45:42,662 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 17:46:59,378 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 17:48:17,214 INFO: 	MEAN RANK >> valid: 1994.0, train: 1762.3
+2017-04-28 17:48:17,215 INFO: 		MEAN RANK TRAIN: Left: 1889.4 Rel: 0.0 Right: 1635.2
+2017-04-28 17:48:17,216 INFO: 		MEAN RANK VALID: Left: 2056.0 Rel: 0.0 Right: 1932.1
+2017-04-28 17:48:17,216 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.032
+2017-04-28 17:48:17,216 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 17:49:35,378 INFO: 	NEW BEST TEST MR: 2062.0
+2017-04-28 17:49:35,379 INFO: 		Left MR: 2088.8 Rel MR: 0.0 Right MR: 2035.3
+2017-04-28 17:49:35,448 INFO: 	(ranking took 232.788 seconds)
+2017-04-28 19:02:38,291 INFO: ----------------------------------------------------------------------------
+2017-04-28 19:02:38,296 INFO: EPOCH 6 (4382.847 seconds):
+2017-04-28 19:02:38,297 INFO: 	Average L2 norm of relation vector: 0.05272
+2017-04-28 19:02:38,300 INFO: 	COST >> 0.721 +/- 0.113, % updates Left: 38.0% Rel: 0.0% Right: 28.0%
+2017-04-28 20:06:00,988 INFO: ----------------------------------------------------------------------------
+2017-04-28 20:06:00,993 INFO: EPOCH 7 (3802.693 seconds):
+2017-04-28 20:06:00,995 INFO: 	Average L2 norm of relation vector: 0.05203
+2017-04-28 20:06:00,998 INFO: 	COST >> 0.705 +/- 0.11, % updates Left: 43.0% Rel: 0.0% Right: 28.0%
+2017-04-28 21:14:50,490 INFO: ----------------------------------------------------------------------------
+2017-04-28 21:14:50,496 INFO: EPOCH 8 (4129.498 seconds):
+2017-04-28 21:14:50,498 INFO: 	Average L2 norm of relation vector: 0.0514
+2017-04-28 21:14:50,501 INFO: 	COST >> 0.692 +/- 0.109, % updates Left: 22.0% Rel: 0.0% Right: 32.0%
+2017-04-28 22:20:16,766 INFO: ----------------------------------------------------------------------------
+2017-04-28 22:20:16,771 INFO: EPOCH 9 (3926.269 seconds):
+2017-04-28 22:20:16,773 INFO: 	Average L2 norm of relation vector: 0.05097
+2017-04-28 22:20:16,776 INFO: 	COST >> 0.682 +/- 0.109, % updates Left: 28.0% Rel: 0.0% Right: 30.0%
+2017-04-28 23:27:01,568 INFO: ----------------------------------------------------------------------------
+2017-04-28 23:27:01,576 INFO: EPOCH 10 (4004.8 seconds):
+2017-04-28 23:27:01,578 INFO: 	Average L2 norm of relation vector: 0.05061
+2017-04-28 23:27:01,580 INFO: 	COST >> 0.674 +/- 0.109, % updates Left: 28.0% Rel: 0.0% Right: 36.0%
+2017-04-28 23:27:01,581 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 23:28:19,007 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 23:29:38,818 INFO: 	MEAN RANK >> valid: 2022.6, train: 1799.8
+2017-04-28 23:29:38,818 INFO: 		MEAN RANK TRAIN: Left: 1951.9 Rel: 0.0 Right: 1647.7
+2017-04-28 23:29:38,819 INFO: 		MEAN RANK VALID: Left: 2244.9 Rel: 0.0 Right: 1800.2
+2017-04-28 23:29:38,819 INFO: 		MEAN RECIPROCAL RANK VALID (L & R): 0.033
+2017-04-28 23:29:38,819 INFO: 	FilteredRanking: evaluating rank on 1000 triples
+2017-04-28 23:30:58,481 INFO: 	NEW BEST TEST MR: 2103.6
+2017-04-28 23:30:58,482 INFO: 		Left MR: 2161.2 Rel MR: 0.0 Right MR: 2046.0
+2017-04-28 23:30:58,623 INFO: 	(ranking took 237.042 seconds)

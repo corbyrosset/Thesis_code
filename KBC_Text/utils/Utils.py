@@ -405,16 +405,26 @@ def load_FB15k_Clueweb_data(state):
     lhs_train = load_file(data_path + 'clueweb_FB15k_filtered_%s-lhs.pkl' % datatyp)
     rhs_train = load_file(data_path + 'clueweb_FB15k_filtered_%s-rhs.pkl' % datatyp)
     rel_train = load_file(data_path + 'clueweb_FB15k_filtered_%s-rel.pkl' % datatyp)
-    text_train = np.array(cPickle.load(open(data_path + 'clueweb_FB15k_filtered_%s-sent.pkl' % datatyp)))[:state.numTextTrain]
-    rel_train = rel_train[-state.Nrel:, :]
-    ### TODO: reformat input data so you don't need to do '[0, :].tolist()'
-    state.logger.info('using %s out of %s available textual mentions' % (state.numTextTrain, np.size(lhs_train)))
-    idxl = expand_to_mat(convert2idx(lhs_train)[:state.numTextTrain], \
-            state.Nent)
-    idxr = expand_to_mat(convert2idx(rhs_train)[:state.numTextTrain], \
-            state.Nent)
-    idxo = expand_to_mat(convert2idx(rel_train)[:state.numTextTrain], \
-            state.Nrel)
+
+    if state.numTextTrain == 'all':
+        text_train = np.array(cPickle.load(open(data_path + 'clueweb_FB15k_filtered_%s-sent.pkl' % datatyp)))
+        rel_train = rel_train[-state.Nrel:, :]
+        ### TODO: reformat input data so you don't need to do '[0, :].tolist()'
+        state.logger.info('using all %s available textual mentions' % (np.size(lhs_train)))
+        idxl = expand_to_mat(convert2idx(lhs_train), state.Nent)
+        idxr = expand_to_mat(convert2idx(rhs_train), state.Nent)
+        idxo = expand_to_mat(convert2idx(rel_train), state.Nrel)
+    else:
+        text_train = np.array(cPickle.load(open(data_path + 'clueweb_FB15k_filtered_%s-sent.pkl' % datatyp)))[:state.numTextTrain]
+        rel_train = rel_train[-state.Nrel:, :]
+        ### TODO: reformat input data so you don't need to do '[0, :].tolist()'
+        state.logger.info('using %s out of %s available textual mentions' % (state.numTextTrain, np.size(lhs_train)))
+        idxl = expand_to_mat(convert2idx(lhs_train)[:state.numTextTrain], \
+                state.Nent)
+        idxr = expand_to_mat(convert2idx(rhs_train)[:state.numTextTrain], \
+                state.Nent)
+        idxo = expand_to_mat(convert2idx(rel_train)[:state.numTextTrain], \
+                state.Nrel)
 
     # datatyp = 'valid'
     # lhs_valid = load_file(data_path + 'clueweb_FB15k_%s-lhs.pkl' % datatyp)
@@ -529,14 +539,14 @@ def load_FB15k_path_data(state, graph):
             cntr = 0
             prevLen = None
             for pathStr in f:
-                if state.ntrain != 'all' and cntr >= 10000000:
+                if state.ntrain != 'all' and cntr >= 1000000:
                     break
                 (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
                 # print (targetRel, head, tail, pathEtns, pathRels)
                 if len(pathRels) <= 1 or (head == tail):
                     continue
-                if prevLen:
-                    assert prevLen == len(pathRels)
+                if prevLen and prevLen != len(pathRels):
+                    continue
                 trainRels.append(pathRels)
                 trainHeads.append(head)
                 trainTails.append(tail)
@@ -558,11 +568,14 @@ def load_FB15k_path_data(state, graph):
         with open(state.datapath + pathType + '_dev.path') as f:
             devRels, devPEnts, devHeads, devTails, devTRels = [], [], [], [], []
             cntr = 0
+            prevLen = None
             for pathStr in f:
                 if state.nvalid != 'all' and cntr >= state.nvalid:
                     break
                 (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
                 if len(pathRels) <= 1 or (head == tail):
+                    continue
+                if prevLen and prevLen != len(pathRels):
                     continue
                 devRels.append(pathRels)
                 devHeads.append(head)
@@ -571,6 +584,7 @@ def load_FB15k_path_data(state, graph):
                     devTRels.append(targetRel)
                 if pathEtns:
                     devPEnts.append(pathEtns)
+                prevLen = len(pathRels)
                 cntr += 1
             devPathRels.append(np.array(devRels, dtype=int))
             devPathHeads.append(np.array(devHeads, dtype=int))
@@ -584,11 +598,14 @@ def load_FB15k_path_data(state, graph):
         with open(state.datapath + pathType + '_test.path') as f:
             testRels, testPEnts, testHeads, testTails, testTrels = [], [], [], [], []
             cntr = 0
+            prevLen = None
             for pathStr in f:
                 if state.ntest != 'all' and cntr >= state.ntest:
                     break
                 (targetRel, head, tail, pathEtns, pathRels) = graph.stringToPath(pathStr)
                 if len(pathRels) <= 1 or (head == tail):
+                    continue
+                if prevLen and prevLen != len(pathRels):
                     continue
                 testRels.append(pathRels)
                 testHeads.append(head)
@@ -597,6 +614,7 @@ def load_FB15k_path_data(state, graph):
                     testTrels.append(targetRel)
                 if pathEtns:
                     testPEnts.append(pathEtns)
+                prevLen = len(pathRels)
                 cntr += 1
             testPathRels.append(np.array(testRels, dtype=int))
             testPathHeads.append(np.array(testHeads, dtype=int))

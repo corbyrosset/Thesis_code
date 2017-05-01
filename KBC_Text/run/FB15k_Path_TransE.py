@@ -17,7 +17,7 @@ ndim = 100 # dimension of both relationship and entity embeddings
 marge = 1.5     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
-nbatches = 100  # number of batches per epoch
+nbatches = 1000  # number of batches per epoch
 totepochs = 500 # number of epochs
 test_all = 3   # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
@@ -25,7 +25,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
 rel = False      # whether to also rank relations
-reg = 0.001       #{0.01, 0.1} if None, no regularization (= 0.0)
+reg = 0.002       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would
 ### take too long, and with these numbers we can at least compare to 
@@ -40,7 +40,7 @@ savepath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/outputs/FB15k_P
 datapath='/Users/corbinrosset/Dropbox/Arora/QA-code/src/KBC_Text/data/'
 
 ### these are prefixes to the train, dev, test splits of the .path files
-graph_files = ['length_2_numPaths_50000000', 'length_3_numPaths_50000000'] #['length_2_numPaths_50000000', 'length_3_numPaths_50000000']
+graph_files = ['length_3_numPaths_50000000', 'length_4_numPaths_50000000'] #['length_2_numPaths_50000000', 'length_3_numPaths_50000000']
 
 ### for these two flags, see graph/Graph.py
 useHornPaths = False 
@@ -59,7 +59,8 @@ identifier = 'Path_TransE_' + str(simfn) + '_ndim_' + str(ndim) + \
 			str(margincostfunction) + '_reg_' + str(reg) + '_horn_' + \
 			str(useHornPaths) + '_useIntermedNodes_' + \
 			str(needIntermediateNodesOnPaths) + '_compop_' + str(compop) + \
-			'_loadEmb_' + str(True if loademb else False)
+			'_loadEmb_' + str(True if loademb else False) + \
+			'_1kbatches_train1M_length3and4only'
 
 if rel == True:
 	identifier += '_REL'

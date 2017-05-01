@@ -25,7 +25,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = False   # whether to also rank relations
+rel = True   # whether to also rank relations
 reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 
@@ -43,7 +43,7 @@ experiment_type = 'FB15k_text'
 ### parameters specific for textual triples.
 textual_role = 'TextAsRegularizer' # {TextAsRegularizer, TextAsRelation, TextAsRelAndReg}
 marg_text = 5.0
-textsim = 'L2' # how to compare a textual relation to KB relation
+textsim = 'L1' # how to compare a textual relation to KB relation
 vocab_size = 354936 # size of vocabulary
 word_dim = 100 # dimension of each word embedding
 # word_file = '/Users/corbinrosset/Dropbox/Paragrams/paragrams-XXL-SL999.txt'
@@ -60,9 +60,11 @@ assert word_dim == ndim ### else can't compare sentence and entity embeddings
 ###############################################################################
 ###############################################################################
 identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
-		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + '_lrate_' + \
-		str(lremb) + '_cost_' + str(margincostfunction) + '_role_' + \
-		str(textual_role)
+		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + \
+		'_textsim_' + str(textsim) + '_lrate_' + str(lremb) + '_cost_' +\
+		 str(margincostfunction) + '_role_' + str(textual_role) + \
+		 '_gamma_' + str(gamma)
+
 if rel == True:
 	identifier += '_REL'
 
