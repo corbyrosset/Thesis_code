@@ -848,7 +848,7 @@ def Train1MemberTextAsRelAndReg(margincost, KBsim, textsim, KBembeddings, wordem
         binary_sent, sentinvleng, gamma]
 
     if rel: #In addition to ranking text to its relation, rank relation
-        simion = KBsim(leftop(lhs, relln), rightop(rhs, relrn))
+        simion = KBsim(leftop(lhs, relln), rhs)
         costo, outo = margincost(simi, simion, marge)
         cost += gamma*costo
 
@@ -1452,7 +1452,7 @@ class ModelE_model():
     def __init__(self, state):
         if not state.loadmodel:
             # operators, left and right ops are for distance function
-            self.leftop  = LayerBilinearDiag()
+            self.leftop  = LayerBilinearDiag() ### kind of hacky, the summing part of the dot product is introduced in the Sumsim() objective function in Operators; this is faster too. 
             self.rightop = LayerBilinearDiag()
             
             # Entity embeddings
@@ -1549,9 +1549,12 @@ class BilinearDiagExtended_model():
 
             ### similarity function of output of left and right ops
             
-            self.simfn = eval(state.simfn + 'sim') 
-            if 'pos_high' not in state.margincostfunction:
-                raise ValueError('BilinearDiagExtended must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+             
+            if state.simfn == 'Dot' and 'pos_high' not in state.margincostfunction:
+                raise ValueError('BilinearDiagExtended with Dot product similarity must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            elif 'pos_high' in state.margincostfunction:
+                raise ValueError('BilinearDiagExtended with L1 or L2  DISsimilarity must use the kind of margin that ranks positive triples lower than negative, e.g. margincost()')
+            self.simfn = eval(state.simfn + 'sim')
             self.margincost = eval(state.margincostfunction)
         else:
             try:
@@ -1626,10 +1629,11 @@ class DoubleLinear_model():
             assert type(self.embeddings) is list
             assert len(self.embeddings) == 3
 
-            ### similarity function of output of left and right ops
-            self.simfn = eval(state.simfn + 'sim')  
-            if 'pos_high' not in state.margincostfunction:
-                raise ValueError('DoubleLinear must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            if state.simfn == 'Dot' and 'pos_high' not in state.margincostfunction:
+                raise ValueError('BilinearDiagExtended with Dot product similarity must use the kind of margin that ranks positive triples higher than negative, e.g. margincost_pos_high')
+            elif 'pos_high' in state.margincostfunction:
+                raise ValueError('BilinearDiagExtended with L1 or L2  DISsimilarity must use the kind of margin that ranks positive triples lower than negative, e.g. margincost()')
+            self.simfn = eval(state.simfn + 'sim')
             self.margincost = eval(state.margincostfunction)
         else:
             try:

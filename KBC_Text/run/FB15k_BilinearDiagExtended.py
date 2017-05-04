@@ -10,12 +10,12 @@ from KBC_Text.evaluation.evaluate_KBC import RankingEval, RankingEvalFil
 ###############################################################################
 
 simfn = 'L1'
-margincostfunction = 'margincost_pos_high' ### from top of Operations
-reverseRanking = True # rank from best -> worst <=> high to low score
+margincostfunction = 'margincost' ### from top of Operations
+reverseRanking = False # rank from best -> worst <=> high to low score
 
-ndim = 200 # dimension of both relationship and entity embeddings
+ndim = 300 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
-marge = 0.2     # {0.5, 1.0} 
+marge = 0.75     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
@@ -25,7 +25,7 @@ Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
 				# a triple with missing relationship
-rel = False      
+rel = True      
 reg = 0.01       #{0.01, 0.1} if None, no regularization (= 0.0)
 
 ### although these should be higher numbers (preferably 'all'), it would
@@ -64,15 +64,15 @@ launch(identifier, experiment_type, logger, \
 	test_all= test_all, Nsyn=Nsyn, Nsyn_rel=Nsyn_rel, \
 	savepath= savepath + str(identifier), reg=reg, \
 	ntrain=ntrain, nvalid=nvalid, ntest=ntest, dataset='FB15k', rel=rel, \
-	datapath=datapath)
+	datapath=datapath, reverseRanking=reverseRanking)
 
 ### evaluate on test data, always set neval to 'all' to rank all test triples
 ### this will take a couple hours to run...
 
-RankingEval(datapath, logger, reverseRanking=True, neval=neval, \
+RankingEval(datapath, logger, reverseRanking=reverseRanking, neval=neval, \
 	loadmodel= savepath + str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
-RankingEvalFil(datapath, logger, reverseRanking=True, neval=neval, \
+RankingEvalFil(datapath, logger, reverseRanking=reverseRanking, neval=neval, \
 	loadmodel=savepath+str(identifier) + '/best_valid_model.pkl', \
 	Nsyn=Nsyn, rel=rel, Nsyn_rel=Nsyn_rel)
 # send_notification(identifier, logFile)

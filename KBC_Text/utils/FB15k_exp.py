@@ -286,7 +286,7 @@ def FB15kexp_text(state):
             if state.bestvalidMRR == -1 or state.validMRR > state.bestvalidMRR:
                 terl, terr, ter_rel = FilteredRankingScoreIdx(log, \
                 model.ranklfunc, model.rankrfunc, testlidx, testridx, testoidx, true_triples, reverseRanking, rank_rel=model.rankrelfunc)
-
+                failedImprovements = 3
                 state.bestvalidMRR = state.validMRR
                 state.besttrain = state.train
                 state.besttest = np.mean(terl + terr)
@@ -648,7 +648,7 @@ def FB15kexp(state):
         reverseRanking = True
     elif state.op == 'BilinearDiagExtended':
         model = BilinearDiagExtended_model(state)
-        reverseRanking = True
+        reverseRanking = state.reverseRanking # could be either
     elif state.op == 'Baseline1':
         model = Baseline1_model(state)
         reverseRanking = True
@@ -657,7 +657,7 @@ def FB15kexp(state):
         reverseRanking = True
     elif state.op == 'DoubleLinear':
         model = DoubleLinear_model(state)
-        reverseRanking = True
+        reverseRanking = state.reverseRanking
     else:
         raise ValueError('Must supply valid model type')
     assert hasattr(model, 'trainfunc')
@@ -820,7 +820,7 @@ def launch(identifier, experiment_type, logger, datapath='data/', \
     loademb=False, op='Unstructured', simfn='Dot', ndim=50, marge=1., \
     lremb=0.1, lrparam=1., nbatches=100, totepochs=2000, test_all=1, \
     ntrain = 'all', nvalid = 'all', ntest = 'all', seed=123, \
-    savepath='', rel=False):
+    savepath='', rel=False, reverseRanking=False):
 
     # Argument of the experiment script
     state = DD()
@@ -849,6 +849,7 @@ def launch(identifier, experiment_type, logger, datapath='data/', \
     state.simfn = simfn
     state.ndim = ndim # dimension of both relationship and entity embeddings
     state.marge = marge # margin used in ranking loss
+    state.reverseRanking = reverseRanking
     # state.rhoE = rhoE
     # state.rhoL = rhoL
     state.lremb = lremb     # learning rate for embeddings

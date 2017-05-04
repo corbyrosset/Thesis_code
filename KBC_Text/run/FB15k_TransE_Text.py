@@ -15,12 +15,12 @@ simfn = 'L1'
 margincostfunction = 'margincost' ### from top of Operations
 ndim = 100 # dimension of both relationship and entity embeddings
 	      # {10, 50, 100, 150}
-marge = 2.0     # {0.5, 1.0}
+marge = 1.0     # {0.5, 1.0}
 lremb = 0.01    # {0.01, 0.001}
 lrparam = 0.01  # {0.01, 0.001}
 nbatches = 100  # number of batches per epoch
 totepochs = 300  # number of epochs should be 500
-test_all = 10    # number of epochs between ranking on validation sets again
+test_all = 3    # number of epochs between ranking on validation sets again
 Nsyn = 14951    # number of entities against which to rank a given test
 			    ### TODO: doesn't work if < 14951
 Nsyn_rel = 1345 # only matters if rel = True, number of relations to rank for 
@@ -50,9 +50,9 @@ word_dim = 100 # dimension of each word embedding
 word_file = '/Users/corbinrosset/Dropbox/GloVe/glove.6B/glove.6B.100d.txt'
 	# path to file containing word embeddings
 vocab = '/Users/corbinrosset/Dropbox/Arora/QA-code/src/process_clueweb/dictionary.txt'
-gamma = 1.0 #{0.01, 0.1, 1} weight to use for cost of textual triple
+gamma = 0.1 #{0.01, 0.1, 1} weight to use for cost of textual triple
 # assert ndim == word_dim
-numTextTrain = 1000000 # num textual triples to use in each epoch of training
+numTextTrain = 'all' # num textual triples to use in each epoch of training
 					   # maximum is 10413174
 # for the word-averaging model of sentence embeddings, 
 assert word_dim == ndim ### else can't compare sentence and entity embeddings
@@ -63,7 +63,7 @@ identifier = 'TransE_Text_' + str(simfn) + '_ndim_' + str(ndim) \
 		+ '_marg_' + str(marge) + '_textmarg_' + str(marg_text) + \
 		'_textsim_' + str(textsim) + '_lrate_' + str(lremb) + '_cost_' +\
 		 str(margincostfunction) + '_role_' + str(textual_role) + \
-		 '_gamma_' + str(gamma)
+		 '_gamma_' + str(gamma) + '_AllCluewebData_'
 
 if rel == True:
 	identifier += '_REL'
