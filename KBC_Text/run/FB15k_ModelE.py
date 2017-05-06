@@ -13,7 +13,7 @@ simfn = 'Sum' ### cannot change this for model E
 margincostfunction = 'margincost_pos_high' ### from top of Operations
 reverseRanking = True # rank from best -> worst <=> high to low score
 
-ndim = 100 # dimension of both relationship and entity embeddings
+ndim = 200 # dimension of both relationship and entity embeddings
 	       # {10, 50, 100, 150, 200}
 marge = 1.0     # {0.5, 1.0} 
 lremb = 0.01    # {0.01, 0.001}
